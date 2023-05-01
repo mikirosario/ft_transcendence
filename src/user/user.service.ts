@@ -33,10 +33,27 @@ export class UserService {
 			return user;
 		}
 		catch (error) {
-			if (error instanceof PrismaClientKnownRequestError)
+			if (error instanceof PrismaClientKnownRequestError) {
 				// https://www.prisma.io/docs/reference/api-reference/error-reference
 				// P2025 Record not found
 				ThrowHttpException(error, 'User not found');
+			}
+		}
+	}
+	async deleteUser(userId: number) {
+		try {
+			const user = await this.prisma.user.delete({
+				where: {
+					id: userId
+				}
+			});
+			delete user.hash;
+			return user;
+		}
+		catch (error) {
+			if (error instanceof PrismaClientKnownRequestError) {
+				ThrowHttpException(error, 'User not found');
+			}
 		}
 	}
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Req, Patch, Body, NotFoundException } from "@nestjs/common";
+import { Controller, Get, UseGuards, Req, Patch, Body, NotFoundException, Delete } from "@nestjs/common";
 import { JwtGuard } from "../auth/guard";
 import { GetJwt } from "../auth/decorator";
 import { EditUserDto } from "./dto";
@@ -16,5 +16,10 @@ export class UserController {
 	@Patch('me')
 	async editUser(@GetJwt('sub') userId: number, @Body() dto: EditUserDto) {
 		return this.userService.editUser(userId, dto);
+	}
+
+	@Delete('me')
+	async deleteUser(@GetJwt('sub') userId: number) {
+		return this.userService.deleteUser(userId);
 	}
 }
