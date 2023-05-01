@@ -1,7 +1,6 @@
-import { Controller, Get, UseGuards, Req, Patch, Body } from "@nestjs/common";
-import { User } from "@prisma/client";
+import { Controller, Get, UseGuards, Req, Patch, Body, NotFoundException } from "@nestjs/common";
 import { JwtGuard } from "../auth/guard";
-import { GetUser } from "../auth/decorator";
+import { GetJwt } from "../auth/decorator";
 import { EditUserDto } from "./dto";
 import { UserService } from "./user.service";
 
@@ -10,12 +9,12 @@ import { UserService } from "./user.service";
 export class UserController {
 	constructor(private userService: UserService) { }
 	@Get('me')
-	getMe(@GetUser() user: User) {
-		return user;
+	async getMe(@GetJwt('sub') userId: number) {
+		return this.userService.getMe(userId);
 	}
 
 	@Patch('me')
-	editUser(@GetUser('id') userId: number, @Body() dto: EditUserDto) {
+	async editUser(@GetJwt('sub') userId: number, @Body() dto: EditUserDto) {
 		return this.userService.editUser(userId, dto);
 	}
 }

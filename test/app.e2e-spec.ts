@@ -56,6 +56,11 @@ describe('App e2e', () => {
 			password: '123',
 			nick: 'testuser'
 		}
+		const dto2: AuthDto = {
+			email: 'test2@testapp.com',
+			password: '321',
+			nick: 'testuser2'
+		}
 		describe('Signup', () => {
 			it('should throw if no body', () => {
 				return pactum
@@ -99,6 +104,13 @@ describe('App e2e', () => {
 					.spec()
 					.post('/auth/signup')
 					.withBody(dto)
+					.expectStatus(201);
+			});
+			it('should sign up', () => {
+				return pactum
+					.spec()
+					.post('/auth/signup')
+					.withBody(dto2)
 					.expectStatus(201);
 			});
 		});
@@ -148,6 +160,14 @@ describe('App e2e', () => {
 					.expectStatus(200)
 					.stores('userAt', 'access_token');
 			});
+			it('should sign in', () => {
+				return pactum
+					.spec()
+					.post('/auth/signin')
+					.withBody(dto2)
+					.expectStatus(200)
+					.stores('userAt2', 'access_token');
+			});
 		});
 
 	});
@@ -163,11 +183,16 @@ describe('App e2e', () => {
 					.expectStatus(200)
 			});
 		});
+		describe('DeleteUser', () => {
+			it.todo('should delete user');
+			it.todo('should return bad request 400');
+		})
 		describe('EditUser', () => {
 			const dto: EditUserDto = {
 				firstName: "Miki",
 				email: "miki@42mars.com"
 			}
+			it.todo('should return 404');
 			it('should edit user', () => {
 				return pactum
 					.spec()
