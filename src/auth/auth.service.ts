@@ -5,6 +5,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AuthDto } from "./dto";
 import * as argon from "argon2"
+import { ThrowHttpException } from "../utils/error-handler";
 
 @Injectable()
 export class AuthService {
@@ -21,12 +22,12 @@ export class AuthService {
 			},
 		});
 		//if user does not exist, throw exception
-		if (!user) throw new ForbiddenException('Credentials incorrect');
+		if (!user) ThrowHttpException(new ForbiddenException, 'Credentials incorrect');
 
 		//compare passwords
 		const pwMatches = await argon.verify(user.hash, dto.password);
 		//if password does not match, throw exception
-		if (!pwMatches) throw new ForbiddenException('Credentials incorrect')
+		if (!pwMatches) ThrowHttpException(new ForbiddenException, 'Credentials incorrect');
 		//send back the user
 		return this.signToken(user.id, user.email);
 	}
@@ -48,9 +49,7 @@ export class AuthService {
 			if (error instanceof PrismaClientKnownRequestError) {
 				// https://www.prisma.io/docs/reference/api-reference/error-reference
 				// P2002 "Unique constraint failed on the {constraint}"
-				if (error.code === 'P2002') {
-					throw new ForbiddenException('Credentials taken');
-				}
+				ThrowHttpException(error, 'Credentials taken');
 			}
 			throw error;
 		}

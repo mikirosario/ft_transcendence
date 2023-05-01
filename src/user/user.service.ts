@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from '../prisma/prisma.service';
+import { ThrowHttpException } from '../utils/error-handler';
 import { EditUserDto } from './dto';
 
 @Injectable()
@@ -13,7 +14,7 @@ export class UserService {
 			}
 		});
 		if (user === null) {
-			throw new NotFoundException('User not found');
+			ThrowHttpException(new NotFoundException, 'User not found');
 		}
 		delete user.hash;
 		return user;
@@ -32,8 +33,10 @@ export class UserService {
 			return user;
 		}
 		catch (error) {
-			if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025')
-				throw new NotFoundException('User not found');
+			if (error instanceof PrismaClientKnownRequestError)
+				// https://www.prisma.io/docs/reference/api-reference/error-reference
+				// P2025 Record not found
+				ThrowHttpException(error, 'User not found');
 		}
 	}
 }
