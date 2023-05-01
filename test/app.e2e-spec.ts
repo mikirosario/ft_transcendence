@@ -56,7 +56,7 @@ describe('App e2e', () => {
 			password: '123',
 			nick: 'testuser'
 		}
-		const dto2: AuthDto = {
+		const dtoDel: AuthDto = {
 			email: 'test2@testapp.com',
 			password: '321',
 			nick: 'testuser2'
@@ -110,7 +110,7 @@ describe('App e2e', () => {
 				return pactum
 					.spec()
 					.post('/auth/signup')
-					.withBody(dto2)
+					.withBody(dtoDel)
 					.expectStatus(201);
 			});
 		});
@@ -164,35 +164,39 @@ describe('App e2e', () => {
 				return pactum
 					.spec()
 					.post('/auth/signin')
-					.withBody(dto2)
+					.withBody(dtoDel)
 					.expectStatus(200)
-					.stores('userAt2', 'access_token');
+					.stores('userAtDel', 'access_token');
 			});
 		});
 
 	});
 	describe('User', () => {
-		describe('GetMe', () => {
-			it('should get current user', () => {
+		describe('DeleteUser', () => {
+			it('should delete user', () => {
 				return pactum
 					.spec()
-					.get('/users/me')
+					.delete('/users/me')
 					.withHeaders({
-						Authorization: 'Bearer $S{userAt}',
+						Authorization: 'Bearer $S{userAtDel}',
 					})
 					.expectStatus(200)
 			});
-		});
-		describe('DeleteUser', () => {
-			it.todo('should delete user');
-			it.todo('should return bad request 400');
+			it('should throw 404 if user not found', () => {
+				return pactum
+					.spec()
+					.delete('/users/me')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAtDel}',
+					})
+					.expectStatus(404)
+			});
 		})
 		describe('EditUser', () => {
 			const dto: EditUserDto = {
 				firstName: "Miki",
 				email: "miki@42mars.com"
 			}
-			it.todo('should return 404');
 			it('should edit user', () => {
 				return pactum
 					.spec()
@@ -204,6 +208,36 @@ describe('App e2e', () => {
 					.expectStatus(200)
 					.expectBodyContains(dto.firstName)
 					.expectBodyContains(dto.email);
+			});
+			it('should throw 404 if user not found', () => {
+				return pactum
+					.spec()
+					.patch('/users/me')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAtDel}',
+					})
+					.withBody(dto)
+					.expectStatus(404)
+			});
+		});
+		describe('GetMe', () => {
+			it('should get current user', () => {
+				return pactum
+					.spec()
+					.get('/users/me')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAt}',
+					})
+					.expectStatus(200)
+			});
+			it('should throw 404 if user not found', () => {
+				return pactum
+					.spec()
+					.get('/users/me')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAtDel}',
+					})
+					.expectStatus(404)
 			});
 		});
 	});
