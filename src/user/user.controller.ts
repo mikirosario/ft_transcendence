@@ -1,4 +1,5 @@
 import { Controller, Get, UseGuards, Req, Patch, Body, NotFoundException, Delete } from "@nestjs/common";
+import { ApiBody, ApiBearerAuth } from "@nestjs/swagger"
 import { JwtGuard } from "../auth/guard";
 import { GetJwt } from "../auth/decorator";
 import { EditUserDto } from "./dto";
@@ -6,6 +7,7 @@ import { UserService } from "./user.service";
 
 @UseGuards(JwtGuard)
 @Controller('users')
+@ApiBearerAuth()
 export class UserController {
 	constructor(private userService: UserService) { }
 	@Get('me')
@@ -14,6 +16,7 @@ export class UserController {
 	}
 
 	@Patch('me')
+	@ApiBody({ type: EditUserDto })
 	async editUser(@GetJwt('sub') userId: number, @Body() dto: EditUserDto) {
 		return this.userService.editUser(userId, dto);
 	}

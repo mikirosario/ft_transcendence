@@ -6,6 +6,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AuthDto } from "./dto";
 import * as argon from "argon2"
 import { ThrowHttpException } from "../utils/error-handler";
+import { SignupResponseDto } from "./dto/signup-response.dto";
 
 @Injectable()
 export class AuthService {
@@ -47,6 +48,7 @@ export class AuthService {
 		}
 		catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
+				console.log(error.code);
 				// https://www.prisma.io/docs/reference/api-reference/error-reference
 				// P2002 "Unique constraint failed on the {constraint}"
 				ThrowHttpException(error, 'Credentials taken');
@@ -55,7 +57,7 @@ export class AuthService {
 		}
 	}
 
-	async signToken(userId: number, email: string): Promise<{ access_token: string }> {
+	async signToken(userId: number, email: string): Promise<SignupResponseDto> {
 		const payload = {
 			sub: userId,
 			email,

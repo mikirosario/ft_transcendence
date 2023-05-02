@@ -15,9 +15,11 @@ export function ThrowHttpException(error: PrismaErrorOrHttpException, message: s
 	switch (error.code) {
 		case 'P2002': // Unique constraint violation
 			throw new BadRequestException(message);
+		case 'P2021': // Table does not exist
+			throw new NotFoundException(`Table not found: ${error.meta?.table}`);
 		case 'P2025': // Record not found
 			throw new NotFoundException(message);
 		default:
-			throw new InternalServerErrorException();
+			throw new BadRequestException(error.message);
 	}
 }
