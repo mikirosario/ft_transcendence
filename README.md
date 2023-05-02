@@ -41,6 +41,9 @@ $ npm run db:dev:restart
 # monitor database
 $ npx prisma studio
 
+# new migration
+$ npx prisma migrate dev
+
 # raise server in watch mode (ctrl-c to exit)
 $ npm run start:dev
 
