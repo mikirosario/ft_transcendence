@@ -48,7 +48,6 @@ export class AuthService {
 		}
 		catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				console.log(error.code);
 				// https://www.prisma.io/docs/reference/api-reference/error-reference
 				// P2002 "Unique constraint failed on the {constraint}"
 				ThrowHttpException(error, 'Credentials taken');
