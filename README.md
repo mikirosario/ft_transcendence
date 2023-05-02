@@ -33,6 +33,20 @@ This service will enable Pong enthusiasts to play each other online in real time
 ```bash
 $ npm install
 ```
+## Dev Commands
+```bash
+# restart database (stop, delete, build, start and deploy migrations)
+$ npm run db:dev:restart
+
+# monitor database
+$ npx prisma studio
+
+# raise server in watch mode (ctrl-c to exit)
+$ npm run start:dev
+
+# end to end testing (close server first)
+$ npm run test:e2e
+```
 
 ## Running the app
 
