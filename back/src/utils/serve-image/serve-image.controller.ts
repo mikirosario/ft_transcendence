@@ -13,7 +13,7 @@ export class ServeImageController {
 	constructor(private serveImageService: ServeImageService) { }
 
 	@Get('avatars/:filename')
-	serveImage(@GetJwt('sub') userId: number, @Param('filename') filename: string, @Res() res: Response) {
-		return this.serveImageService.serveImage(userId, filename, res)
+	serveImage(@GetJwt('sub') userId: number, @Param('filename') fileName: string, @Res() res: Response) {
+		return this.serveImageService.serveImage(userId, fileName, res)
 	}
 }
