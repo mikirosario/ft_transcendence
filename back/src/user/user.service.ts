@@ -182,7 +182,8 @@ export class UserService {
 		if (filePath && filePath !== this.config.get('DEFAULT_AVATAR_URI'))
 		{
 			fs.unlink(filePath, (err) => {
-				if (err) throw err;
+				if (err)
+					console.log(err);
 			})
 		}
 	}
