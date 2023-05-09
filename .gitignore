@@ -1,3 +1,6 @@
+# Custom for backend
+/back/files
+
 # OS
 .DS_Store
 
