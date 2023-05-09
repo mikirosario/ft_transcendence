@@ -1,3 +1,7 @@
+# compiled output
+*/dist
+*/node_modules
+
 # Custom for backend
 
 #Exclude all uploads, except for default avatar

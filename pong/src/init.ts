@@ -1,6 +1,6 @@
-import { resizeCanvas } from "./utils.js";
 import { fillCanvas } from "./effects.js";
 import { ColorConstants } from "./colors.constants.js"
+import { AspectRatio } from "./types.js";
 
 export function getGameCanvas(canvasElement: HTMLElement | null): HTMLCanvasElement {
     if (!canvasElement || !(canvasElement instanceof HTMLCanvasElement)) { 
@@ -23,9 +23,7 @@ export async function fetchColorConstants(): Promise<ColorConstants> {
     return colorConstants;
 }
 
-export function initGameCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, aspectRatio: number, canvasColor: string) {
-    resizeCanvas(canvas, aspectRatio);
-    window.addEventListener('resize', () => {
-        resizeCanvas(canvas, aspectRatio);
-    })
+export function initGameCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, aspectRatio: AspectRatio, canvasColor: string) {
+    canvas.width = aspectRatio.width;
+    canvas.height = aspectRatio.height;
 }
