@@ -45,7 +45,7 @@ export class UserController {
 	@Post('profile')
 	@UseInterceptors(FileInterceptor('file', {
 		storage: diskStorage({
-			destination: './files/avatars',
+			destination: './uploads/avatars',
 			filename: (req, file, cb) => {
 				const filename: string = uuidv4();
 				const path = require('path');
