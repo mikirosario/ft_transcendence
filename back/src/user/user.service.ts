@@ -45,13 +45,17 @@ export class UserService {
 			}
 		}
 	}
+
 	async deleteUser(userId: number) {
+
 		try {
 			const user = await this.prisma.user.delete({
 				where: {
 					id: userId
 				}
 			});
+			
+			this.removeAvatar(user.avatarUri);
 			delete user.hash;
 			return user;
 		}
