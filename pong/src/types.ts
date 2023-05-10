@@ -176,8 +176,7 @@ export class Pong
         this.clearScreen();
         this.drawables.forEach((drawable) => {
             drawable.draw(this.ctx);
-        requestAnimationFrame(this.renderFrame)
-    })
-}
-
+        })
+        requestAnimationFrame(this.renderFrame);
+    }
 }
