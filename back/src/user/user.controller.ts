@@ -24,6 +24,9 @@ export class UserController {
 		return this.userService.editUser(userId, dto);
 	}
 
+	/*
+	 * Delete user and all its data (avatar, ...)
+	*/
 	@Delete('me')
 	async deleteUser(@GetJwt('sub') userId: number) {
 		return this.userService.deleteUser(userId);

@@ -46,6 +46,9 @@ export class UserService {
 		}
 	}
 
+	/*
+	 * Delete user and all its data (avatar, ...)
+	*/
 	async deleteUser(userId: number) {
 
 		try {
