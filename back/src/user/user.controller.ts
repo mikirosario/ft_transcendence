@@ -1,12 +1,11 @@
-import { Controller, Get, UseGuards, Req, Patch, Body, NotFoundException, Delete, Post, UseInterceptors, UploadedFile, Put } from "@nestjs/common";
+import { Controller, Get, UseGuards, Patch, Body, Delete, Post, UseInterceptors, UploadedFile, Put } from "@nestjs/common";
 import { ApiBody, ApiBearerAuth } from "@nestjs/swagger"
 import { JwtGuard } from "../auth/guard";
 import { GetJwt } from "../auth/decorator";
 import { EditUserDto, UserProfileDto } from "./dto";
 import { UserService } from "./user.service";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { diskStorage } from "multer";
-import { v4 as uuidv4 } from 'uuid';
+import { saveProfileImageToStorage } from "../utils/image-storage"
 
 
 @UseGuards(JwtGuard)
@@ -43,17 +42,7 @@ export class UserController {
 	 * Set / update user profile picture
 	*/
 	@Post('profile')
-	@UseInterceptors(FileInterceptor('file', {
-		storage: diskStorage({
-			destination: './uploads/avatars',
-			filename: (req, file, cb) => {
-				const filename: string = uuidv4();
-				const path = require('path');
-				const extension: string = path.parse(file.originalname).ext;
-				cb(null, filename + extension)
-			}
-		})
-	}))
+	@UseInterceptors(FileInterceptor('file', saveProfileImageToStorage))
 	async uploadProfilePicture(@GetJwt('sub') userId: number, @UploadedFile() file?: Express.Multer.File) {
 		return this.userService.uploadProfilePicture(userId, file);
 	}

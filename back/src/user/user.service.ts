@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from '../prisma/prisma.service';
 import { ThrowHttpException } from '../utils/error-handler';
 import { EditUserDto, UserProfileDto } from "./dto";
 import { ConfigService } from "@nestjs/config";
+import { join } from 'path';
 import * as fs from 'fs';
 
 
@@ -92,6 +93,12 @@ export class UserService {
 	 * Set / update user profile picture
 	*/
 	async uploadProfilePicture(userId: number, file: Express.Multer.File) {
+		const fileName = file?.filename;
+
+		if (!fileName)
+		{
+			ThrowHttpException(new BadRequestException, 'File must be a png, jpg/jpeg.');
+		}
 
 		const user = await this.prisma.user.findUnique({
 			where: {
@@ -102,7 +109,7 @@ export class UserService {
 		if (user === null) {
 			if (file)
 			{
-				this.removeAvatar(file.path)
+				this.removeAvatar(file.filename)
 			}
 			
 			ThrowHttpException(new NotFoundException, 'User not found');
@@ -116,7 +123,7 @@ export class UserService {
 					id: userId
 				},
 				data: {
-					avatarUri: file.path
+					avatarUri: file.filename
 				},
 			});
 
@@ -157,7 +164,7 @@ export class UserService {
 					id: userId
 				},
 				data: {
-					avatarUri: this.config.get('DEFAULT_AVATAR_URI')
+					avatarUri: this.config.get('DEFAULT_AVATAR')
 				},
 			});
 
@@ -178,10 +185,10 @@ export class UserService {
 	/*
 	 * Remove avatar file
 	*/
-	async removeAvatar(filePath: string) {
-		if (filePath && filePath !== this.config.get('DEFAULT_AVATAR_URI'))
+	async removeAvatar(fileName: string) {
+		if (fileName && fileName !== this.config.get('DEFAULT_AVATAR'))
 		{
-			fs.unlink(filePath, (err) => {
+			fs.unlink(join(__dirname, '../../', this.config.get('PATH_AVATARS'), fileName), (err) => {
 				if (err)
 					console.log(err);
 			})
