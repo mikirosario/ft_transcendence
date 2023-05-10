@@ -76,6 +76,42 @@ export class Circle implements IDrawable
     }
 }
 
+export class VerticalDashedLine implements IDrawable
+{
+    private transform: Transform;
+    private width: number;
+    private height: number;
+    private dashHeight: number;
+    private color: string;
+
+    constructor(transform: Transform, color: string, width: number, height: number, dashHeight: number)
+    {
+        this.transform = transform;
+        this.color = color;
+        this.width = width;
+        this.height = height;
+        this.dashHeight = dashHeight;
+    }
+
+    private getUpperLeftCorner(): Position
+    {
+        let halfWidth = Math.round(this.width * 0.5);
+        let halfHeight = Math.round(this.height * 0.5);
+
+        return { x: this.transform.position.x - halfWidth, y: this.transform.position.y - halfHeight};
+    }
+
+    public draw(ctx: CanvasRenderingContext2D): void
+    {
+        let upperLeftCornerPosition = this.getUpperLeftCorner();
+        for (let i = 0; i <= this.height; i+=15)
+        {
+            ctx.fillStyle = "black";
+            ctx.fillRect(upperLeftCornerPosition.x, upperLeftCornerPosition.y + i, this.width, this.dashHeight);
+        }
+    }
+}
+
 export class Text
 {
     public transform: Transform;
@@ -104,6 +140,7 @@ export class Pong
     private ctx: CanvasRenderingContext2D;
     private aspectRatio: AspectRatio;
     private backgroundColor: string;
+    private net: VerticalDashedLine;
     private leftPaddle: Rectangle;
     private rightPaddle: Rectangle;
     private ball: Circle;
@@ -119,10 +156,11 @@ export class Pong
         this.ctx = context;
         this.aspectRatio = aspectRatio;
         this.backgroundColor = backgroundColor;
+        this.net = new VerticalDashedLine(new Transform( {x: Math.round(this.canvas.width * 0.5), y: Math.round(this.canvas.height * 0.5) }, 1), "black", 5, this.canvas.height, 10);
         this.leftPaddle = new Rectangle(new Transform({ x: 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100);
         this.rightPaddle = new Rectangle(new Transform({ x: this.canvas.width - 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100);
         this.ball = new Circle(new Transform({ x: Math.round(this.canvas.width * 0.5), y: Math.round(this.canvas.height * 0.5) }, 1), "white", 10);
-        this.drawables = [ this.leftPaddle, this.rightPaddle, this.ball ];
+        this.drawables = [ this.net, this.leftPaddle, this.rightPaddle, this.ball ];
         this.renderFrame = this.renderFrame.bind(this);
         requestAnimationFrame(this.renderFrame);
     }

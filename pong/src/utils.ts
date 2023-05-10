@@ -1,3 +1,5 @@
+import { Transform } from "./types";
+
 const errorMessage = document.getElementById('error-message');
 export function showError(message: string) {
   if (errorMessage)
@@ -11,4 +13,3 @@ export function showError(message: string) {
     console.error('Error message element not found.');
   }
 }
-
