@@ -12,6 +12,16 @@ export class ServeImageService {
 	constructor(private prisma: PrismaService, private config: ConfigService) { }
 
 	async serveImage(userId: number, fileName: string, res: Response) {
+
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: userId,
+			}
+		});
+		if (user === null) {
+			ThrowHttpException(new NotFoundException, 'User not found');
+		}
+		
 		const filePath = join(__dirname, '../../../', this.config.get('PATH_AVATARS'), fileName);
 		if (fs.existsSync(filePath)) {
 			return res.sendFile(filePath);
