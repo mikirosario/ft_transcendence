@@ -116,21 +116,33 @@ export class Text
 {
     public transform: Transform;
     public text: string;
-    public font: string = "75px fantasy";
+    public font: string;
+    public fontSize: number;
     public color: string;
 
-    constructor(transform: Transform, text: string, color: string, radius: number)
+    constructor(transform: Transform, text: string, color: string, fontSize: number)
     {
         this.transform = transform;
         this.text = text;
         this.color = color;
+        this.fontSize = fontSize;
+        this.font = `${fontSize}px press_start_2p, monospace`;
+    }
+
+    private getUpperLeftCorner(): Position
+    {
+        let halfWidth = Math.round(this.fontSize * 0.5);
+        let halfHeight = Math.round(this.fontSize * 0.5);
+
+        return { x: this.transform.position.x - halfWidth, y: this.transform.position.y - halfHeight};
     }
 
     public draw(ctx: CanvasRenderingContext2D): void
     {
+        let upperLeftCornerPosition = this.getUpperLeftCorner();
         ctx.fillStyle = this.color;
         ctx.font = this.font;
-        ctx.fillText(this.text, this.transform.position.x, this.transform.position.y);
+        ctx.fillText(this.text, upperLeftCornerPosition.x, this.transform.position.y);
     }
 }
 
@@ -144,6 +156,8 @@ export class Pong
     private leftPaddle: Rectangle;
     private rightPaddle: Rectangle;
     private ball: Circle;
+    private leftScore: Text;
+    private rightScore: Text;
     private drawables: IDrawable[];
 
     constructor(
@@ -160,7 +174,9 @@ export class Pong
         this.leftPaddle = new Rectangle(new Transform({ x: 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100);
         this.rightPaddle = new Rectangle(new Transform({ x: this.canvas.width - 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100);
         this.ball = new Circle(new Transform({ x: Math.round(this.canvas.width * 0.5), y: Math.round(this.canvas.height * 0.5) }, 1), "white", 10);
-        this.drawables = [ this.net, this.leftPaddle, this.rightPaddle, this.ball ];
+        this.leftScore = new Text(new Transform({ x: Math.round(this.canvas.width * 0.25), y: Math.round(this.canvas.height * 0.2) }, 1), "0", "white", 75);
+        this.rightScore = new Text(new Transform({ x: Math.round(this.canvas.width * 0.75), y: Math.round(this.canvas.height * 0.2) }, 1), "0", "white", 75);
+        this.drawables = [ this.net, this.leftPaddle, this.rightPaddle, this.ball, this.leftScore, this.rightScore ];
         this.renderFrame = this.renderFrame.bind(this);
         requestAnimationFrame(this.renderFrame);
     }

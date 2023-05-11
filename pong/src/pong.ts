@@ -7,6 +7,7 @@ let canvasBackgroundColor: string;
 async function main() {
     try
     {
+        await loadFont('10pt "press_start_2p"');
         const canvasElement: HTMLElement | null = document.getElementById('pong');
         const canvas = getGameCanvas(canvasElement);
         const ctx = getGameRenderingContext(canvas);
@@ -20,6 +21,10 @@ async function main() {
     {
         showError(err.message)
     }
+}
+
+async function loadFont(font: string) {
+    await document.fonts.load(font);
 }
 
 window.onload = function() {
