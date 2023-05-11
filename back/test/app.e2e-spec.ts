@@ -4,7 +4,7 @@ import * as pactum from 'pactum';
 import { AppModule } from '../src/app.module';
 import { AuthDto } from '../src/auth/dto';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { EditUserDto } from '../src/user/dto';
+import { EditUserDto, UserProfileDto } from '../src/user/dto';
 
 describe('App e2e', () => {
 	let app: INestApplication;
@@ -215,7 +215,136 @@ describe('App e2e', () => {
 					.expectStatus(404)
 			});
 		});
+		describe('updateProfileData', () => {
+			const dto: UserProfileDto = {
+				nick: "karisti"
+			}
+			it('should update user profile data', () => {
+				return pactum
+					.spec()
+					.put('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAt}',
+					})
+					.withBody(dto)
+					.expectStatus(200)
+					.expectBodyContains(dto.nick)
+			});
+			it('should throw 404 if user not found', () => {
+				return pactum
+					.spec()
+					.put('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAtDel}',
+					})
+					.withBody(dto)
+					.expectStatus(404)
+			});
+			it('should throw 401 if jwt token not provided', () => {
+				return pactum
+					.spec()
+					.put('/users/profile')
+					.withHeaders({
+						Authorization: '',
+					})
+					.withBody(dto)
+					.expectStatus(401)
+			});
+		});
+		describe('uploadProfilePicture', () => {
+			it('should throw 400 if picture not provided', () => {
+				return pactum
+					.spec()
+					.post('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAt}',
+					})
+					.expectStatus(400)
+			});
+			/*
+			it('should throw 404 if user not found', () => {
+				return pactum
+					.spec()
+					.post('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAtDel}',
+					})
+					.expectStatus(404)
+			});
+			*/
+			it('should throw 401 if jwt token not provided', () => {
+				return pactum
+					.spec()
+					.post('/users/profile')
+					.withHeaders({
+						Authorization: '',
+					})
+					.expectStatus(401)
+			});
+		});
+		describe('deleteProfilePicture', () => {
+			it('should delete user profile picture', () => {
+				return pactum
+					.spec()
+					.delete('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAt}',
+					})
+					.expectBodyContains('default.jpg')
+					.expectStatus(200)
+			});
+			it('should throw 404 if user not found', () => {
+				return pactum
+					.spec()
+					.delete('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAtDel}',
+					})
+					.expectStatus(404)
+			});
+			it('should throw 401 if jwt token not provided', () => {
+				return pactum
+					.spec()
+					.delete('/users/profile')
+					.withHeaders({
+						Authorization: '',
+					})
+					.expectStatus(401)
+			});
+		});
 	});
+	describe('Uploads', () => {
+		describe('serveImage', () => {
+			it('should get user profile picture', () => {
+				return pactum
+					.spec()
+					.get('/uploads/avatars/test')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAt}',
+					})
+					.expectStatus(200)
+			});
+			it('should throw 404 if user not found', () => {
+				return pactum
+					.spec()
+					.get('/uploads/avatars/test')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAtDel}',
+					})
+					.expectStatus(404)
+			});
+			it('should throw 401 if jwt token not provided', () => {
+				return pactum
+					.spec()
+					.get('/uploads/avatars/test')
+					.withHeaders({
+						Authorization: '',
+					})
+					.expectStatus(401)
+			});
+		});
+	});
+	
 	describe('Bookmarks', () => {
 		describe('CreateBookmark', () => {
 
