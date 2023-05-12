@@ -178,4 +178,29 @@ export class UserService {
 			})
 		}
 	}
+
+	/*
+	 * Set user connected
+	*/
+	async setUserOnline(userId: number) {
+		try {
+			const user = await this.prisma.user.update({
+				where: {
+					id: userId
+				},
+				data: {
+					status: 'online'
+				},
+			});
+			delete user.hash;
+			return user;
+		}
+		catch (error) {
+			if (error instanceof PrismaClientKnownRequestError) {
+				// https://www.prisma.io/docs/reference/api-reference/error-reference
+				// P2025 Record not found
+				ThrowHttpException(error, 'User not found');
+			}
+		}
+	}
 }
