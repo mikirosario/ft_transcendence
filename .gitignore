@@ -1,3 +1,9 @@
+# Custom for backend
+
+#Exclude all uploads, except for default avatar
+/back/uploads/*/*
+!/back/uploads/avatars/default.jpg
+
 # OS
 .DS_Store
 
