@@ -1,4 +1,5 @@
-import { IPhysicsObject, IDrawable, Position, BoundingBox, PlayerInputs } from "./types.js";
+import { Position, BoundingBox, PlayerInputs } from "./types.js";
+import { IDrawable, IPhysicsObject } from "./interfaces.js";
 import { Transform } from "./transform.js";
 
 export class Rectangle implements IDrawable, IPhysicsObject
@@ -115,14 +116,6 @@ export class Rectangle implements IDrawable, IPhysicsObject
         this.velocityVectorY = 0;
         this.playerInputs = { up: false, down: false };
         this.isActive = isActive;
-    }
-
-    public bounceY()
-    {
-    }
-
-    public bounceX()
-    {
     }
 
     private getUpperLeftCorner(): Position

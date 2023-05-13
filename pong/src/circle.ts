@@ -1,4 +1,5 @@
-import { IPhysicsObject, IDrawable, Position, BoundingBox } from "./types.js";
+import { Position, BoundingBox } from "./types.js";
+import { IDrawable, IPhysicsObject } from "./interfaces.js";
 import { Transform } from "./transform.js";
 
 export class Circle implements IDrawable, IPhysicsObject

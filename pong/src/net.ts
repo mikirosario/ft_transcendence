@@ -1,4 +1,5 @@
-import { IDrawable, Position } from "./types.js";
+import { Position } from "./types.js";
+import { IDrawable } from "./interfaces.js";
 import { Transform } from "./transform.js";
 
 export class VerticalDashedLine implements IDrawable

@@ -1,6 +1,7 @@
 import { getGameCanvas, getGameRenderingContext, initGameCanvas, fetchColorConstants } from "./init.js";
+import { IDrawable } from "./interfaces.js";
 import { showError } from "./utils.js";
-import { AspectRatio, IDrawable } from "./types.js";
+import { AspectRatio } from "./types.js";
 import { Transform } from "./transform.js";
 import { Rectangle } from "./rectangle.js";
 import { Circle } from "./circle.js";
