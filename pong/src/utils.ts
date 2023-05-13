@@ -1,6 +1,5 @@
-import { Transform } from "./transform.js";
-
 const errorMessage = document.getElementById('error-message');
+
 export function showError(message: string) {
   if (errorMessage)
   {

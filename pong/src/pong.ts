@@ -1,13 +1,12 @@
 import { getGameCanvas, getGameRenderingContext, initGameCanvas, fetchColorConstants } from "./init.js";
 import { showError } from "./utils.js";
-import { AspectRatio, IDrawable, PlayerInputs } from "./types.js";
+import { AspectRatio, IDrawable } from "./types.js";
 import { Transform } from "./transform.js";
 import { Rectangle } from "./rectangle.js";
 import { Circle } from "./circle.js";
 import { Text } from "./text.js";
 import { VerticalDashedLine } from "./net.js";
 import { onKeyDown, onKeyUp } from "./input.handlers.js";
-
 
 window.onload = function() {
     main();
@@ -50,8 +49,6 @@ class Pong
     private ball: Circle;
     private leftScore: Text;
     private rightScore: Text;
-    private leftPlayerInputs: PlayerInputs = { up: false, down: false };
-    private rightPlayerInputs: PlayerInputs = { up: false, down: false };
     private drawables: IDrawable[];
 
     constructor(
