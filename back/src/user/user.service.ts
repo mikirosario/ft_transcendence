@@ -70,42 +70,10 @@ export class UserService {
 	}
 
 	/*
-	 * Set / update user profile data
+	 * Set / update user profile data and profile picture
 	*/
-	async updateProfileData(userId: number, dto: UserProfileDto) {
-
-		try {
-			const user = await this.prisma.user.update({
-				where: {
-					id: userId
-				},
-				data: {
-					...dto
-				},
-			});
-
-			delete user.hash;
-			return user;
-		}
-		catch (error) {
-			if (error instanceof PrismaClientKnownRequestError) {
-				// https://www.prisma.io/docs/reference/api-reference/error-reference
-				// P2025 Record not found
-				ThrowHttpException(error, 'User not found');
-			}
-		}
-	}
-
-	/*
-	 * Set / update user profile picture
-	*/
-	async uploadProfilePicture(userId: number, file: Express.Multer.File) {
-		const fileName = file?.filename;
-
-		if (!fileName)
-		{
-			ThrowHttpException(new BadRequestException, 'File must be a png, jpg/jpeg.');
-		}
+	async updateProfileData(userId: number, dto: UserProfileDto, file?: Express.Multer.File) {
+		let fileName = file?.filename;
 
 		const user = await this.prisma.user.findUnique({
 			where: {
@@ -123,6 +91,11 @@ export class UserService {
 		}
 
 		const prevAvatar = user.avatarUri;
+		
+		if (!fileName)
+		{
+			fileName = prevAvatar;
+		}
 
 		try {
 			const user = await this.prisma.user.update({
@@ -130,11 +103,15 @@ export class UserService {
 					id: userId
 				},
 				data: {
-					avatarUri: file.filename
+					nick: dto.nick,
+					avatarUri: fileName
 				},
 			});
 
-			this.removeAvatar(prevAvatar);
+			if (prevAvatar && prevAvatar !== fileName)
+			{
+				this.removeAvatar(prevAvatar);
+			}
 
 			delete user.hash;
 			return user;

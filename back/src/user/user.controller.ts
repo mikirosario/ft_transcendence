@@ -33,21 +33,13 @@ export class UserController {
 	}
 
 	/*
-	 * Set / update user profile data
+	 * Set / update user profile data and profile picture
 	*/
 	@Put('profile')
 	@ApiBody({ type: UserProfileDto })
-	async updateProfileData(@GetJwt('sub') userId: number, @Body() dto: UserProfileDto) {
-		return this.userService.updateProfileData(userId, dto);
-	}
-
-	/*
-	 * Set / update user profile picture
-	*/
-	@Post('profile')
 	@UseInterceptors(FileInterceptor('file', saveProfileImageToStorage))
-	async uploadProfilePicture(@GetJwt('sub') userId: number, @UploadedFile() file?: Express.Multer.File) {
-		return this.userService.uploadProfilePicture(userId, file);
+	async updateProfileData(@GetJwt('sub') userId: number, @Body() dto: UserProfileDto, @UploadedFile() file?: Express.Multer.File) {
+		return this.userService.updateProfileData(userId, dto, file);
 	}
 
 	/*
