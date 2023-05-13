@@ -6,6 +6,7 @@ import { Rectangle } from "./rectangle.js";
 import { Circle } from "./circle.js";
 import { Text } from "./text.js";
 import { VerticalDashedLine } from "./net.js";
+import { onKeyDown, onKeyUp } from "./input.handlers.js";
 
 
 window.onload = function() {
@@ -72,50 +73,10 @@ class Pong
         this.drawables = [ this.net, this.leftPaddle, this.rightPaddle, this.ball, this.leftScore, this.rightScore ];
         this.renderFrame = this.renderFrame.bind(this);
         document.addEventListener("keydown", (event) => {
-            if (event.isComposing)
-                return;
-            if (event.code === "KeyW" && this.leftPlayerInputs.up == false)
-            {
-                this.leftPlayerInputs.up = true;
-                this.leftPaddle.VelocityVectorY += -1;
-            }
-            else if (event.code === "ArrowUp" && this.rightPlayerInputs.up == false)
-            {
-                this.rightPlayerInputs.up = true;
-                this.rightPaddle.VelocityVectorY += -1;
-            }
-            else if (event.code === "KeyS" && this.leftPlayerInputs.down == false)
-            {
-                this.leftPlayerInputs.down = true;
-                this.leftPaddle.VelocityVectorY += 1;
-            }
-            else if (event.code === "ArrowDown" && this.rightPlayerInputs.down == false)
-            {
-                this.rightPlayerInputs.down = true;
-                this.rightPaddle.VelocityVectorY += 1;
-            }
+            onKeyDown(event, this.leftPaddle, this.rightPaddle);
         })
         document.addEventListener("keyup", (event) => {
-            if (event.code === "KeyW" && this.leftPlayerInputs.up == true)
-            {
-                this.leftPlayerInputs.up = false;
-                this.leftPaddle.VelocityVectorY += 1;
-            }
-            else if (event.code === "ArrowUp" && this.rightPlayerInputs.up == true)
-            {
-                this.rightPlayerInputs.up = false;
-                this.rightPaddle.VelocityVectorY += 1;
-            }
-            else if (event.code === "KeyS" && this.leftPlayerInputs.down == true)
-            {
-                this.leftPlayerInputs.down = false;
-                this.leftPaddle.VelocityVectorY += -1;
-            }
-            else if (event.code === "ArrowDown" && this.rightPlayerInputs.down == true)
-            {
-                this.rightPlayerInputs.down = false;
-                this.rightPaddle.VelocityVectorY += -1;
-            }
+            onKeyUp(event, this.leftPaddle, this.rightPaddle);
         })
         requestAnimationFrame(this.renderFrame);
     }

@@ -1,9 +1,10 @@
-import { IPhysicsObject, IDrawable, Position, BoundingBox } from "./types.js";
+import { IPhysicsObject, IDrawable, Position, BoundingBox, PlayerInputs } from "./types.js";
 import { Transform } from "./transform.js";
 
 export class Rectangle implements IDrawable, IPhysicsObject
 {
     private isActive: boolean;
+    private playerInputs: PlayerInputs;
     private speed: number;
     private velocityVectorX: number;
     private velocityVectorY: number;
@@ -20,6 +21,10 @@ export class Rectangle implements IDrawable, IPhysicsObject
     public set IsActive(value: boolean)
     {
         this.isActive = value;
+    }
+    public get PlayerInputs(): PlayerInputs
+    {
+        return this.playerInputs;
     }
     public get Speed() : number {
         return this.speed;
@@ -108,6 +113,7 @@ export class Rectangle implements IDrawable, IPhysicsObject
         this.isColliderActive = isColliderActive;
         this.velocityVectorX = 0;
         this.velocityVectorY = 0;
+        this.playerInputs = { up: false, down: false };
         this.isActive = isActive;
     }
 
