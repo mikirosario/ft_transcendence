@@ -9,15 +9,13 @@ export type BoundingBox = { top: number, bottom: number, right: number, left: nu
 
 export type PlayerInputs = { up: boolean, down: boolean };
 
-export type PhysicsObject = IMoveable & ICollidable;
-
 export interface IDrawable
 {
     IsActive: boolean;
     draw(ctx: CanvasRenderingContext2D): void;
 }
 
-export interface IMoveable
+export interface IPhysicsObject
 {
     Transform: Transform;
     Speed: number;
@@ -27,18 +25,11 @@ export interface IMoveable
     move(): void;
     bounceY(): void;
     bounceX(): void;
-}
-
-export interface ICollidable
-{
-    Transform: Transform;
     IsColliderActive: boolean;
     BoundingBoxNextPosition: BoundingBox;
     willCollideCanvas(canvas: HTMLCanvasElement): boolean;
-    willCollide(collidable: ICollidable): boolean;
+    willCollide(collidable: IPhysicsObject): boolean;
 }
-
-
 
 export class Transform
 {
@@ -52,7 +43,7 @@ export class Transform
     }
 }
 
-export class Rectangle implements IDrawable, IMoveable, ICollidable
+export class Rectangle implements IDrawable, IPhysicsObject
 {
     private isActive: boolean;
     private speed: number;
@@ -193,7 +184,7 @@ export class Rectangle implements IDrawable, IMoveable, ICollidable
         return willCollide;
     }
 
-    willCollide(collidable: ICollidable): boolean
+    willCollide(collidable: IPhysicsObject): boolean
     {
         let willCollide: boolean = false;
         if (this.IsColliderActive)
@@ -230,7 +221,7 @@ export class Rectangle implements IDrawable, IMoveable, ICollidable
     }
 }
 
-export class Circle implements IDrawable, IMoveable, ICollidable
+export class Circle implements IDrawable, IPhysicsObject
 {
     private isActive: boolean;
     private transform: Transform;
@@ -346,7 +337,7 @@ export class Circle implements IDrawable, IMoveable, ICollidable
         return willCollide;
     }
 
-    willCollide(collidable: ICollidable): boolean
+    willCollide(collidable: IPhysicsObject): boolean
     {
         let willCollide: boolean = false;
         if (this.IsColliderActive)
@@ -489,6 +480,7 @@ export class Pong
     private leftPlayerInputs: PlayerInputs = { up: false, down: false };
     private rightPlayerInputs: PlayerInputs = { up: false, down: false };
     private drawables: IDrawable[];
+    private collidables: IPhysicsObject[];
 
     constructor(
         canvas: HTMLCanvasElement,
@@ -507,6 +499,7 @@ export class Pong
         this.leftScore = new Text(new Transform({ x: Math.round(this.canvas.width * 0.25), y: Math.round(this.canvas.height * 0.2) }, 1), "0", "white", 75);
         this.rightScore = new Text(new Transform({ x: Math.round(this.canvas.width * 0.75), y: Math.round(this.canvas.height * 0.2) }, 1), "0", "white", 75);
         this.drawables = [ this.net, this.leftPaddle, this.rightPaddle, this.ball, this.leftScore, this.rightScore ];
+        this.collidables = [ this.leftPaddle, this.rightPaddle, this.ball ];
         this.renderFrame = this.renderFrame.bind(this);
         document.addEventListener("keydown", (event) => {
             if (event.isComposing)
@@ -543,13 +536,16 @@ export class Pong
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    update(ball: PhysicsObject | null = null)
+    update(ball: IPhysicsObject | null)
     {
         //apply inputs
         //apply physics
+        // physObjects.forEach((physObject) => {
+        //     physObject.move(physObject);
+        // })
         if (ball != null)
         {
-            //moves bottom-right by default; randomize, maybe
+
             if (ball.willCollideCanvas(this.ctx.canvas))
                 ball.bounceY();
             if (ball.willCollide(this.leftPaddle))
