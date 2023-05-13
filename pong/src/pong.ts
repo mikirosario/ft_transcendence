@@ -37,7 +37,7 @@ async function loadFont(font: string) {
     await document.fonts.load(font);
 }
 
-export class Pong
+class Pong
 {
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
@@ -79,10 +79,20 @@ export class Pong
                 this.leftPlayerInputs.up = true;
                 this.leftPaddle.VelocityVectorY += -1;
             }
+            else if (event.code === "ArrowUp" && this.rightPlayerInputs.up == false)
+            {
+                this.rightPlayerInputs.up = true;
+                this.rightPaddle.VelocityVectorY += -1;
+            }
             else if (event.code === "KeyS" && this.leftPlayerInputs.down == false)
             {
                 this.leftPlayerInputs.down = true;
                 this.leftPaddle.VelocityVectorY += 1;
+            }
+            else if (event.code === "ArrowDown" && this.rightPlayerInputs.down == false)
+            {
+                this.rightPlayerInputs.down = true;
+                this.rightPaddle.VelocityVectorY += 1;
             }
         })
         document.addEventListener("keyup", (event) => {
@@ -91,10 +101,20 @@ export class Pong
                 this.leftPlayerInputs.up = false;
                 this.leftPaddle.VelocityVectorY += 1;
             }
+            else if (event.code === "ArrowUp" && this.rightPlayerInputs.up == true)
+            {
+                this.rightPlayerInputs.up = false;
+                this.rightPaddle.VelocityVectorY += 1;
+            }
             else if (event.code === "KeyS" && this.leftPlayerInputs.down == true)
             {
                 this.leftPlayerInputs.down = false;
                 this.leftPaddle.VelocityVectorY += -1;
+            }
+            else if (event.code === "ArrowDown" && this.rightPlayerInputs.down == true)
+            {
+                this.rightPlayerInputs.down = false;
+                this.rightPaddle.VelocityVectorY += -1;
             }
         })
         requestAnimationFrame(this.renderFrame);
