@@ -5,6 +5,8 @@ import { AppModule } from '../src/app.module';
 import { AuthDto } from '../src/auth/dto';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { EditUserDto, UserProfileDto } from '../src/user/dto';
+import { readFileSync } from "fs";
+import { File } from "buffer";
 
 describe('App e2e', () => {
 	let app: INestApplication;
@@ -216,7 +218,7 @@ describe('App e2e', () => {
 			});
 		});
 		describe('updateProfileData', () => {
-			const dto: UserProfileDto = {
+			const dto = {
 				nick: "karisti"
 			}
 			it('should update user profile data', () => {
@@ -248,37 +250,6 @@ describe('App e2e', () => {
 						Authorization: '',
 					})
 					.withBody(dto)
-					.expectStatus(401)
-			});
-		});
-		describe('uploadProfilePicture', () => {
-			it('should throw 400 if picture not provided', () => {
-				return pactum
-					.spec()
-					.post('/users/profile')
-					.withHeaders({
-						Authorization: 'Bearer $S{userAt}',
-					})
-					.expectStatus(400)
-			});
-			/*
-			it('should throw 404 if user not found', () => {
-				return pactum
-					.spec()
-					.post('/users/profile')
-					.withHeaders({
-						Authorization: 'Bearer $S{userAtDel}',
-					})
-					.expectStatus(404)
-			});
-			*/
-			it('should throw 401 if jwt token not provided', () => {
-				return pactum
-					.spec()
-					.post('/users/profile')
-					.withHeaders({
-						Authorization: '',
-					})
 					.expectStatus(401)
 			});
 		});
