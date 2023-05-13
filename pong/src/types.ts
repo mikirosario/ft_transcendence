@@ -22,7 +22,7 @@ export interface IPhysicsObject
     VelocityVectorX: number;
     VelocityVectorY: number;
     NextPosition: Position;
-    move(): void;
+    move(canvas: HTMLCanvasElement, collidables: IPhysicsObject[]): void;
     bounceY(): void;
     bounceX(): void;
     IsColliderActive: boolean;
@@ -201,9 +201,9 @@ export class Rectangle implements IDrawable, IPhysicsObject
         return willCollide;
     }
 
-    public move()
+    public move(canvas: HTMLCanvasElement, collidables: IPhysicsObject[] = [])
     {
-        if (this.IsActive)
+        if (this.IsActive && !this.willCollideCanvas(canvas))
         {
             this.Transform.position.x += this.VelocityVectorX;
             this.Transform.position.y += this.VelocityVectorY;
@@ -314,10 +314,16 @@ export class Circle implements IDrawable, IPhysicsObject
         this.velocityVectorX *= -1;
     }
 
-    public move()
+    public move(canvas: HTMLCanvasElement, physObjects: IPhysicsObject[] = [])
     {
         if (this.IsActive)
         {
+            if (this.willCollideCanvas(canvas))
+                this.bounceY();
+            physObjects.forEach((physObject) => {
+                if (this.willCollide(physObject))
+                    this.bounceX();
+            })
             this.Transform.position.x += this.velocityVectorX;
             this.Transform.position.y += this.VelocityVectorY;
         }
@@ -480,7 +486,6 @@ export class Pong
     private leftPlayerInputs: PlayerInputs = { up: false, down: false };
     private rightPlayerInputs: PlayerInputs = { up: false, down: false };
     private drawables: IDrawable[];
-    private collidables: IPhysicsObject[];
 
     constructor(
         canvas: HTMLCanvasElement,
@@ -499,7 +504,6 @@ export class Pong
         this.leftScore = new Text(new Transform({ x: Math.round(this.canvas.width * 0.25), y: Math.round(this.canvas.height * 0.2) }, 1), "0", "white", 75);
         this.rightScore = new Text(new Transform({ x: Math.round(this.canvas.width * 0.75), y: Math.round(this.canvas.height * 0.2) }, 1), "0", "white", 75);
         this.drawables = [ this.net, this.leftPaddle, this.rightPaddle, this.ball, this.leftScore, this.rightScore ];
-        this.collidables = [ this.leftPaddle, this.rightPaddle, this.ball ];
         this.renderFrame = this.renderFrame.bind(this);
         document.addEventListener("keydown", (event) => {
             if (event.isComposing)
@@ -536,32 +540,16 @@ export class Pong
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    update(ball: IPhysicsObject | null)
+    physicsUpdate()
     {
-        //apply inputs
-        //apply physics
-        // physObjects.forEach((physObject) => {
-        //     physObject.move(physObject);
-        // })
-        if (ball != null)
-        {
-
-            if (ball.willCollideCanvas(this.ctx.canvas))
-                ball.bounceY();
-            if (ball.willCollide(this.leftPaddle))
-                ball.bounceX();
-            ball.move();
-        }
-        if (!this.leftPaddle.willCollideCanvas(this.ctx.canvas))
-            this.leftPaddle.move();
-        
+        this.ball.move(this.canvas, [ this.leftPaddle, this.rightPaddle ]);
+        this.leftPaddle.move(this.canvas);
+        this.rightPaddle.move(this.canvas);
     }
 
     renderFrame()
     {
-        this.update(this.ball);
-        // console.log("Up:" + this.leftPlayerInputs.up);
-        // console.log("Down:" + this.leftPlayerInputs.down);
+        this.physicsUpdate();
         this.clearScreen();
         this.drawables.forEach((drawable) => {
             drawable.draw(this.ctx);
