@@ -5,7 +5,9 @@ export type AspectRatio = { width: number, height: number };
 
 export type Position = { x: number, y: number };
 
-export type BoundingBox = { top: number, bottom: number, right: number, left: number}
+export type BoundingBox = { top: number, bottom: number, right: number, left: number};
+
+export type PlayerInputs = { up: boolean, down: boolean };
 
 export type PhysicsObject = IMoveable & ICollidable;
 
@@ -112,8 +114,14 @@ export class Rectangle implements IDrawable, IMoveable, ICollidable
     {
         return this.velocityVectorX;
     }
+    public set VelocityVectorX(value: number) {
+        this.velocityVectorX = value;
+    }
     public get VelocityVectorY() : number {
         return this.velocityVectorY;
+    }
+    public set VelocityVectorY(value: number) {
+        this.velocityVectorY = value;
     }
     public get NextPosition(): Position
     {
@@ -156,12 +164,10 @@ export class Rectangle implements IDrawable, IMoveable, ICollidable
 
     public bounceY()
     {
-        this.velocityVectorY = 0;
     }
 
     public bounceX()
     {
-        this.velocityVectorX = 0;
     }
 
     private getUpperLeftCorner(): Position
@@ -208,7 +214,7 @@ export class Rectangle implements IDrawable, IMoveable, ICollidable
     {
         if (this.IsActive)
         {
-            this.Transform.position.x += this.velocityVectorX;
+            this.Transform.position.x += this.VelocityVectorX;
             this.Transform.position.y += this.VelocityVectorY;
         }
     }
@@ -301,7 +307,7 @@ export class Circle implements IDrawable, IMoveable, ICollidable
         this.color = color;
         this.radius = radius;
         this.speed = speed;
-        this.velocityVectorX = speed;
+        this.velocityVectorX = -speed;
         this.velocityVectorY = speed;
         this.isColliderActive = isColliderActive;
         this.isActive = isActive;
@@ -480,6 +486,8 @@ export class Pong
     private ball: Circle;
     private leftScore: Text;
     private rightScore: Text;
+    private leftPlayerInputs: PlayerInputs = { up: false, down: false };
+    private rightPlayerInputs: PlayerInputs = { up: false, down: false };
     private drawables: IDrawable[];
 
     constructor(
@@ -500,6 +508,32 @@ export class Pong
         this.rightScore = new Text(new Transform({ x: Math.round(this.canvas.width * 0.75), y: Math.round(this.canvas.height * 0.2) }, 1), "0", "white", 75);
         this.drawables = [ this.net, this.leftPaddle, this.rightPaddle, this.ball, this.leftScore, this.rightScore ];
         this.renderFrame = this.renderFrame.bind(this);
+        document.addEventListener("keydown", (event) => {
+            if (event.isComposing)
+                return;
+            if (event.code === "KeyW" && this.leftPlayerInputs.up == false)
+            {
+                this.leftPlayerInputs.up = true;
+                this.leftPaddle.VelocityVectorY += -1;
+            }
+            else if (event.code === "KeyS" && this.leftPlayerInputs.down == false)
+            {
+                this.leftPlayerInputs.down = true;
+                this.leftPaddle.VelocityVectorY += 1;
+            }
+        })
+        document.addEventListener("keyup", (event) => {
+            if (event.code === "KeyW" && this.leftPlayerInputs.up == true)
+            {
+                this.leftPlayerInputs.up = false;
+                this.leftPaddle.VelocityVectorY += 1;
+            }
+            else if (event.code === "KeyS" && this.leftPlayerInputs.down == true)
+            {
+                this.leftPlayerInputs.down = false;
+                this.leftPaddle.VelocityVectorY += -1;
+            }
+        })
         requestAnimationFrame(this.renderFrame);
     }
 
@@ -518,13 +552,20 @@ export class Pong
             //moves bottom-right by default; randomize, maybe
             if (ball.willCollideCanvas(this.ctx.canvas))
                 ball.bounceY();
+            if (ball.willCollide(this.leftPaddle))
+                ball.bounceX();
             ball.move();
         }
+        if (!this.leftPaddle.willCollideCanvas(this.ctx.canvas))
+            this.leftPaddle.move();
+        
     }
 
     renderFrame()
     {
         this.update(this.ball);
+        // console.log("Up:" + this.leftPlayerInputs.up);
+        // console.log("Down:" + this.leftPlayerInputs.down);
         this.clearScreen();
         this.drawables.forEach((drawable) => {
             drawable.draw(this.ctx);
