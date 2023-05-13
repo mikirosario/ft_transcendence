@@ -5,10 +5,13 @@ export type AspectRatio = { width: number, height: number };
 
 export type Position = { x: number, y: number };
 
+export type BoundingBox = { top: number, bottom: number, right: number, left: number}
+
 export type PhysicsObject = IMoveable & ICollidable;
 
 export interface IDrawable
 {
+    IsActive: boolean;
     draw(ctx: CanvasRenderingContext2D): void;
 }
 
@@ -20,20 +23,17 @@ export interface IMoveable
     VelocityVectorY: number;
     NextPosition: Position;
     move(): void;
-}
-
-export interface ICollider
-{
-    
+    bounceY(): void;
+    bounceX(): void;
 }
 
 export interface ICollidable
 {
     Transform: Transform;
-    IsCollidable: boolean;
+    IsColliderActive: boolean;
+    BoundingBoxNextPosition: BoundingBox;
     willCollideCanvas(canvas: HTMLCanvasElement): boolean;
-    bounceY(): void;
-    bounceX(): void;
+    willCollide(collidable: ICollidable): boolean;
 }
 
 
@@ -52,15 +52,24 @@ export class Transform
 
 export class Rectangle implements IDrawable, IMoveable, ICollidable
 {
+    private isActive: boolean;
     private speed: number;
     private velocityVectorX: number;
     private velocityVectorY: number;
     private transform: Transform;
-    private isCollidable: boolean;
+    private isColliderActive: boolean;
     private width: number;
     private height: number;
     private color: string;
 
+    public get IsActive(): boolean
+    {
+        return this.isActive;
+    }
+    public set IsActive(value: boolean)
+    {
+        this.isActive = value;
+    }
     public get Speed() : number {
         return this.speed;
     }
@@ -75,13 +84,13 @@ export class Rectangle implements IDrawable, IMoveable, ICollidable
     {
         this.transform = value;
     }
-    public get IsCollidable(): boolean
+    public get IsColliderActive(): boolean
     {
-        return this.isCollidable;
+        return  this.IsActive && this.isColliderActive;
     }
-    public set IsCollidable(value: boolean)
+    public set IsColliderActive(value: boolean)
     {
-        this.isCollidable = value;
+        this.isColliderActive = value;
     }
     public get Width(): number
     {
@@ -113,17 +122,36 @@ export class Rectangle implements IDrawable, IMoveable, ICollidable
             y: this.Transform.position.y + this.VelocityVectorY
         };
     }
+    public get BoundingBoxNextPosition(): BoundingBox
+    {
+        let nextPosition = this.NextPosition;
+        return {
+            top: nextPosition.y - this.HalfHeight,
+            bottom: nextPosition.y + this.HalfHeight,
+            right: nextPosition.x + this.HalfWidth,
+            left: nextPosition.x - this.HalfWidth
+        }
+    }
+    private get HalfHeight(): number
+    {
+        return Math.round(this.height * 0.5);
+    }
+    private get HalfWidth(): number
+    {
+        return Math.round(this.width * 0.5);
+    }
 
-    constructor(transform: Transform, color: string, width: number, height: number, speed: number, isCollidable: boolean = false)
+    constructor(transform: Transform, color: string, width: number, height: number, speed: number, isColliderActive: boolean = false, isActive: boolean = true)
     {
         this.transform = transform;
         this.color = color;
         this.width = width;
         this.height = height;
         this.speed = speed;
-        this.isCollidable = isCollidable;
+        this.isColliderActive = isColliderActive;
         this.velocityVectorX = 0;
         this.velocityVectorY = 0;
+        this.isActive = isActive;
     }
 
     public bounceY()
@@ -147,7 +175,7 @@ export class Rectangle implements IDrawable, IMoveable, ICollidable
     public willCollideCanvas(canvas: HTMLCanvasElement): boolean
     {
         let willCollide: boolean = false;
-        if (this.isCollidable)
+        if (this.IsColliderActive)
         {
             let halfHeight = Math.round(this.height * 0.5);
             let nextPosition = this.NextPosition;
@@ -159,30 +187,62 @@ export class Rectangle implements IDrawable, IMoveable, ICollidable
         return willCollide;
     }
 
+    willCollide(collidable: ICollidable): boolean
+    {
+        let willCollide: boolean = false;
+        if (this.IsColliderActive)
+        {
+            let thisBoundingBox = this.BoundingBoxNextPosition;
+            let otherBoundingBox = collidable.BoundingBoxNextPosition;
+            willCollide = !(
+                otherBoundingBox.right <= thisBoundingBox.left
+                || otherBoundingBox.top >= thisBoundingBox.bottom
+                || otherBoundingBox.left >= thisBoundingBox.right
+                || otherBoundingBox.bottom <= thisBoundingBox.top
+            )
+        }
+        return willCollide;
+    }
+
     public move()
     {
-        this.Transform.position.x += this.velocityVectorX;
-        this.Transform.position.y += this.VelocityVectorY;
+        if (this.IsActive)
+        {
+            this.Transform.position.x += this.velocityVectorX;
+            this.Transform.position.y += this.VelocityVectorY;
+        }
     }
 
     public draw(ctx: CanvasRenderingContext2D): void
     {
-        let upperLeftCornerPosition = this.getUpperLeftCorner();
-        ctx.fillStyle = "black";
-        ctx.fillRect(upperLeftCornerPosition.x, upperLeftCornerPosition.y, this.width, this.height);
+        if (this.IsActive)
+        {
+            let upperLeftCornerPosition = this.getUpperLeftCorner();
+            ctx.fillStyle = "black";
+            ctx.fillRect(upperLeftCornerPosition.x, upperLeftCornerPosition.y, this.width, this.height);
+        }
     }
 }
 
 export class Circle implements IDrawable, IMoveable, ICollidable
 {
+    private isActive: boolean;
     private transform: Transform;
-    private isCollidable: boolean;
+    private isColliderActive: boolean;
     private speed: number;
     private velocityVectorX: number;
     private velocityVectorY: number;
     private radius: number;
     private color: string;
     
+    public get IsActive(): boolean
+    {
+        return this.isActive;
+    }
+    public set IsActive(value: boolean)
+    {
+        this.isActive = value;
+    }
     public get Speed(): number
     {
         return this.speed;
@@ -201,13 +261,13 @@ export class Circle implements IDrawable, IMoveable, ICollidable
     {
         this.transform = value;
     }
-    public get IsCollidable(): boolean
+    public get IsColliderActive(): boolean
     {
-        return this.isCollidable;
+        return this.IsActive && this.isColliderActive;
     }
-    public set IsCollidable(value: boolean)
+    public set IsColliderActive(value: boolean)
     {
-        this.isCollidable = value;
+        this.isColliderActive = value;
     }
     public get VelocityVectorX() : number
     {
@@ -224,8 +284,18 @@ export class Circle implements IDrawable, IMoveable, ICollidable
             y: this.Transform.position.y + this.VelocityVectorY
         };
     }
+    public get BoundingBoxNextPosition(): BoundingBox
+    {
+        let nextPosition = this.NextPosition;
+        return {
+            top: nextPosition.y - this.radius,
+            bottom: nextPosition.y + this.radius,
+            right: nextPosition.x + this.radius,
+            left: nextPosition.x - this.radius
+        }
+    }
 
-    constructor(transform: Transform, color: string, speed: number, radius: number, isCollidable: boolean = false)
+    constructor(transform: Transform, color: string, speed: number, radius: number, isColliderActive: boolean = false, isActive: boolean = true)
     {
         this.transform = transform;
         this.color = color;
@@ -233,7 +303,8 @@ export class Circle implements IDrawable, IMoveable, ICollidable
         this.speed = speed;
         this.velocityVectorX = speed;
         this.velocityVectorY = speed;
-        this.isCollidable = isCollidable;
+        this.isColliderActive = isColliderActive;
+        this.isActive = isActive;
     }
 
     public bounceY()
@@ -248,26 +319,17 @@ export class Circle implements IDrawable, IMoveable, ICollidable
 
     public move()
     {
-        this.Transform.position.x += this.velocityVectorX;
-        this.Transform.position.y += this.VelocityVectorY;
-    }
-
-    public rectangleCollision(rectangle: Rectangle): boolean {
-        let rectangleCenter = rectangle.Transform.position;
-
-        let closestX = Math.max(rectangleCenter.x - rectangle.Width / 2, Math.min(this.Transform.position.x, rectangleCenter.x + rectangle.Width / 2));
-        let closestY = Math.max(rectangleCenter.y - rectangle.Height / 2, Math.min(this.Transform.position.y, rectangleCenter.y + rectangle.Height / 2));
-    
-        let dx = this.Transform.position.x - closestX;
-        let dy = this.Transform.position.y - closestY;
-    
-        return (dx * dx + dy * dy) < (this.radius * this.radius);
+        if (this.IsActive)
+        {
+            this.Transform.position.x += this.velocityVectorX;
+            this.Transform.position.y += this.VelocityVectorY;
+        }
     }
 
     public willCollideCanvas(canvas: HTMLCanvasElement): boolean
     {
         let willCollide: boolean = false;
-        if (this.isCollidable)
+        if (this.IsColliderActive)
         {
             let nextPosition = this.NextPosition;
             willCollide = (
@@ -278,31 +340,62 @@ export class Circle implements IDrawable, IMoveable, ICollidable
         return willCollide;
     }
 
+    willCollide(collidable: ICollidable): boolean
+    {
+        let willCollide: boolean = false;
+        if (this.IsColliderActive)
+        {
+            let thisBoundingBox = this.BoundingBoxNextPosition;
+            let otherBoundingBox = collidable.BoundingBoxNextPosition;
+            willCollide = !(
+                otherBoundingBox.right <= thisBoundingBox.left
+                || otherBoundingBox.top >= thisBoundingBox.bottom
+                || otherBoundingBox.left >= thisBoundingBox.right
+                || otherBoundingBox.bottom <= thisBoundingBox.top
+            )
+        }
+        return willCollide;
+    }
+
     public draw(ctx: CanvasRenderingContext2D): void
     {
-        ctx.fillStyle = "white";
-        ctx.beginPath();
-        ctx.arc(this.transform.position.x, this.transform.position.y, this.radius, 0, Math.PI * 2, false);
-        ctx.closePath();
-        ctx.fill();
+        if (this.IsActive)
+        {
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(this.transform.position.x, this.transform.position.y, this.radius, 0, Math.PI * 2, false);
+            ctx.closePath();
+            ctx.fill();
+        }
     }
 }
 
 export class VerticalDashedLine implements IDrawable
 {
+    private isActive: boolean;
     private transform: Transform;
     private width: number;
     private height: number;
     private dashHeight: number;
     private color: string;
 
-    constructor(transform: Transform, color: string, width: number, height: number, dashHeight: number)
+    public get IsActive(): boolean
+    {
+        return this.isActive;
+    }
+    public set IsActive(value: boolean)
+    {
+        this.isActive = value;
+    }
+
+    constructor(transform: Transform, color: string, width: number, height: number, dashHeight: number, isActive: boolean = true)
     {
         this.transform = transform;
         this.color = color;
         this.width = width;
         this.height = height;
         this.dashHeight = dashHeight;
+        this.isActive = isActive;
     }
 
     private getUpperLeftCorner(): Position
@@ -315,30 +408,44 @@ export class VerticalDashedLine implements IDrawable
 
     public draw(ctx: CanvasRenderingContext2D): void
     {
-        let upperLeftCornerPosition = this.getUpperLeftCorner();
-        for (let i = 0; i <= this.height; i+=15)
+        if (this.IsActive)
         {
-            ctx.fillStyle = "black";
-            ctx.fillRect(upperLeftCornerPosition.x, upperLeftCornerPosition.y + i, this.width, this.dashHeight);
+            let upperLeftCornerPosition = this.getUpperLeftCorner();
+            for (let i = 0; i <= this.height; i+=15)
+            {
+                ctx.fillStyle = "black";
+                ctx.fillRect(upperLeftCornerPosition.x, upperLeftCornerPosition.y + i, this.width, this.dashHeight);
+            }
         }
     }
 }
 
 export class Text implements IDrawable
 {
+    private isActive: boolean;
     public transform: Transform;
     public text: string;
     public font: string;
     public fontSize: number;
     public color: string;
 
-    constructor(transform: Transform, text: string, color: string, fontSize: number)
+    public get IsActive(): boolean
+    {
+        return this.isActive;
+    }
+    public set IsActive(value: boolean)
+    {
+        this.isActive = value;
+    }
+
+    constructor(transform: Transform, text: string, color: string, fontSize: number, isActive: boolean = true)
     {
         this.transform = transform;
         this.text = text;
         this.color = color;
         this.fontSize = fontSize;
         this.font = `${fontSize}px press_start_2p, monospace`;
+        this.isActive = isActive;
     }
 
     private getUpperLeftCorner(): Position
@@ -351,10 +458,13 @@ export class Text implements IDrawable
 
     public draw(ctx: CanvasRenderingContext2D): void
     {
-        let upperLeftCornerPosition = this.getUpperLeftCorner();
-        ctx.fillStyle = this.color;
-        ctx.font = this.font;
-        ctx.fillText(this.text, upperLeftCornerPosition.x, this.transform.position.y);
+        if (this.IsActive)
+        {
+            let upperLeftCornerPosition = this.getUpperLeftCorner();
+            ctx.fillStyle = this.color;
+            ctx.font = this.font;
+            ctx.fillText(this.text, upperLeftCornerPosition.x, this.transform.position.y);
+        }
     }
 }
 
@@ -383,8 +493,8 @@ export class Pong
         this.aspectRatio = aspectRatio;
         this.backgroundColor = backgroundColor;
         this.net = new VerticalDashedLine(new Transform( {x: Math.round(this.canvas.width * 0.5), y: Math.round(this.canvas.height * 0.5) }, 1), "black", 5, this.canvas.height, 10);
-        this.leftPaddle = new Rectangle(new Transform({ x: 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100, 5);
-        this.rightPaddle = new Rectangle(new Transform({ x: this.canvas.width - 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100, 5);
+        this.leftPaddle = new Rectangle(new Transform({ x: 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100, 5, true);
+        this.rightPaddle = new Rectangle(new Transform({ x: this.canvas.width - 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100, 5, true);
         this.ball = new Circle(new Transform({ x: Math.round(this.canvas.width * 0.5), y: Math.round(this.canvas.height * 0.5) }, 1), "white", 1, 10, true);
         this.leftScore = new Text(new Transform({ x: Math.round(this.canvas.width * 0.25), y: Math.round(this.canvas.height * 0.2) }, 1), "0", "white", 75);
         this.rightScore = new Text(new Transform({ x: Math.round(this.canvas.width * 0.75), y: Math.round(this.canvas.height * 0.2) }, 1), "0", "white", 75);
