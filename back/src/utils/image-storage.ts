@@ -1,8 +1,9 @@
 import { diskStorage } from "multer";
 import { v4 as uuidv4 } from "uuid";
 import path = require('path');
+import { BadRequestException } from '@nestjs/common';
 
-;
+
 export const saveProfileImageToStorage = {
 	storage: diskStorage({
 		destination: './uploads/avatars',
@@ -15,7 +16,11 @@ export const saveProfileImageToStorage = {
 	fileFilter: (req, file, cb) => {
 		const allowedMimeTypes = ['image/jpg', 'image/jpeg', 'image/png'];
 
-		allowedMimeTypes.includes(file.mimetype) ? cb(null, true) : cb(null, false);
+		if (allowedMimeTypes.includes(file.mimetype)) {
+			cb(null, true);
+		} else {
+			cb(new BadRequestException('File must be a png, jpg/jpeg.'), false);
+		}
 	},
 	limits: {
 		fileSize: 5 * 1024 * 1024, // 5MB
