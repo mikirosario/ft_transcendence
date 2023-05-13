@@ -172,7 +172,7 @@ export class Rectangle implements IDrawable, IPhysicsObject
         if (this.IsActive)
         {
             let upperLeftCornerPosition = this.getUpperLeftCorner();
-            ctx.fillStyle = "black";
+            ctx.fillStyle = this.color;
             ctx.fillRect(upperLeftCornerPosition.x, upperLeftCornerPosition.y, this.width, this.height);
         }
     }

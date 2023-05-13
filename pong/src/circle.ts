@@ -105,7 +105,7 @@ export class Circle implements IDrawable, IPhysicsObject
                 if (this.willCollide(physObject))
                     this.bounceX();
             })
-            this.Transform.position.x += this.velocityVectorX;
+            this.Transform.position.x += this.VelocityVectorX;
             this.Transform.position.y += this.VelocityVectorY;
         }
     }
@@ -145,7 +145,7 @@ export class Circle implements IDrawable, IPhysicsObject
     {
         if (this.IsActive)
         {
-            ctx.fillStyle = "white";
+            ctx.fillStyle = this.color;
             ctx.beginPath();
             ctx.arc(this.transform.position.x, this.transform.position.y, this.radius, 0, Math.PI * 2, false);
             ctx.closePath();

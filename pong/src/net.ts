@@ -45,7 +45,7 @@ export class VerticalDashedLine implements IDrawable
             let upperLeftCornerPosition = this.getUpperLeftCorner();
             for (let i = 0; i <= this.height; i+=15)
             {
-                ctx.fillStyle = "black";
+                ctx.fillStyle = this.color;
                 ctx.fillRect(upperLeftCornerPosition.x, upperLeftCornerPosition.y + i, this.width, this.dashHeight);
             }
         }
