@@ -31,7 +31,7 @@ const OptionsButton: React.FC = () => {
         const response = await fetch('http://localhost:3000/users/profile', {
           method: 'PUT',
           headers: {
-            Authorization: 'Bearer ' + localStorage.getItem('token'), // Replace 'jwt' with your actual JWT token
+            Authorization: 'Bearer ' + localStorage.getItem('token'),
           },
           body: formData,
         });
