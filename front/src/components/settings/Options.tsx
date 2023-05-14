@@ -47,7 +47,31 @@ const OptionsButton: React.FC = () => {
       }
     };
   
+    const resetAvatar = async (event: React.FormEvent) => {
+      event.preventDefault();
+    
+      try {
+        // Make the DELETE HTTP request to delete the avatar
+        const response = await fetch('http://localhost:3000/users/profile', {
+          method: 'DELETE',
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem('token'), // Replace 'jwt' with your actual JWT token
+          },
+        });
+    
+        // Handle the response as needed
+        if (response.ok) {
+          console.log('Avatar deleted successfully');
+        } else {
+          console.log('Failed to delete avatar');
+        }
+      } catch (error) {
+        console.log('Error:', error);
+      }
+    };
+
     return (
+      <div>
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="username">Username:</label>
@@ -58,7 +82,9 @@ const OptionsButton: React.FC = () => {
           <input type="file" id="image" accept=".jpg,.png" onChange={handleImageChange} />
         </div>
         <button type="submit">Apply Changes</button>
+        <button type="button" onClick={resetAvatar}>Delete avatar</button>
       </form>
+    </div>
     );
   }
 export default OptionsButton;
