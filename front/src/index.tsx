@@ -14,14 +14,23 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <BrowserRouter>
-    <Routes>
-      <Route path="/">
-        <Route index element={<Home />} />
-        <Route path="options" element={<Options />} />   
-        <Route path="Pong" element={<Pong />} />   
-        <Route path="GameSelector" element={<GameSelector />} />   
-      </Route>
-    </Routes>
+    <div style={{
+      backgroundColor: '#7a8f99',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100vh',
+    }}>
+      <Routes>
+        <Route path="/">
+          <Route index element={<Home />} />
+          <Route path="settings" element={<Options />} />
+          <Route path="pong" element={<Pong />} />
+          <Route path="gameSelector" element={<GameSelector />} />
+        </Route>
+      </Routes>
+    </div>
   </BrowserRouter>
 );
 
