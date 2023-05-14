@@ -182,14 +182,14 @@ export class UserService {
 	/*
 	 * Set user connected
 	*/
-	async setUserOnline(userId: number) {
+	async setUserStatus(userId: number, status: string) {
 		try {
 			const user = await this.prisma.user.update({
 				where: {
 					id: userId
 				},
 				data: {
-					status: 'online'
+					status: status
 				},
 			});
 			delete user.hash;
@@ -202,5 +202,19 @@ export class UserService {
 				ThrowHttpException(error, 'User not found');
 			}
 		}
+	}
+
+	async getUser(userId: number) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: userId,
+			}
+		});
+		
+		if (user !== null) {
+			delete user.hash;
+		}
+		
+		return user;
 	}
 }
