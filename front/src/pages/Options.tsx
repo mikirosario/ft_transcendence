@@ -1,5 +1,5 @@
 import React from "react";
-import OptionsButton from "../components/Main/Options";
+import OptionsButton from "../components/settings/Options";
 
 function Options() {
     return (
