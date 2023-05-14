@@ -33,6 +33,14 @@ export class Rectangle implements IDrawable, IPhysicsObject
     public set Speed(value: number) {
         this.speed = value;
     }
+    public get HalfHeight(): number
+    {
+        return Math.round(this.Height * 0.5);
+    }
+    public get HalfWidth(): number
+    {
+        return Math.round(this.Width * 0.5);
+    }
     public get Transform(): Transform
     {
         return this.transform;
@@ -94,14 +102,6 @@ export class Rectangle implements IDrawable, IPhysicsObject
             right: nextPosition.x + this.HalfWidth,
             left: nextPosition.x - this.HalfWidth
         }
-    }
-    private get HalfHeight(): number
-    {
-        return Math.round(this.height * 0.5);
-    }
-    private get HalfWidth(): number
-    {
-        return Math.round(this.width * 0.5);
     }
 
     constructor(transform: Transform, color: string, width: number, height: number, speed: number, isColliderActive: boolean = false, isActive: boolean = true)

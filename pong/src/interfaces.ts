@@ -11,6 +11,8 @@ export interface IPhysicsObject
 {
     Transform: Transform;
     Speed: number;
+    HalfHeight: number;
+    HalfWidth: number;
     VelocityVectorX: number;
     VelocityVectorY: number;
     NextPosition: Position;

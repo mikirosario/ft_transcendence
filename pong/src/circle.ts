@@ -1,6 +1,7 @@
 import { Position, BoundingBox } from "./types.js";
 import { IDrawable, IPhysicsObject } from "./interfaces.js";
 import { Transform } from "./transform.js";
+import { normalizeRange, isInRange } from "./utils.js";
 
 export class Circle implements IDrawable, IPhysicsObject
 {
@@ -30,6 +31,14 @@ export class Circle implements IDrawable, IPhysicsObject
         this.speed = value;
         this.velocityVectorX = value;
         this.velocityVectorY = value;
+    }
+    public get HalfHeight(): number
+    {
+        return this.radius;
+    }
+    public get HalfWidth(): number
+    {
+        return this.radius;
     }
     public get Transform(): Transform
     {
@@ -72,6 +81,14 @@ export class Circle implements IDrawable, IPhysicsObject
             left: nextPosition.x - this.radius
         }
     }
+    private set VelocityVectorX(value: number)
+    {
+        this.velocityVectorX = value;
+    }
+    private set VelocityVectorY(value: number)
+    {
+        this.velocityVectorY = value;
+    }
 
     constructor(transform: Transform, color: string, speed: number, radius: number, isColliderActive: boolean = false, isActive: boolean = true)
     {
@@ -90,9 +107,21 @@ export class Circle implements IDrawable, IPhysicsObject
         this.velocityVectorY *= -1;
     }
 
-    public bounceX()
+    public bounceX(physObject: IPhysicsObject)
     {
-        this.velocityVectorX *= -1;
+        const QUARTER_CIRCLE_IN_RADIANS = Math.PI * 0.25;
+        const originalDirectionX = Math.sign(this.VelocityVectorX);
+        const collisionPointY = this.whereWillCollideY(physObject);
+        const isSideCollision = isInRange(collisionPointY, -1, 1);
+        const bounceAngleInRadians = collisionPointY * QUARTER_CIRCLE_IN_RADIANS;
+        const newVelocityVectorX = this.Speed * Math.cos(bounceAngleInRadians);
+
+        if (isSideCollision) // Side collisions invert the X direction of motion
+            this.VelocityVectorX = newVelocityVectorX * -originalDirectionX;
+        else                 // Top or bottom collisions continue the X direction of motion
+            this.VelocityVectorX = newVelocityVectorX * originalDirectionX;
+        // Update the Y component of the velocity
+        this.VelocityVectorY = this.Speed * Math.sin(bounceAngleInRadians);
     }
 
     public move(canvas: HTMLCanvasElement, physObjects: IPhysicsObject[] = [])
@@ -103,7 +132,7 @@ export class Circle implements IDrawable, IPhysicsObject
                 this.bounceY();
             physObjects.forEach((physObject) => {
                 if (this.willCollide(physObject))
-                    this.bounceX();
+                    this.bounceX(physObject);
             })
             this.Transform.position.x += this.VelocityVectorX;
             this.Transform.position.y += this.VelocityVectorY;
@@ -124,7 +153,7 @@ export class Circle implements IDrawable, IPhysicsObject
         return willCollide;
     }
 
-    willCollide(collidable: IPhysicsObject): boolean
+    public willCollide(collidable: IPhysicsObject): boolean
     {
         let willCollide: boolean = false;
         if (this.IsColliderActive)
@@ -151,5 +180,31 @@ export class Circle implements IDrawable, IPhysicsObject
             ctx.closePath();
             ctx.fill();
         }
+    }
+    
+    /*
+    ** Returns a normalized float from -1 to 1 indicating the point of collision
+    ** on the 'collidable' Y axis where 0 is the middle point.
+    **
+    ** Returned values above 1 or below -1 are out of bounds and will not
+    ** collide on this axis.
+    */
+    private whereWillCollideY(collidable: IPhysicsObject): number
+    {
+        let halfOffsetRange = collidable.HalfHeight;
+        return normalizeRange(this.NextPosition.y - collidable.NextPosition.y, -halfOffsetRange, halfOffsetRange);
+    }
+
+    /*
+    ** Returns a normalized float from -1 to 1 indicating the point of collision
+    ** on the 'collidable' X axis where 0 is the middle point.
+    **
+    ** Returned values above 1 or below -1 are out of bounds and will not
+    ** collide on this axis.
+    */
+    private whereWillCollideX(collidable: IPhysicsObject): number
+    {
+        let halfOffsetRange = collidable.HalfWidth;
+        return normalizeRange(this.NextPosition.x - collidable.NextPosition.x, -halfOffsetRange, halfOffsetRange);
     }
 }
