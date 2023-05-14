@@ -14,6 +14,7 @@ const PlayButton: React.FC = () => {
     fontFamily: 'Quantico',
     fontWeight: 'bold',
     fontSize: '25px',
+    fontStyle: 'italic',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
