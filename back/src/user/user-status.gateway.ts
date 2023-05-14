@@ -25,71 +25,54 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	afterInit(server: any) { }
 	
-	handleConnection(client: any, ...args: any[]) {
-		/* Extraer JWT */
+	async handleConnection(client: any, ...args: any[]) {
 		const jwtToken = this.extractTokenFromHeaders(client.handshake.headers);
-		console.log(jwtToken);
 
-		if (!jwtToken)
-		{
-			// Token is missing, close the connection
-			client.disconnect();
+		const userId = this.getUserIdFromToken(client, jwtToken);
+		if (userId == null)
 			return;
-		}
 
-		try {
-			const decoded = verify(jwtToken, this.config.get('JWT_SECRET'));
-			const userId = Number(decoded.sub)
-			const user = this.userService.getUser(userId);
-			if (!user) {
-				// Invalid user, close the connection
-				client.disconnect();
-				return;
-			}
-			this.userService.setUserStatus(userId, 'online');
-		} catch (error) {
-			// Invalid token, close the connection
-			client.disconnect();
-		}
-
-		console.log('Hola! alguien se conecto al socket 👌👌👌');
+		const user = await this.userService.setUserStatus(userId, 'online');
+		console.log('Hola! ' + user.nick + ' está online ✅');
 	}
 	
-	handleDisconnect(client: any) {
-		// Extraer JWT
+	async handleDisconnect(client: any) {
 		const jwtToken = this.extractTokenFromHeaders(client.handshake.headers);
-		console.log(jwtToken);
 		
-		// Comprobar si JWT es valido
-		if (!jwtToken)
-		{
-			// Token is missing, close the connection
-			client.disconnect();
+		const userId = this.getUserIdFromToken(client, jwtToken);
+		if (userId == null)
 			return;
-		}
 
-		try {
-			const decoded = verify(jwtToken, this.config.get('JWT_SECRET'));
-			const userId = Number(decoded.sub)
-			const user = this.userService.getUser(userId);
-			if (!user) {
-				// Invalid user, close the connection
-				client.disconnect();
-				return;
-			}
-			this.userService.setUserStatus(userId, 'offline');
-		} catch (error) {
-			// Invalid token, close the connection
-			client.disconnect();
-		}
-
-		console.log('ALguien se fue! chao chao')
+		const user = await this.userService.setUserStatus(userId, 'offline');
+		console.log(user.nick + ' está offline ❌');
 	}
 
 	private extractTokenFromHeaders(headers: any): string | null {
 		const auth_token: string = headers.authorization.split(" ")[1];
 		
 		return (auth_token);
+	}
+
+	private getUserIdFromToken(client: any, jwtToken: string) {
+		if (!jwtToken) // Token is missing, close the connection
+		{
+			client.disconnect();
+			return null;
+		}
+
+		try {
+			const decoded = verify(jwtToken, this.config.get('JWT_SECRET'));
+			const userId = Number(decoded.sub);
+			
+			if (!this.userService.doesUserExit(userId)) { // Invalid user, close the connection
+				client.disconnect();
+				return null;
+			}
+			return userId;
+		} catch (error) { // Invalid token, close the connection
+			client.disconnect();
+			return null;
+		}
 	}
 	
 	/*

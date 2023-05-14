@@ -180,9 +180,9 @@ export class UserService {
 	}
 
 	/*
-	 * Set user connected
+	 * Set user status (co)
 	*/
-	async setUserStatus(userId: number, status: string) {
+	async setUserStatus(userId: number, status: string): Promise<any> {
 		try {
 			const user = await this.prisma.user.update({
 				where: {
@@ -196,25 +196,21 @@ export class UserService {
 			return user;
 		}
 		catch (error) {
-			if (error instanceof PrismaClientKnownRequestError) {
-				// https://www.prisma.io/docs/reference/api-reference/error-reference
-				// P2025 Record not found
-				ThrowHttpException(error, 'User not found');
-			}
+			return (null);
 		}
 	}
 
-	async getUser(userId: number) {
+	async doesUserExit(userId: number): Promise<boolean> {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				id: userId,
 			}
 		});
 		
-		if (user !== null) {
-			delete user.hash;
+		if (user === null) {
+			return false;
 		}
 		
-		return user;
+		return true;
 	}
 }
