@@ -5,7 +5,7 @@ import { AspectRatio } from "./types.js";
 import { Transform } from "./transform.js";
 import { Rectangle } from "./rectangle.js";
 import { Circle } from "./circle.js";
-import { Text } from "./text.js";
+import { Score } from "./score.js";
 import { VerticalDashedLine } from "./net.js";
 import { onKeyDown, onKeyUp } from "./input.handlers.js";
 
@@ -48,8 +48,8 @@ class Pong
     private leftPaddle: Rectangle;
     private rightPaddle: Rectangle;
     private ball: Circle;
-    private leftScore: Text;
-    private rightScore: Text;
+    private leftScore: Score;
+    private rightScore: Score;
     private drawables: IDrawable[];
 
     constructor(
@@ -66,8 +66,8 @@ class Pong
         this.leftPaddle = new Rectangle(new Transform({ x: 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100, 5, true);
         this.rightPaddle = new Rectangle(new Transform({ x: this.canvas.width - 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100, 5, true);
         this.ball = new Circle(new Transform({ x: Math.round(this.canvas.width * 0.5), y: Math.round(this.canvas.height * 0.5) }, 1), "white", 1, 10, true);
-        this.leftScore = new Text(new Transform({ x: Math.round(this.canvas.width * 0.25), y: Math.round(this.canvas.height * 0.2) }, 1), "0", "white", 75);
-        this.rightScore = new Text(new Transform({ x: Math.round(this.canvas.width * 0.75), y: Math.round(this.canvas.height * 0.2) }, 1), "0", "white", 75);
+        this.leftScore = new Score(new Transform({ x: Math.round(this.canvas.width * 0.25), y: Math.round(this.canvas.height * 0.2) }, 1), "0", "white", 75);
+        this.rightScore = new Score(new Transform({ x: Math.round(this.canvas.width * 0.75), y: Math.round(this.canvas.height * 0.2) }, 1), "0", "white", 75);
         this.drawables = [ this.net, this.leftPaddle, this.rightPaddle, this.ball, this.leftScore, this.rightScore ];
         this.renderFrame = this.renderFrame.bind(this);
         document.addEventListener("keydown", (event) => {
@@ -92,9 +92,37 @@ class Pong
         this.rightPaddle.move(this.canvas);
     }
 
+    whoScored(): Score | null
+    {
+        let scoreRef: Score | null = null;
+        let ballBoundingBox = this.ball.BoundingBoxPosition;
+        if (ballBoundingBox.left < 0)
+            scoreRef = this.rightScore;
+        else if (ballBoundingBox.right > this.canvas.width)
+            scoreRef = this.leftScore;
+        return scoreRef;
+    }
+
+    async scoreUpdate()
+    {
+        if (this.ball.IsInPlay)
+        {
+            let player = this.whoScored();
+            if (player)
+            {
+                player.Score += 1;
+                this.ball.IsInPlay = false;
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                this.ball.IsInPlay = true;
+                this.ball.resetBall(this.canvas);
+            }
+        }
+    }
+
     renderFrame()
     {
         this.physicsUpdate();
+        this.scoreUpdate();
         this.clearScreen();
         this.drawables.forEach((drawable) => {
             drawable.draw(this.ctx);

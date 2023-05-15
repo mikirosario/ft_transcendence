@@ -19,6 +19,7 @@ export interface IPhysicsObject
     move(canvas: HTMLCanvasElement, collidables: IPhysicsObject[]): void;
     IsColliderActive: boolean;
     BoundingBoxNextPosition: BoundingBox;
+    BoundingBoxPosition: BoundingBox;
     willCollideCanvas(canvas: HTMLCanvasElement): boolean;
     willCollide(collidable: IPhysicsObject): boolean;
 }

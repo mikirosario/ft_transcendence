@@ -6,6 +6,7 @@ import { normalizeRange, isInRange } from "./utils.js";
 export class Circle implements IDrawable, IPhysicsObject
 {
     private isActive: boolean;
+    private isInPlay: boolean;
     private transform: Transform;
     private isColliderActive: boolean;
     private speed: number;
@@ -21,6 +22,14 @@ export class Circle implements IDrawable, IPhysicsObject
     public set IsActive(value: boolean)
     {
         this.isActive = value;
+    }
+    public get IsInPlay(): boolean
+    {
+        return this.IsActive && this.isInPlay;
+    }
+    public set IsInPlay(value: boolean)
+    {
+        this.isInPlay = value;
     }
     public get Speed(): number
     {
@@ -81,6 +90,15 @@ export class Circle implements IDrawable, IPhysicsObject
             left: nextPosition.x - this.radius
         }
     }
+    public get BoundingBoxPosition(): BoundingBox
+    {
+        return {
+            top: this.Transform.position.y - this.radius,
+            bottom: this.Transform.position.y + this.radius,
+            right: this.Transform.position.x + this.radius,
+            left: this.Transform.position.x - this.radius
+        }
+    }
     private set VelocityVectorX(value: number)
     {
         this.velocityVectorX = value;
@@ -100,14 +118,21 @@ export class Circle implements IDrawable, IPhysicsObject
         this.velocityVectorY = speed;
         this.isColliderActive = isColliderActive;
         this.isActive = isActive;
+
+        this.isInPlay = true;
     }
 
     public bounceY()
     {
-        this.velocityVectorY *= -1;
+        this.VelocityVectorY *= -1;
     }
 
-    public bounceX(physObject: IPhysicsObject)
+    public bounceX()
+    {
+        this.VelocityVectorX *= -1;
+    }
+
+    public bounceBack(physObject: IPhysicsObject)
     {
         const QUARTER_CIRCLE_IN_RADIANS = Math.PI * 0.25;
         const originalDirectionX = Math.sign(this.VelocityVectorX);
@@ -132,7 +157,7 @@ export class Circle implements IDrawable, IPhysicsObject
                 this.bounceY();
             physObjects.forEach((physObject) => {
                 if (this.willCollide(physObject))
-                    this.bounceX(physObject);
+                    this.bounceBack(physObject);
             })
             this.Transform.position.x += this.VelocityVectorX;
             this.Transform.position.y += this.VelocityVectorY;
@@ -168,6 +193,15 @@ export class Circle implements IDrawable, IPhysicsObject
             )
         }
         return willCollide;
+    }
+
+    public resetBall(canvas: HTMLCanvasElement) // Todo: Move to derived Ball class
+    {
+        this.Transform.position = {
+            x: Math.round(canvas.width * 0.5),
+            y: Math.round(canvas.height * 0.5)
+        }
+        this.VelocityVectorX = -this.VelocityVectorX;
     }
 
     public draw(ctx: CanvasRenderingContext2D): void

@@ -4,7 +4,7 @@ import { Transform } from "./transform.js";
 
 export class Text implements IDrawable
 {
-    private isActive: boolean;
+    protected isActive: boolean;
     public transform: Transform;
     public text: string;
     public font: string;
@@ -30,7 +30,7 @@ export class Text implements IDrawable
         this.isActive = isActive;
     }
 
-    private getUpperLeftCorner(): Position
+    protected getUpperLeftCorner(): Position
     {
         let halfWidth = Math.round(this.fontSize * 0.5);
         let halfHeight = Math.round(this.fontSize * 0.5);

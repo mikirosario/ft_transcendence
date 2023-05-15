@@ -103,7 +103,15 @@ export class Rectangle implements IDrawable, IPhysicsObject
             left: nextPosition.x - this.HalfWidth
         }
     }
-
+    public get BoundingBoxPosition(): BoundingBox
+    {
+        return {
+            top: this.Transform.position.y - this.HalfHeight,
+            bottom: this.Transform.position.y + this.HalfHeight,
+            right: this.Transform.position.x + this.HalfWidth,
+            left: this.Transform.position.x - this.HalfWidth
+        }
+    }
     constructor(transform: Transform, color: string, width: number, height: number, speed: number, isColliderActive: boolean = false, isActive: boolean = true)
     {
         this.transform = transform;
