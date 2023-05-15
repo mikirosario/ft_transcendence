@@ -14,13 +14,9 @@ function Home() {
         transform: 'translate(-50%, -50%)',
       };
 
-
-    const gameSelectorLink = () => {
-        navigate('/GameSelector');
-    };
-
     const AuthLoginLink = () => {
-        window.location.href = 'localhost:3000'; // Auth URL
+        // window.location.href = 'xxxx'; // Auth URL
+        navigate('/homepage');
     };
 
 
