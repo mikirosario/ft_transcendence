@@ -1,6 +1,6 @@
-import { Rectangle } from "./rectangle.js";
+import { Paddle } from "./paddle.js";
 
-export function onKeyDown(event: KeyboardEvent, p1: Rectangle, p2: Rectangle): void
+export function onKeyDown(event: KeyboardEvent, p1: Paddle, p2: Paddle): void
 {
     if (event.isComposing)
                 return;
@@ -26,7 +26,7 @@ export function onKeyDown(event: KeyboardEvent, p1: Rectangle, p2: Rectangle): v
     }
 }
 
-export function onKeyUp(event: KeyboardEvent, p1: Rectangle, p2: Rectangle): void
+export function onKeyUp(event: KeyboardEvent, p1: Paddle, p2: Paddle): void
 {
     if (event.code === "KeyW" && p1.PlayerInputs.up == true)
     {
