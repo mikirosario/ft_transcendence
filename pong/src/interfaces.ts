@@ -1,4 +1,5 @@
 import { Position, BoundingBox } from "./types.js";
+import { Alignment } from "./alignment.js";
 import { Transform } from "./transform.js";
 
 export interface IDrawable
@@ -22,4 +23,9 @@ export interface IPhysicsObject
     BoundingBoxPosition: BoundingBox;
     willCollideCanvas(canvas: HTMLCanvasElement): boolean;
     willCollide(collidable: IPhysicsObject): boolean;
+}
+
+export interface IUIObject
+{
+    Alignment: Alignment;
 }

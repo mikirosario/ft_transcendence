@@ -12,7 +12,6 @@ export class Ball extends Circle implements IPhysicsObject
     private velocityVectorX: number;
     private velocityVectorY: number;
 
-    // Getters and Setters
     public get IsColliderActive(): boolean {
         return this.IsActive && this.isColliderActive;
     }

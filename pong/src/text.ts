@@ -1,28 +1,80 @@
 import { Position } from "./types.js";
-import { IDrawable } from "./interfaces.js";
+import { IDrawable, IUIObject } from "./interfaces.js";
+import { Alignment, HorizontalAnchor, VerticalAnchor } from "./alignment.js";
 import { Transform } from "./transform.js";
+import { centerPositionInRangeX, centerPositionInRangeY } from "./utils.js";
 
-export class Text implements IDrawable
+export class Text implements IDrawable, IUIObject
 {
-    protected isActive: boolean;
-    public transform: Transform;
-    public text: string;
-    public font: string;
-    public fontSize: number;
-    public color: string;
+    private isActive: boolean;
+    private alignment: Alignment;
+    private transform: Transform;
+    private text: string;
+    private fontSize: number;
+    private color: string;
+    private font: string;
 
-    public get IsActive(): boolean
-    {
+    public get IsActive(): boolean {
         return this.isActive;
     }
-    public set IsActive(value: boolean)
-    {
+    public set IsActive(value: boolean) {
         this.isActive = value;
     }
 
-    constructor(transform: Transform, text: string, color: string, fontSize: number, isActive: boolean = true)
+    private get Transform(): Transform {
+        return this.transform;
+    }
+
+    public get Text(): string
     {
-        this.transform = transform;
+        return this.text;
+    }
+    public set Text(value: string)
+    {
+        this.text = value;
+    }
+
+    public get Alignment(): Alignment {
+        return this.alignment;
+    }
+    public set Alignment(value: Alignment) {
+        this.alignment = value;
+    }
+
+    public get FontSize(): number {
+        return this.fontSize;
+    }
+    public set FontSize(value: number) {
+        this.fontSize = value;
+    }
+
+    public get Color(): string {
+        return this.color;
+    }
+    public set Color(value: string) {
+        this.color = value;
+    }
+
+    public get Height(): number {
+        return this.FontSize;
+    }
+
+    public get Width(): number {
+        return Math.round(this.FontSize * this.Text.length);
+    }
+
+    public get HalfHeight(): number {
+        return Math.round(this.Height * 0.5);
+    }
+
+    public get HalfWidth(): number {
+        return Math.round(this.Width * 0.5);
+    }
+
+    constructor(alignment: Alignment, text: string, color: string, fontSize: number, isActive: boolean = true)
+    {
+        this.alignment = alignment;
+        this.transform = new Transform();
         this.text = text;
         this.color = color;
         this.fontSize = fontSize;
@@ -30,22 +82,44 @@ export class Text implements IDrawable
         this.isActive = isActive;
     }
 
-    protected getUpperLeftCorner(): Position
+    private alignmentToPosition(canvas: HTMLCanvasElement): Position
     {
-        let halfWidth = Math.round(this.fontSize * 0.5);
-        let halfHeight = Math.round(this.fontSize * 0.5);
+        let newPosition: Position = { x: 0, y: 0};
+        switch (this.Alignment.Horizontal)
+        {
+            case HorizontalAnchor.LEFT:
+                centerPositionInRangeX(newPosition, 0, Math.round(canvas.width * 0.5));
+                break;
+            case HorizontalAnchor.RIGHT:
+                centerPositionInRangeX(newPosition, Math.round(canvas.width * 0.5), canvas.width);
+                break;
+            default:
+                centerPositionInRangeX(newPosition, 0, canvas.width);
+        }
+        switch (this.Alignment.Vertical)
+        {
+            case VerticalAnchor.TOP:
+                centerPositionInRangeY(newPosition, 0, Math.round(canvas.height * 0.25));
+                break;
+            case VerticalAnchor.BOTTOM:
+                centerPositionInRangeY(newPosition, Math.round(canvas.height * 0.75), canvas.height);
+                break;
+            default:
+                centerPositionInRangeY(newPosition, 0, canvas.height);
+        }
 
-        return { x: this.transform.position.x - halfWidth, y: this.transform.position.y - halfHeight};
+        return newPosition;
     }
 
     public draw(ctx: CanvasRenderingContext2D): void
     {
         if (this.IsActive)
         {
-            let upperLeftCornerPosition = this.getUpperLeftCorner();
+            this.Transform.position = this.alignmentToPosition(ctx.canvas);
             ctx.fillStyle = this.color;
+            ctx.textAlign = "center";
             ctx.font = this.font;
-            ctx.fillText(this.text, upperLeftCornerPosition.x, this.transform.position.y);
+            ctx.fillText(this.text, this.Transform.position.x, this.Transform.position.y);
         }
     }
 }

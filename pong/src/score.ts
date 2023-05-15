@@ -1,23 +1,46 @@
 import { Text } from "./text.js";
-import { Transform } from "./transform.js";
+import { Alignment } from "./alignment.js";
+import { padEnd } from "./utils.js";
 
 export class Score extends Text
 {
+    playerName: string;
     score: number = 0;
-
     
-    public get Score(): number
-    {
+    private static get MAX_NAME_WIDTH(): number {
+        return 8;
+    }
+
+    public get Score(): number {
         return this.score;
     }
-    public set Score(value: number)
-    {
+    public set Score(value: number) {
         this.score = value;
-        this.text = value.toString();
+        this.Text = Score.generateScoreDisplay(this.PlayerName, this.Score);
+    }
+
+    public get PlayerName(): string {
+        return this.playerName;
+    }
+    public set PlayerName(value: string)
+    {
+        this.playerName = Score.formatPlayerName(value);
     }
     
-    constructor(transform: Transform, text: string, color: string, fontSize: number, isActive: boolean = true)
+    constructor(alignment: Alignment, playerName: string, color: string, fontSize: number, isActive: boolean = true)
     {
-        super(transform, text, color, fontSize, isActive);
+        playerName = Score.formatPlayerName(playerName);
+        super(alignment, Score.generateScoreDisplay(playerName, 0), color, fontSize, isActive);
+        this.playerName = playerName;
+    }
+
+    private static formatPlayerName(playerName: string)
+    {
+        return padEnd(playerName.slice(0, Score.MAX_NAME_WIDTH) + ":", Score.MAX_NAME_WIDTH);
+    }
+
+    private static generateScoreDisplay(playerName: string, score: number)
+    {
+        return `${playerName} ${score}`
     }
 }
