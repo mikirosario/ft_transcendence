@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 
-const PlayButton: React.FC = () => {
+interface Args{
+  name: string;
+}
+
+const PlayButton: React.FC<Args> = (args) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const buttonStyle = {
@@ -39,7 +43,7 @@ const PlayButton: React.FC = () => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      Play now
+      {args.name}
     </button>
   );
 }

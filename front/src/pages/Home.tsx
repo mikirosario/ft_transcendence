@@ -1,9 +1,9 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
 import PlayButton from "../components/home/PlayButton";
-import AuthLoginButton from "../components/home/AuthButton";
 import SettingsButton from "../components/home/SettingsButton";
 import SwitchChatLadder from "../components/chat-ladder/ChatLadderSwitch";
+import AvatarProfile from "../components/home/AvatarProfile";
 
 function Home() {
     const navigate = useNavigate();
@@ -16,12 +16,12 @@ function Home() {
         alignItems: 'flex-end',
     };
 
-    const AuthLoginStyle: React.CSSProperties = {
+    const AvatarDisplay: React.CSSProperties = {
         position: 'fixed',
-        top: '450px',
-        left: '150px',
+        top: '500px',
+        left: '215px',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        padding: '125px',
+        padding: '50px',
     };
 
     const SettingsStyle: React.CSSProperties = {
@@ -60,11 +60,11 @@ function Home() {
             <section className="SwitchChat-Ladder" style={SwitchStyle}>
                 <SwitchChatLadder></SwitchChatLadder>
             </section>
-            <section className='AuthLoginButton' style={AuthLoginStyle} onClick={AuthLoginLink}>
-                <AuthLoginButton></AuthLoginButton>
+            <section className='AvatarDisplay' style={AvatarDisplay} onClick={AuthLoginLink}>
+                <AvatarProfile name="Alex" image='https://i.imgur.com/yXOvdOSs.jpg' rank={10} />
             </section>
             <section className='PlayButton' style={PlayButtonStyle} onClick={gameSelectorLink}>
-                <PlayButton></PlayButton>
+                <PlayButton name="Play now"/>
             </section>
         </div>
     );
