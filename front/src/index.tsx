@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import Options from './pages/Options';
 import GameSelector from './pages/GameSelector';
 import Pong from './pages/Pong';
+import Register from './pages/Register';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -24,7 +25,8 @@ root.render(
     }}>
       <Routes>
         <Route path="/">
-          <Route index element={<Home />} />
+          <Route index element={<Register />} />
+          <Route path="homepage" element={<Home />} />
           <Route path="settings" element={<Options />} />
           <Route path="pong" element={<Pong />} />
           <Route path="gameSelector" element={<GameSelector />} />
