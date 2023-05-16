@@ -2,7 +2,7 @@ import { Controller, Get, UseGuards, Patch, Body, Delete, Post, UseInterceptors,
 import { ApiBody, ApiBearerAuth } from "@nestjs/swagger"
 import { JwtGuard } from "../auth/guard";
 import { GetJwt } from "../auth/decorator";
-import { EditUserDto, UserProfileDto } from "./dto";
+import { EditUserDto, UserProfileUpdateDto } from "./dto";
 import { UserService } from "./user.service";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { saveProfileImageToStorage } from "../utils/image-storage"
@@ -33,12 +33,20 @@ export class UserController {
 	}
 
 	/*
+	 * Get user profile data
+	*/
+	@Get('profile')
+	async getProfile(@GetJwt('sub') userId: number) {
+		return this.userService.getProfile(userId);
+	}
+
+	/*
 	 * Set / update user profile data and profile picture
 	*/
 	@Put('profile')
-	@ApiBody({ type: UserProfileDto })
+	@ApiBody({ type: UserProfileUpdateDto })
 	@UseInterceptors(FileInterceptor('file', saveProfileImageToStorage))
-	async updateProfileData(@GetJwt('sub') userId: number, @Body() dto: UserProfileDto, @UploadedFile() file?: Express.Multer.File) {
+	async updateProfileData(@GetJwt('sub') userId: number, @Body() dto: UserProfileUpdateDto, @UploadedFile() file?: Express.Multer.File) {
 		return this.userService.updateProfileData(userId, dto, file);
 	}
 

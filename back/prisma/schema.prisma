@@ -21,7 +21,7 @@ model User {
     firstName String?
     lastName  String?
 
-    avatarUri String?
+    avatarUri String @default("default.jpg")
     status    String @default("offline")
 
     score       Int      @default(0)
