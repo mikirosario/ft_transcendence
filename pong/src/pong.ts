@@ -24,7 +24,7 @@ async function main() {
         const canvasElement: HTMLElement | null = document.getElementById('pong');
         const canvas = getGameCanvas(canvasElement);
         const ctx = getGameRenderingContext(canvas);
-        const aspectRatio: AspectRatio = new AspectRatio(858, 525);
+        const aspectRatio: AspectRatio = new AspectRatio(640, 480);
         const colorConstants = await fetchColorConstants();
         canvasBackgroundColor = colorConstants.canvasBackgroundColor;
         initGameCanvas(canvas, ctx, aspectRatio, canvasBackgroundColor);
