@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from '../prisma/prisma.service';
 import { ThrowHttpException } from '../utils/error-handler';
-import { EditUserDto, UserProfileDto } from "./dto";
+import { EditUserDto, UserProfileDto, UserProfileUpdateDto } from "./dto";
 import { ConfigService } from "@nestjs/config";
 import { join } from 'path';
 import * as fs from 'fs';
@@ -70,9 +70,29 @@ export class UserService {
 	}
 
 	/*
+	 * Get user profile data
+	*/
+	async getProfile(userId: number) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: userId,
+			}
+		});
+		if (user === null) {
+			ThrowHttpException(new NotFoundException, 'User not found');
+		}
+
+		let profile = new UserProfileDto;
+		profile.nick = user.nick;
+		profile.avatarUri = user.avatarUri;
+		
+		return profile;
+	}
+
+	/*
 	 * Set / update user profile data and profile picture
 	*/
-	async updateProfileData(userId: number, dto: UserProfileDto, file?: Express.Multer.File) {
+	async updateProfileData(userId: number, dto: UserProfileUpdateDto, file?: Express.Multer.File) {
 		let fileName = file?.filename;
 
 		const user = await this.prisma.user.findUnique({
@@ -118,9 +138,7 @@ export class UserService {
 		}
 		catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				// https://www.prisma.io/docs/reference/api-reference/error-reference
-				// P2025 Record not found
-				ThrowHttpException(error, 'User not found');
+				ThrowHttpException(error, 'Nick is already taken');
 			}
 		}
 	}
@@ -159,8 +177,6 @@ export class UserService {
 		}
 		catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				// https://www.prisma.io/docs/reference/api-reference/error-reference
-				// P2025 Record not found
 				ThrowHttpException(error, 'User not found');
 			}
 		}
