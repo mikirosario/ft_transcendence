@@ -1,4 +1,4 @@
-import { Position, BoundingBox } from "./types.js";
+import { Position, BoundingBox, Plane } from "./types.js";
 import { Alignment } from "./alignment.js";
 import { Transform } from "./transform.js";
 
@@ -8,6 +8,7 @@ export interface IDrawable
     Height: number;
     Width: number;
     draw(ctx: CanvasRenderingContext2D): void;
+    onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasDimensions: Plane): void;
 }
 
 export interface IPhysicsObject

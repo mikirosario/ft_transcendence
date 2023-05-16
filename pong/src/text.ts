@@ -1,4 +1,4 @@
-import { Position } from "./types.js";
+import { Plane, Position } from "./types.js";
 import { IDrawable, IUIObject } from "./interfaces.js";
 import { Alignment, HorizontalAnchor, VerticalAnchor } from "./alignment.js";
 import { Transform } from "./transform.js";
@@ -13,6 +13,8 @@ export class Text implements IDrawable, IUIObject
     private fontSize: number;
     private color: string;
     private font: string;
+
+    private originalFontSize: number;
 
     public get IsActive(): boolean {
         return this.isActive;
@@ -55,6 +57,13 @@ export class Text implements IDrawable, IUIObject
         this.color = value;
     }
 
+    public get Font(): string {
+        return this.font;
+    }
+    private set Font(value: string) {
+        this.font = value;
+    }
+
     public get Height(): number {
         return this.FontSize;
     }
@@ -80,6 +89,7 @@ export class Text implements IDrawable, IUIObject
         this.fontSize = fontSize;
         this.font = `${fontSize}px press_start_2p, monospace`;
         this.isActive = isActive;
+        this.originalFontSize = fontSize;
     }
 
     private alignmentToPosition(canvas: HTMLCanvasElement): Position
@@ -109,6 +119,13 @@ export class Text implements IDrawable, IUIObject
         }
 
         return newPosition;
+    }
+
+    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasDimensions: Plane): void
+    {
+        const scale = Math.min(scaleX, scaleY);
+        this.FontSize = this.originalFontSize * scale;
+        this.Font = `${this.FontSize}px press_start_2p, monospace`; // Todo: extract to build string method
     }
 
     public draw(ctx: CanvasRenderingContext2D): void

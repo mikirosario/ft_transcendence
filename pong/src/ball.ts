@@ -1,7 +1,7 @@
 import { Circle } from "./circle.js";
 import { Transform } from "./transform.js";
 import { IPhysicsObject } from "./interfaces.js";
-import { BoundingBox, Position } from "./types.js";
+import { BoundingBox, Plane, Position } from "./types.js";
 import { isInRange, normalizeRange } from "./utils.js";
 
 export class Ball extends Circle implements IPhysicsObject
@@ -11,6 +11,8 @@ export class Ball extends Circle implements IPhysicsObject
     private speed: number;
     private velocityVectorX: number;
     private velocityVectorY: number;
+
+    private originalSpeed: number;
 
     public get IsColliderActive(): boolean {
         return this.IsActive && this.isColliderActive;
@@ -75,14 +77,16 @@ export class Ball extends Circle implements IPhysicsObject
         }
     }
 
-    constructor(transform: Transform, color: string, speed: number, radius: number, isColliderActive: boolean = false, isActive: boolean = true)
+    constructor(transform: Transform, color: string, speed: number, radius: number, canvas: HTMLCanvasElement, isColliderActive: boolean = false, isActive: boolean = true)
     {
-        super(transform, color, radius, isActive);
+        super(transform, color, radius, canvas, isActive);
         this.speed = speed;
         this.velocityVectorX = -speed;
         this.velocityVectorY = speed;
         this.isColliderActive = isColliderActive;
         this.isInPlay = true;
+
+        this.originalSpeed = speed;
     }
 
     public bounceY()
@@ -203,5 +207,16 @@ export class Ball extends Circle implements IPhysicsObject
     {
         let halfOffsetRange = collidable.HalfWidth;
         return normalizeRange(this.NextPosition.x - collidable.NextPosition.x, -halfOffsetRange, halfOffsetRange);
+    }
+
+    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasDimensions: Plane): void
+    {
+        super.onResizeCanvas(scaleX, scaleY, canvas, prevCanvasDimensions);
+        const scale = Math.min(scaleX, scaleY);
+        this.speed = this.originalSpeed * scale;
+        const directionX = Math.sign(this.velocityVectorX);
+        const directionY = Math.sign(this.velocityVectorY);
+        this.velocityVectorX = directionX * this.speed;
+        this.velocityVectorY = directionY * this.speed;
     }
 }

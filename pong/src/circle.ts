@@ -1,5 +1,6 @@
 import { IDrawable } from "./interfaces.js";
 import { Transform } from "./transform.js";
+import { Plane } from "./types.js";
 
 export class Circle implements IDrawable
 {
@@ -7,6 +8,9 @@ export class Circle implements IDrawable
     private transform: Transform;
     private radius: number;
     private color: string;
+    private originalRadius: number;
+    private relativeX: number;
+    private relativeY: number;
     
     public get IsActive(): boolean {
         return this.isActive;
@@ -51,12 +55,26 @@ export class Circle implements IDrawable
         return this.radius;
     }
 
-    constructor(transform: Transform, color: string, radius: number, isActive: boolean = true)
+    constructor(transform: Transform, color: string, radius: number, canvas: HTMLCanvasElement, isActive: boolean = true)
     {
         this.transform = transform;
         this.color = color;
         this.radius = radius;
         this.isActive = isActive;
+        this.originalRadius = radius;
+        this.relativeX = this.transform.position.x / canvas.width;
+        this.relativeY = this.transform.position.y / canvas.height;
+    }
+
+    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement,  prevCanvasDimensions: Plane): void
+    {
+        const scale = Math.min(scaleX, scaleY);
+        const relativeX = this.transform.position.x / prevCanvasDimensions.width;
+        const relativeY = this.transform.position.y / prevCanvasDimensions.height;
+
+        this.radius = Math.round(this.originalRadius * scale);
+        this.transform.position.x = Math.round(relativeX * canvas.width);
+        this.transform.position.y = Math.round(relativeY * canvas.height);
     }
 
     public draw(ctx: CanvasRenderingContext2D): void

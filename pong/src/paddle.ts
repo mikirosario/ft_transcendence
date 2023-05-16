@@ -69,9 +69,9 @@ export class Paddle extends Rectangle implements IPhysicsObject
         }
     }
 
-    constructor(transform: Transform, color: string, width: number, height: number, speed: number, isColliderActive: boolean = false, isActive: boolean = true)
+    constructor(transform: Transform, color: string, width: number, height: number, speed: number, canvas: HTMLCanvasElement, isColliderActive: boolean = false, isActive: boolean = true)
     {
-        super(transform, color, width, height, isActive);
+        super(transform, color, width, height, canvas, isActive);
         this.speed = speed;
         this.isColliderActive = isColliderActive;
         this.velocityVectorX = 0;

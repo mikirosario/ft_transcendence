@@ -1,4 +1,5 @@
 import { getGameCanvas, getGameRenderingContext, initGameCanvas, fetchColorConstants } from "./init.js";
+import { Plane } from "./types.js";
 import { IDrawable } from "./interfaces.js";
 import { showError } from "./utils.js";
 import { AspectRatio } from "./aspect.ratio.js";
@@ -53,6 +54,9 @@ class Pong
     private rightScore: Score;
     private drawables: IDrawable[];
 
+    private originalCanvasWidth: number;
+    private originalCanvasHeight: number;
+
     constructor(
         canvas: HTMLCanvasElement,
         context: CanvasRenderingContext2D,
@@ -63,13 +67,15 @@ class Pong
         this.ctx = context;
         this.aspectRatio = aspectRatio;
         this.backgroundColor = backgroundColor;
-        this.net = new VerticalDashedLine(new Transform( {x: Math.round(this.canvas.width * 0.5), y: Math.round(this.canvas.height * 0.5) }, 1), "black", 5, this.canvas.height, 10);
-        this.leftPaddle = new Paddle(new Transform({ x: 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100, 5, true);
-        this.rightPaddle = new Paddle(new Transform({ x: this.canvas.width - 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100, 5, true);
-        this.ball = new Ball(new Transform({ x: Math.round(this.canvas.width * 0.5), y: Math.round(this.canvas.height * 0.5) }, 1), "white", 1, 10, true);
+        this.net = new VerticalDashedLine(new Transform( {x: Math.round(this.canvas.width * 0.5), y: Math.round(this.canvas.height * 0.5) }, 1), "black", 5, this.canvas.height, 10, this.canvas);
+        this.leftPaddle = new Paddle(new Transform({ x: 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100, 5, this.canvas, true);
+        this.rightPaddle = new Paddle(new Transform({ x: this.canvas.width - 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100, 5, this.canvas, true);
+        this.ball = new Ball(new Transform({ x: Math.round(this.canvas.width * 0.5), y: Math.round(this.canvas.height * 0.5) }, 1), "white", 1, 10, this.canvas, true);
         this.leftScore = new Score(new Alignment(HorizontalAnchor.LEFT, VerticalAnchor.TOP), "pongmaster", "white", 20);
         this.rightScore = new Score(new Alignment(HorizontalAnchor.RIGHT, VerticalAnchor.TOP), "ponginator", "white", 20);
         this.drawables = [ this.net, this.leftPaddle, this.rightPaddle, this.ball, this.leftScore, this.rightScore ];
+        this.originalCanvasWidth =aspectRatio.Width;
+        this.originalCanvasHeight = aspectRatio.Height;
         this.renderFrame = this.renderFrame.bind(this);
         document.addEventListener("keydown", (event) => {
             onKeyDown(event, this.leftPaddle, this.rightPaddle);
@@ -77,7 +83,49 @@ class Pong
         document.addEventListener("keyup", (event) => {
             onKeyUp(event, this.leftPaddle, this.rightPaddle);
         })
+        this.resizeCanvas(window.innerWidth, window.innerHeight);
+        window.addEventListener('resize', () => {
+            this.resizeCanvas(window.innerWidth, window.innerHeight);
+        });
         requestAnimationFrame(this.renderFrame);
+    }
+
+    public resizeCanvas(newWindowWidth: number, newWindowHeight: number): void
+    {
+        const verticalMargin = 200;
+        const availableHeight = newWindowHeight - verticalMargin;
+        const windowAspectRatio = new AspectRatio(newWindowWidth, availableHeight);
+        let newCanvasWidth = newWindowWidth * 0.7;
+        let newCanvasHeight = newCanvasWidth / (this.originalCanvasWidth / this.originalCanvasHeight);
+
+        if (newCanvasHeight > availableHeight)
+        {
+            newCanvasHeight = availableHeight;
+            newCanvasWidth = newCanvasHeight * (this.originalCanvasWidth / this.originalCanvasHeight);
+        }
+
+        const scaleX = newCanvasWidth / this.originalCanvasWidth;
+        const scaleY = newCanvasHeight / this.originalCanvasHeight;
+        const prevCanvasDimensions: Plane = {
+            width: this.canvas.width,
+            height: this.canvas.height
+        };
+        this.canvas.width = Math.round(newCanvasWidth);
+        this.canvas.height = Math.round(newCanvasHeight);
+        this.drawables.forEach((drawable) => {
+            drawable.onResizeCanvas(scaleX, scaleY, this.canvas, prevCanvasDimensions);
+        })
+    }
+
+    whoScored(): Score | null
+    {
+        let scoreRef: Score | null = null;
+        let ballBoundingBox = this.ball.BoundingBoxPosition;
+        if (ballBoundingBox.left < 0)
+            scoreRef = this.rightScore;
+        else if (ballBoundingBox.right > this.canvas.width)
+            scoreRef = this.leftScore;
+        return scoreRef;
     }
 
     clearScreen()
@@ -91,17 +139,6 @@ class Pong
         this.ball.move(this.canvas, [ this.leftPaddle, this.rightPaddle ]);
         this.leftPaddle.move(this.canvas);
         this.rightPaddle.move(this.canvas);
-    }
-
-    whoScored(): Score | null
-    {
-        let scoreRef: Score | null = null;
-        let ballBoundingBox = this.ball.BoundingBoxPosition;
-        if (ballBoundingBox.left < 0)
-            scoreRef = this.rightScore;
-        else if (ballBoundingBox.right > this.canvas.width)
-            scoreRef = this.leftScore;
-        return scoreRef;
     }
 
     async scoreUpdate()
