@@ -22,7 +22,7 @@ computer science. Now, look where you are standing. Time to shine
 * [Aggarcia](https://profile.intra.42.fr/users/aggarcia)
 
 ##
-Special thanks to all our fallen mates into the black hole due to the pandemic.
-Hope they keep swimming.
-Its been hard.
+Special thanks to all our fallen mates into the black hole due to the pandemic.</br>
+Hope they keep swimming.</br>
+Its been hard.</br>
 We finish for you guys. (epic sad music in the background)
