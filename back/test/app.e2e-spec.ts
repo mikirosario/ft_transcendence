@@ -4,7 +4,7 @@ import * as pactum from 'pactum';
 import { AppModule } from '../src/app.module';
 import { AuthDto } from '../src/auth/dto';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { EditUserDto, UserProfileDto } from '../src/user/dto';
+import { EditUserDto, UserProfileUpdateDto } from '../src/user/dto';
 import { readFileSync } from "fs";
 import { File } from "buffer";
 
@@ -215,6 +215,39 @@ describe('App e2e', () => {
 						Authorization: 'Bearer $S{userAtDel}',
 					})
 					.expectStatus(404)
+			});
+		});
+		describe('getProfileData', () => {
+			const dto = {
+				nick: "testuser"
+			}
+			it('should get user profile', () => {
+				return pactum
+					.spec()
+					.get('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAt}',
+					})
+					.expectStatus(200)
+					.expectBodyContains(dto.nick)
+			});
+			it('should throw 404 if user not found', () => {
+				return pactum
+					.spec()
+					.get('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAtDel}',
+					})
+					.expectStatus(404)
+			});
+			it('should throw 401 if jwt token not provided', () => {
+				return pactum
+					.spec()
+					.get('/users/profile')
+					.withHeaders({
+						Authorization: '',
+					})
+					.expectStatus(401)
 			});
 		});
 		describe('updateProfileData', () => {
