@@ -4,11 +4,12 @@ import './assets/css/index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from './pages/Home';
+import Home from './pages/Homepage';
 import Options from './pages/Options';
 import GameSelector from './pages/GameSelector';
 import Pong from './pages/Pong';
 import Register from './pages/Register';
+import PreRegister from './pages/PreRegister';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -16,7 +17,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <BrowserRouter>
     <div style={{
-      backgroundColor: '#7a8f99',
+      backgroundColor: '#0E1625',
       position: 'fixed',
       top: 0,
       left: 0,
@@ -25,7 +26,8 @@ root.render(
     }}>
       <Routes>
         <Route path="/">
-          <Route index element={<Register />} />
+          <Route index element={<PreRegister />} />
+          <Route path="register" element={<Register />} />
           <Route path="homepage" element={<Home />} />
           <Route path="settings" element={<Options />} />
           <Route path="pong" element={<Pong />} />

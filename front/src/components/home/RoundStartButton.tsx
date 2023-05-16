@@ -4,27 +4,26 @@ interface Args{
   name: string;
 }
 
-const PlayButton: React.FC<Args> = (args) => {
+const RoundStartButton: React.FC<Args> = (args) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const buttonStyle = {
     background: isHovered
       ? 'linear-gradient(180deg, rgba(0,255,0,1) 0%, rgba(255,255,255,1) 100%)'
       : 'linear-gradient(180deg, rgba(238,14,14,1) 0%, rgba(255,255,255,0.75) 100%)',
-    color: 'black',
+    color: 'white',
     borderRadius: '25px',
     width: '150px',
     height: '50px',
-    fontFamily: 'Quantico',
-    fontWeight: 'bold',
-    fontSize: '25px',
-    fontStyle: 'italic',
-    display: 'flex',
+    fontFamily: "'Press Start 2P'",
+    fontSize: '20px',
+    fontStyle: 'normal',
+    display: 'swap',
     justifyContent: 'center',
     alignItems: 'center',
     cursor: 'pointer',
     border: 'none',
-    textShadow: '2px 2px 0px rgba(0, 0, 0, 0.2)'
+    textShadow: '2px 2px 0px rgba(0, 0, 0, 0.4)'
     // transition: 'background-color 0.3s' Not rowking
   };
 
@@ -38,7 +37,7 @@ const PlayButton: React.FC<Args> = (args) => {
 
   return (
     <button
-      className='PlayButton'
+      className='RoundStartButton'
       style={buttonStyle}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -48,4 +47,4 @@ const PlayButton: React.FC<Args> = (args) => {
   );
 }
 
-export default PlayButton;
+export default RoundStartButton;
