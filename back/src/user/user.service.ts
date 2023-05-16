@@ -178,4 +178,39 @@ export class UserService {
 			})
 		}
 	}
+
+	/*
+	 * Set user status (co)
+	*/
+	async setUserStatus(userId: number, status: string): Promise<any> {
+		try {
+			const user = await this.prisma.user.update({
+				where: {
+					id: userId
+				},
+				data: {
+					status: status
+				},
+			});
+			delete user.hash;
+			return user;
+		}
+		catch (error) {
+			return (null);
+		}
+	}
+
+	async doesUserExit(userId: number): Promise<boolean> {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: userId,
+			}
+		});
+		
+		if (user === null) {
+			return false;
+		}
+		
+		return true;
+	}
 }

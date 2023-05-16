@@ -22,6 +22,7 @@ model User {
     lastName  String?
 
     avatarUri String?
+    status    String @default("offline")
 
     score       Int      @default(0)
     gamesWon    Int      @default(0)
