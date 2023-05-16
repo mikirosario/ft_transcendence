@@ -5,6 +5,8 @@ import { Transform } from "./transform.js";
 export interface IDrawable
 {
     IsActive: boolean;
+    Height: number;
+    Width: number;
     draw(ctx: CanvasRenderingContext2D): void;
 }
 

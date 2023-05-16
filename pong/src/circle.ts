@@ -15,6 +15,14 @@ export class Circle implements IDrawable
         this.isActive = value;
     }
 
+    public get Color(): string {
+        return this.color;
+    }
+    public set Color(value: string) {
+        //Color validation??
+        this.color = value;
+    }
+
     public get Transform(): Transform {
         return this.transform;
     }
@@ -22,19 +30,25 @@ export class Circle implements IDrawable
         this.transform = value;
     }
 
+    public get Height(): number {
+        return Math.round(this.radius * 2);
+    }
+    public set Height(value: number) {
+        this.radius = Math.round(this.radius * 0.5);
+    }
+
+    public get Width(): number {
+        return Math.round(this.radius * 2);
+    }
+    public set Width(value: number) {
+        this.radius = Math.round(this.radius * 0.5);
+    }
+
     public get HalfHeight(): number {
         return this.radius;
     }
     public get HalfWidth(): number {
         return this.radius;
-    }
-
-    public get Color(): string {
-        return this.color;
-    }
-    public set Color(value: string) {
-        //Color validation??
-        this.color = value;
     }
 
     constructor(transform: Transform, color: string, radius: number, isActive: boolean = true)

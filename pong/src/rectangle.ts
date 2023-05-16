@@ -1,6 +1,7 @@
 import { Position } from "./types.js";
 import { IDrawable } from "./interfaces.js";
 import { Transform } from "./transform.js";
+import { AspectRatio } from "./aspect.ratio.js";
 
 export class Rectangle implements IDrawable
 {
@@ -9,6 +10,7 @@ export class Rectangle implements IDrawable
     private width: number;
     private height: number;
     private color: string;
+    private aspectRatio: AspectRatio;
 
     public get IsActive(): boolean {
         return this.isActive;
@@ -29,6 +31,7 @@ export class Rectangle implements IDrawable
     }
     public set Width(value: number) {
         this.width = value;
+        this.height = value / this.AspectRatio.toNumber();
     }
 
     public get Height() : number {
@@ -36,6 +39,7 @@ export class Rectangle implements IDrawable
     }
     public set Height(value : number) {
         this.height = value;
+        this.width = value * this.AspectRatio.toNumber();
     }
 
     public get HalfHeight(): number {
@@ -45,6 +49,13 @@ export class Rectangle implements IDrawable
         return Math.round(this.Width * 0.5);
     }
 
+    private get AspectRatio(): AspectRatio {
+        return this.aspectRatio;
+    }
+    private set AspectRatio(value: AspectRatio) {
+        this.aspectRatio = value;
+    }
+
     constructor(transform: Transform, color: string, width: number, height: number, isActive: boolean = true)
     {
         this.transform = transform;
@@ -52,6 +63,7 @@ export class Rectangle implements IDrawable
         this.width = width;
         this.height = height;
         this.isActive = isActive;
+        this.aspectRatio = new AspectRatio(this.Width, this.Height);
     }
 
     private getUpperLeftCorner(): Position

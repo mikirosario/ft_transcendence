@@ -6,8 +6,8 @@ export class VerticalDashedLine implements IDrawable
 {
     private isActive: boolean;
     private transform: Transform;
-    private width: number;
     private height: number;
+    private width: number;
     private dashHeight: number;
     private color: string;
 
@@ -18,6 +18,20 @@ export class VerticalDashedLine implements IDrawable
     public set IsActive(value: boolean)
     {
         this.isActive = value;
+    }
+
+    public get Height(): number {
+        return this.height;
+    }
+    public set Height(value: number) {
+        this.height = value;
+    }
+
+    public get Width(): number {
+        return this.width;
+    }
+    public set Width(value: number) {
+        this.width = value;
     }
 
     constructor(transform: Transform, color: string, width: number, height: number, dashHeight: number, isActive: boolean = true)

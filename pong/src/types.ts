@@ -1,5 +1,3 @@
-export type AspectRatio = { width: number, height: number };
-
 export type Position = { x: number, y: number };
 
 export type BoundingBox = { top: number, bottom: number, right: number, left: number};
