@@ -31,7 +31,7 @@ export class Rectangle implements IDrawable
     }
     public set Width(value: number) {
         this.width = value;
-        this.height = value / this.AspectRatio.toNumber();
+        this.height = Math.round(value / this.AspectRatio.toNumber());
     }
 
     public get Height() : number {
@@ -39,7 +39,7 @@ export class Rectangle implements IDrawable
     }
     public set Height(value : number) {
         this.height = value;
-        this.width = value * this.AspectRatio.toNumber();
+        this.width = Math.round(value * this.AspectRatio.toNumber());
     }
 
     public get HalfHeight(): number {

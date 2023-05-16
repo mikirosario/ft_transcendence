@@ -1,6 +1,7 @@
 import { Position } from "./types.js";
 import { IDrawable } from "./interfaces.js";
 import { Transform } from "./transform.js";
+import { AspectRatio } from "./aspect.ratio.js";
 
 export class VerticalDashedLine implements IDrawable
 {
@@ -10,6 +11,8 @@ export class VerticalDashedLine implements IDrawable
     private width: number;
     private dashHeight: number;
     private color: string;
+    private aspectRatio: AspectRatio;
+    private dashAspectRatio: AspectRatio;
 
     public get IsActive(): boolean
     {
@@ -20,19 +23,41 @@ export class VerticalDashedLine implements IDrawable
         this.isActive = value;
     }
 
-    public get Height(): number {
-        return this.height;
-    }
-    public set Height(value: number) {
-        this.height = value;
-    }
-
     public get Width(): number {
         return this.width;
     }
     public set Width(value: number) {
         this.width = value;
+        this.dashHeight = Math.round(value / this.DashAspectRatio.toNumber());
+        this.height = Math.round(value / this.AspectRatio.toNumber());
     }
+
+    public get Height(): number {
+        return this.height;
+    }
+    public set Height(value: number) {
+        this.height = value;
+        this.width = Math.round(value * this.AspectRatio.toNumber());
+    }
+
+    private get AspectRatio(): AspectRatio {
+        return this.aspectRatio;
+    }
+    private set AspectRatio(value: AspectRatio) {
+        this.aspectRatio = value;
+    }
+
+    private get DashAspectRatio(): AspectRatio {
+        return this.dashAspectRatio;
+    }
+    private set DashAspectRatio(value: AspectRatio) {
+        this.dashAspectRatio = value;
+    }
+
+    private get DistToNextDash(): number {
+        return this.dashHeight * 2;
+    }
+
 
     constructor(transform: Transform, color: string, width: number, height: number, dashHeight: number, isActive: boolean = true)
     {
@@ -42,6 +67,8 @@ export class VerticalDashedLine implements IDrawable
         this.height = height;
         this.dashHeight = dashHeight;
         this.isActive = isActive;
+        this.aspectRatio = new AspectRatio(width, height);
+        this.dashAspectRatio = new AspectRatio(width, dashHeight);
     }
 
     private getUpperLeftCorner(): Position
@@ -57,7 +84,7 @@ export class VerticalDashedLine implements IDrawable
         if (this.IsActive)
         {
             let upperLeftCornerPosition = this.getUpperLeftCorner();
-            for (let i = 0; i <= this.height; i+=15)
+            for (let i = 0; i <= this.height; i+=this.DistToNextDash)
             {
                 ctx.fillStyle = this.color;
                 ctx.fillRect(upperLeftCornerPosition.x, upperLeftCornerPosition.y + i, this.width, this.dashHeight);
