@@ -1,8 +1,9 @@
 import { IsNotEmpty, MinLength, MaxLength } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger"
+import { File } from "buffer";
 import { IsNick } from '../../utils/decorators/is-nick.decorator';
 
-export class UserProfileDto {
+export class UserProfileUpdateDto {
 	@ApiProperty()
 	@IsNotEmpty()
 	@MinLength(3)
@@ -11,5 +12,5 @@ export class UserProfileDto {
 	nick: string
 
 	@ApiProperty()
-	avatarUri: string
+	file: File
 }
