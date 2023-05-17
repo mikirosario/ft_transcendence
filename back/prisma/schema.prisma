@@ -24,15 +24,16 @@ model User {
   avatarUri String @default("default.jpg")
   status    String @default("offline")
 
+  friendsUser        Friend[] @relation("FriendsUser")
+  friendsUserFriends Friend[] @relation("FriendsUserFriend")
+
   score       Int @default(0)
   gamesWon    Int @default(0)
   gamesLost   Int @default(0)
   gamesPlayed Int @default(0)
   rank        Int @default(0) //We'll need a function here that defaults to total-database-users
 
-  friendsUser        Friend[]   @relation("FriendsUser")
-  friendsUserFriends Friend[]   @relation("FriendsUserFriend")
-  bookmarks          Bookmark[]
+  bookmarks Bookmark[]
 
   @@map("users")
 }
