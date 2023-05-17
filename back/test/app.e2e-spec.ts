@@ -252,7 +252,7 @@ describe('App e2e', () => {
 		});
 		describe('updateProfileData', () => {
 			const dto = {
-				nick: "karisti"
+				nick: "kar-is_tii"
 			}
 			it('should update user profile data', () => {
 				return pactum
@@ -264,6 +264,114 @@ describe('App e2e', () => {
 					.withBody(dto)
 					.expectStatus(200)
 					.expectBodyContains(dto.nick)
+			});
+			it('should throw 400 if user nick is empty', () => {
+				return pactum
+					.spec()
+					.put('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAt}',
+					})
+					.withBody({
+						nick: ""
+					})
+					.expectStatus(400)
+			});
+			it('should throw 400 if user nick length is lower than 3', () => {
+				return pactum
+					.spec()
+					.put('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAt}',
+					})
+					.withBody({
+						nick: "aa"
+					})
+					.expectStatus(400)
+			});
+			it('should throw 400 if user nick length is greater than 10', () => {
+				return pactum
+					.spec()
+					.put('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAt}',
+					})
+					.withBody({
+						nick: "aaaaaaaaaaa"
+					})
+					.expectStatus(400)
+			});
+			it('should throw 400 if user nick doesnt fulfill the next regex: [a-zA-Z0-9-_]', () => {
+				return pactum
+					.spec()
+					.put('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAt}',
+					})
+					.withBody({
+						nick: "aaaa.aaa"
+					})
+					.expectStatus(400)
+			});
+			it('should throw 400 if user nick doesnt fulfill the next regex: [a-zA-Z0-9-_]', () => {
+				return pactum
+					.spec()
+					.put('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAt}',
+					})
+					.withBody({
+						nick: "aaaa aaa"
+					})
+					.expectStatus(400)
+			});
+			it('should throw 400 if user nick doesnt fulfill the next regex: [a-zA-Z0-9-_]', () => {
+				return pactum
+					.spec()
+					.put('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAt}',
+					})
+					.withBody({
+						nick: "aaaa*aaa"
+					})
+					.expectStatus(400)
+			});
+			it('should throw 400 if user nick doesnt fulfill the next regex: [a-zA-Z0-9-_]', () => {
+				return pactum
+					.spec()
+					.put('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAt}',
+					})
+					.withBody({
+						nick: "aaaa	aaa"
+					})
+					.expectStatus(400)
+			});
+			it('should throw 400 if user nick doesnt fulfill the next regex: [a-zA-Z0-9-_]', () => {
+				return pactum
+					.spec()
+					.put('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAt}',
+					})
+					.withBody({
+						nick: "aaaa/aaa"
+					})
+					.expectStatus(400)
+			});
+			it('should throw 400 if user nick doesnt fulfill the next regex: [a-zA-Z0-9-_]', () => {
+				return pactum
+					.spec()
+					.put('/users/profile')
+					.withHeaders({
+						Authorization: 'Bearer $S{userAt}',
+					})
+					.withBody({
+						nick: "aaaa,aaa"
+					})
+					.expectStatus(400)
 			});
 			it('should throw 404 if user not found', () => {
 				return pactum
