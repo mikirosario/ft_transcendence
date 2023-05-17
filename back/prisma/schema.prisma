@@ -2,51 +2,63 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-    id          Int      @id @default(autoincrement())
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    email String @unique
-    nick  String @unique
-    hash  String
-    firstName String?
-    lastName  String?
+  email     String  @unique
+  nick      String  @unique
+  hash      String
+  firstName String?
+  lastName  String?
 
-    avatarUri String @default("default.jpg")
-    status    String @default("offline")
+  avatarUri String @default("default.jpg")
+  status    String @default("offline")
 
-    score       Int      @default(0)
-    gamesWon    Int      @default(0)
-    gamesLost   Int      @default(0)
-    gamesPlayed Int      @default(0)
-    rank        Int      @default(0) //We'll need a function here that defaults to total-database-users
+  score       Int @default(0)
+  gamesWon    Int @default(0)
+  gamesLost   Int @default(0)
+  gamesPlayed Int @default(0)
+  rank        Int @default(0) //We'll need a function here that defaults to total-database-users
 
-    bookmarks Bookmark[]
+  friendsUser        Friend[]   @relation("FriendsUser")
+  friendsUserFriends Friend[]   @relation("FriendsUserFriend")
+  bookmarks          Bookmark[]
 
-    @@map("users")
+  @@map("users")
+}
+
+model Friend {
+  id            Int  @id @default(autoincrement())
+  userId        Int
+  user          User @relation(name: "FriendsUser", fields: [userId], references: [id], onDelete: Cascade)
+  friend_userId Int
+  friend        User @relation(name: "FriendsUserFriend", fields: [friend_userId], references: [id], onDelete: Cascade)
+
+  @@map("friends")
 }
 
 model Bookmark {
-    id        Int      @id @default(autoincrement())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    title String
-    link  String
+  title String
+  link  String
 
-    description String?
+  description String?
 
-    userId Int
-    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@map("bookmarks")
+  @@map("bookmarks")
 }
