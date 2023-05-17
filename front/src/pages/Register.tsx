@@ -1,24 +1,62 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { BiSend } from 'react-icons/bi';
 import defaultIMG from '../assets/images/default.jpg'
 
 function Register() {
     const navigate = useNavigate();
+    const [username, setUsername] = useState('');
+    const [image, setImage] = useState<File | null>(null);
 
     const ConfirmUserLink = () => {
         // Makes the fetch action to check if the user is valid 
 
         // window.location.href = 'xxxx'; // Auth URL
-        navigate('/homepage');
+        // navigate('/homepage');
     };
 
-    // const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     if (event.target.files && event.target.files.length > 0) {
-    //       const selectedImage = event.target.files[0];
-    //       setImage(selectedImage);
-    //     }
-    //   };
+
+	const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setUsername(event.target.value);
+	};
+
+	const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		if (event.target.files && event.target.files.length > 0) {
+			const selectedImage = event.target.files[0];
+			setImage(selectedImage);
+		}
+	};
+
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+
+        // Create a FormData object to send the form data
+        const formData = new FormData();
+        formData.append('nick', username);
+        if (image) {
+            formData.append('file', image);
+        }
+
+        try {
+            // Make an HTTP request to the backend with the form data
+            const response = await fetch('http://localhost:3000/users/profile', {
+                method: 'PUT',
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token'),
+                },
+                body: formData,
+            });
+
+            // Handle the response as needed
+            if (response.ok) {
+                console.log('Changes applied successfully');
+            } else {
+                console.log('Failed to apply changes');
+            }
+        } catch (error) {
+            console.log('Error:', error);
+        }
+    };
 
     const NicknamePositionStyle: React.CSSProperties = {
         height: '320px',
@@ -119,25 +157,28 @@ function Register() {
                 <div className="NicknameSubtitle" style={SubtitleStyle}>
                     Nick rules
                 </div>
-                <div className="NicknameInputWrapper" style={NicknameInputStyle}>
-                    <img
-                        className="NicknameImage"
-                        alt="default"
-                        src={defaultIMG}
-                        style={ImageStyle}
-                    // Onclick Tag to set an image
-                    />
-                    <input
-                        type="text"
-                        placeholder="Enter your nickname"
-                        style={InputTextStyle}
-                    />
-                    <BiSend
-                        className="SendButton"
-                        style={SendButtonStyle}
-                        onClick={ConfirmUserLink}
-                    />
-                </div>
+                <form onClick={handleSubmit}>
+                    <div className="NicknameInputWrapper" style={NicknameInputStyle}>
+                        <img
+                            className="NicknameImage"
+                            alt="default"
+                            src={defaultIMG}
+                            style={ImageStyle}
+                        // Onclick Tag to set an image
+                        />
+                        <input
+                            type="text"
+                            placeholder="Enter your nickname"
+                            style={InputTextStyle}
+                            onChange={handleUsernameChange}
+                        />
+                        <BiSend
+                            className="SendButton"
+                            style={SendButtonStyle}
+                            onClick={ConfirmUserLink}
+                        />
+                    </div>
+                </form>
             </div>
         </div>
     );
