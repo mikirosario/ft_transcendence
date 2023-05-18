@@ -15,10 +15,14 @@ export function showError(message: string) {
   }
 }
 
-/*
-** Normalizes a number 'x' in a range between 'min' and 'max' to a number
-** between -1 and 1.
-*/
+
+/**
+ * Normalizes a number 'x' in a range between 'min' and 'max' to a number
+ * between -1 and 1.
+ * @param x The number to normalize.
+ * @param min The inclusive minimum.
+ * @param max The inclusive maximum.
+ */
 export function normalizeRange(x: number, min: number, max: number): number
 {
   return 2 * ((x - min) / (max - min)) - 1;

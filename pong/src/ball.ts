@@ -1,7 +1,7 @@
 import { Circle } from "./circle.js";
 import { Transform } from "./transform.js";
 import { IPhysicsObject } from "./interfaces.js";
-import { BoundingBox, Plane, Position } from "./types.js";
+import { BoundingBox, Plane, Position, RigidBodyOptions } from "./types.js";
 import { isInRange, normalizeRange } from "./utils.js";
 
 export class Ball extends Circle implements IPhysicsObject
@@ -11,7 +11,6 @@ export class Ball extends Circle implements IPhysicsObject
     private speed: number;
     private velocityVectorX: number;
     private velocityVectorY: number;
-
     private originalSpeed: number;
 
     public get IsColliderActive(): boolean {
@@ -58,6 +57,13 @@ export class Ball extends Circle implements IPhysicsObject
         };
     }
 
+    public get OriginalSpeed(): number {
+        return this.originalSpeed;
+    }
+    private set OriginalSpeed(value: number) {
+        this.originalSpeed = value;
+    }
+
     public get BoundingBoxNextPosition(): BoundingBox {
         let nextPosition = this.NextPosition;
         return {
@@ -77,15 +83,14 @@ export class Ball extends Circle implements IPhysicsObject
         }
     }
 
-    constructor(transform: Transform, color: string, speed: number, radius: number, canvas: HTMLCanvasElement, isColliderActive: boolean = false, isActive: boolean = true)
+    constructor(transform: Transform, color: string, speed: number, radius: number, options: RigidBodyOptions = {} )
     {
-        super(transform, color, radius, canvas, isActive);
+        super(transform, color, radius, { SetActive: options.SetActive });
         this.speed = speed;
         this.velocityVectorX = -speed;
         this.velocityVectorY = speed;
-        this.isColliderActive = isColliderActive;
+        this.isColliderActive = options.SetCollider === undefined ? false : options.SetCollider;
         this.isInPlay = true;
-
         this.originalSpeed = speed;
     }
 
@@ -183,26 +188,32 @@ export class Ball extends Circle implements IPhysicsObject
         }
     }
     
-    /*
-    ** Returns a normalized float from -1 to 1 indicating the point of collision
-    ** on the 'collidable' Y axis where 0 is the middle point.
-    **
-    ** Returned values above 1 or below -1 are out of bounds and will not
-    ** collide on this axis.
-    */
+    /**
+     * Returns a normalized floating point number from -1 to 1 indicating the
+     * point of collision on the 'collidable' Y axis, where 0 is the middle
+     * point.
+     * 
+     * Returned values above 1 or below -1 are out of bounds and will not
+     * collide on this axis.
+     * @param collidable The other object that this object is colliding with.
+     * @returns The normalized collision point.
+     */
     private whereWillCollideY(collidable: IPhysicsObject): number
     {
         let halfOffsetRange = collidable.HalfHeight;
         return normalizeRange(this.NextPosition.y - collidable.NextPosition.y, -halfOffsetRange, halfOffsetRange);
     }
 
-    /*
-    ** Returns a normalized float from -1 to 1 indicating the point of collision
-    ** on the 'collidable' X axis where 0 is the middle point.
-    **
-    ** Returned values above 1 or below -1 are out of bounds and will not
-    ** collide on this axis.
-    */
+    /**
+     * Returns a normalized floating point number from -1 to 1 indicating the
+     * point of collision on the 'collidable' X axis, where 0 is the middle
+     * point.
+     * 
+     * Returned values above 1 or below -1 are out of bounds and will not
+     * collide on this axis.
+     * @param collidable The other object that this object is colliding with.
+     * @returns The normalized collision point.
+     */
     private whereWillCollideX(collidable: IPhysicsObject): number
     {
         let halfOffsetRange = collidable.HalfWidth;
