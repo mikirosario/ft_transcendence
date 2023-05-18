@@ -7,11 +7,13 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ServeImageModule } from './utils/serve-image/serve-image.module';
 import { FriendModule } from './friend/friend.module';
 import { PongModule } from './pong/pong.module';
+import { OAuthModule } from './oauth/oauth.module';
 
 @Module({
 	imports: [AuthModule, UserModule, BookmarkModule, PrismaModule, ServeImageModule,
 		FriendModule, PongModule,
 		ConfigModule.forRoot({ isGlobal: true }),
+		OAuthModule,
 	]
 })
 export class AppModule { }
