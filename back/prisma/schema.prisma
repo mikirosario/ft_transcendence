@@ -46,6 +46,8 @@ model Friend {
   friend        User @relation(name: "FriendsUserFriend", fields: [friend_userId], references: [id], onDelete: Cascade)
 
   @@map("friends")
+
+  @@unique([userId, friend_userId])
 }
 
 model Bookmark {
