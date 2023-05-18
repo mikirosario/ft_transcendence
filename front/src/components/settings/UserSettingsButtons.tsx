@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
-const OptionsButton: React.FC = () => {
+interface Args {
+	btnTxt: string
+}
+
+const UserSettingsButtons: React.FC<Args> = (args) => {
 	const [username, setUsername] = useState('');
 	const [image, setImage] = useState<File | null>(null);
 	const [name, setName] = useState('');
 	const [userImage, setUserImage] = useState<string>();
+    const navigate = useNavigate();
 
 	const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setUsername(event.target.value);
@@ -30,7 +36,7 @@ const OptionsButton: React.FC = () => {
 	};
 
 	const handleApplyButtonMouseEnter = () => {
-		setApplyButtonStyle({ ...ApplyButtonStyle, opacity: 0.7 }); 
+		setApplyButtonStyle({ ...ApplyButtonStyle, opacity: 0.7 });
 	};
 
 	const handleApplyButtonMouseLeave = () => {
@@ -67,6 +73,7 @@ const OptionsButton: React.FC = () => {
 
 			if (response.ok) {
 				console.log('Changes applied successfully');
+				navigate('/homepage');							// TEST
 			} else {
 				console.log('Failed to apply changes');
 			}
@@ -82,7 +89,7 @@ const OptionsButton: React.FC = () => {
 			const response = await fetch('http://localhost:3000/users/profile', {
 				method: 'DELETE',
 				headers: {
-					Authorization: 'Bearer ' + localStorage.getItem('token'), 
+					Authorization: 'Bearer ' + localStorage.getItem('token'),
 				},
 			});
 
@@ -130,7 +137,7 @@ const OptionsButton: React.FC = () => {
 
 			if (!name) {
 				setName(fetchedName);
-				setUsername(fetchedName); 
+				setUsername(fetchedName);
 			}
 
 			const imageResponse = await fetch('http://localhost:3000/uploads/avatars/' + fetchedImage, {
@@ -160,27 +167,24 @@ const OptionsButton: React.FC = () => {
 	const UsernameStyle: React.CSSProperties = {
 		color: '#ffffff',
 		fontFamily: "'Press Start 2P'",
-		fontSize: '12px',
+		fontSize: '14px',
 		fontWeight: 400,
-		height: '40px',
 		lineHeight: 'normal',
-		position: 'absolute',
-		textAlign: 'center',
-		top: '-80px',
-		width: '100%',
-		left: '10%',
-		transform: 'translateX(-50%)',
+		position: 'relative',
+		top: '42%',
+		width: '0%',
+		left: '4%',
 	};
-
 
 	const InputTextStyle: React.CSSProperties = {
 		color: 'white',
 		fontFamily: "'Press Start 2P'",
-		height: '25px',
-		left: '210px',
-		position: 'absolute',
-		top: '-10px',
-		width: '350px',
+		fontSize: '12px',
+		height: '5%',
+		left: '33%',
+		top: '36%',
+		width: '60%',
+		position: 'relative',
 		border: 'none',
 		borderBottom: '2px solid gray',
 		background: 'transparent',
@@ -190,8 +194,8 @@ const OptionsButton: React.FC = () => {
 		height: '175px',
 		width: '175px',
 		position: 'absolute',
-		top: '-160px',
-		left: '-205px',
+		top: '16%',
+		left: '18%',
 		borderRadius: '50%',
 	};
 
@@ -218,9 +222,9 @@ const OptionsButton: React.FC = () => {
 
 	const [TrashIconStyle, setTrashIconStyle] = useState<React.CSSProperties>({
 		color: '#bf2222',
-		position: 'absolute',
-		top: '35px',
-		left: '-140px',
+		top: '80%',
+		left: '45%',
+		position: 'relative',
 		background: 'transparent',
 		scale: '2.0',
 		border: 'none',
@@ -233,71 +237,86 @@ const OptionsButton: React.FC = () => {
 		backgroundColor: '#5b8731',
 		color: '#FFFFFF',
 		fontFamily: "'Press Start 2P'",
-		fontSize: '18px',
+		fontSize: '16px',
 		fontWeight: 'bold',
 		border: 'none',
 		borderRadius: '4px',
 		padding: '10px 20px',
 		cursor: 'pointer',
-		width: '300px',
-		marginTop: '20px',
-		marginLeft: '120px',
+		width: '250px',
+		marginTop: '46%',
+		marginLeft: '35%',
 		transition: 'opacity 0.3s',
 	});
 
+	const ImageWrapperStyle: React.CSSProperties = {
+		height: '100%',
+		width: '35%',
+		left: '0%',
+		position: 'absolute',
+	};
 
+	const TextWrapperStyle: React.CSSProperties = {
+		height: '100%',
+		width: '65%',
+		left: '35%',
+		position: 'absolute',
+	};
 
 	return (
 		<div>
 			<form onSubmit={handleSubmit}>
-				<div className="NicknameTitle" style={UsernameStyle}>
-					Username:
+				<div style={TextWrapperStyle}>
+					<div style={UsernameStyle}>
+						Nickname:
+					</div>
 					<input
 						type="text"
 						value={username}
-						onChange={handleUsernameChange}
 						style={InputTextStyle}
+						placeholder='Enter your nick'
+						onChange={handleUsernameChange}
 					/>
-				</div>
-				<button type="button"
-					onClick={resetAvatar}
-					style={TrashIconStyle}
-					onMouseEnter={handleTrashMouseEnter}
-					onMouseLeave={handleTrashMouseLeave}
-				>
-					<FaTrash />
-				</button>
-				<label htmlFor="image" style={SelectImageStyle}>
-					<input
-						type="file"
-						id="image"
-						accept=".jpg,.png"
-						onChange={handleImageChange}
-						style={ButtonStyle}
-					/>
-					<img
-						src={userImage}
-						alt=""
-						style={ImageStyle}
-						onMouseEnter={handleImageMouseEnter}
-						onMouseLeave={handleImageMouseLeave}
-					/>
-				</label>
-				<div>
 					<button
 						type="submit"
 						style={ApplyButtonStyle}
 						onMouseEnter={handleApplyButtonMouseEnter}
 						onMouseLeave={handleApplyButtonMouseLeave}
 					>
-						Apply Changes
+						{args.btnTxt}
 					</button>
+				</div>
+				<div style={ImageWrapperStyle}>
+					<button type="button"
+						onClick={resetAvatar}
+						style={TrashIconStyle}
+						onMouseEnter={handleTrashMouseEnter}
+						onMouseLeave={handleTrashMouseLeave}
+					>
+						<FaTrash />
+					</button>
+					<label htmlFor="image" style={SelectImageStyle}>
+						<input
+							type="file"
+							id="image"
+							accept=".jpg,.png"
+							onChange={handleImageChange}
+							style={ButtonStyle}
+						/>
+						<img
+							src={userImage}
+							alt=""
+							style={ImageStyle}
+							onMouseEnter={handleImageMouseEnter}
+							onMouseLeave={handleImageMouseLeave}
+						/>
+					</label>
 				</div>
 			</form>
 		</div>
 	);
 };
 
-export default OptionsButton;
+export default UserSettingsButtons;
 
 

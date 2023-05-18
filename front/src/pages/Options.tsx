@@ -1,5 +1,5 @@
-import React from "react";
-import OptionsButton from "../components/settings/SettingsButtons";
+import React, { useState } from "react";
+import UserSettingsButtons from "../components/settings/UserSettingsButtons";
 import GoToHomepage from "../components/home/Home";
 
 function Options() {
@@ -12,37 +12,46 @@ function Options() {
     };
 
     const NicknameTapeStyle: React.CSSProperties = {
-        height: '100%',
+        height: '150%',
         width: '100%',
-        top: '260px',
+        top: '50%',
         backgroundColor: '#1c2c49',
         position: 'relative',
-        display: 'flex',
-        justifyContent: 'center',
+    };
+
+    const TitleStyle: React.CSSProperties = {
+        color: '#ffffff',
+        fontFamily: "'Press Start 2P'",
+        fontSize: '40px',
+        top: '-25%',
+        width: '100%',
+        textAlign: 'center',
+        position: 'absolute',
+        left: '0%',
     };
 
     const NicknameInputStyle: React.CSSProperties = {
-        height: '74px',
-        left: '50%',
+        height: '66%',
+        width: '40%',
+        top: '32%',
+        left: '28%',
         position: 'absolute',
-        top: '220px',
-        width: '80%',
-        maxWidth: '300px',
-        transform: 'translateX(-50%)',
     };
 
 
-
     return (
-        <div className="Homepage">
+        <div className="Register">
             <section>
                 <GoToHomepage></GoToHomepage>
             </section>
             <div className="NicknamePositionWrapper" style={NicknamePositionStyle}>
                 <div className="NicknameTapeWrapper" style={NicknameTapeStyle}>
                     <div className="NicknameInputWrapper" style={NicknameInputStyle}>
+                        <div className="TitleText" style={TitleStyle}>
+                            Edit Profile
+                        </div>
                         <section className="OptionsMenu">
-                            <OptionsButton></OptionsButton>
+                            <UserSettingsButtons btnTxt="Apply Changes"></UserSettingsButtons>
                         </section>
                     </div>
                 </div>
