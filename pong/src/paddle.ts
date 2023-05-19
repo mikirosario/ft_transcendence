@@ -132,6 +132,4 @@ export class Paddle extends Rectangle implements IPhysicsObject
             this.Transform.position.y += this.VelocityVectorY * this.Speed;
         }
     }
-
-
 }

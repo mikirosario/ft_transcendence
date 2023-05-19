@@ -32,8 +32,6 @@ export class Ball extends Circle implements IPhysicsObject
     }
     public set Speed(value: number) {
         this.speed = value;
-        this.VelocityVectorX = value;
-        this.VelocityVectorY = value;
     }
 
     public get VelocityVectorX() : number {
@@ -87,8 +85,8 @@ export class Ball extends Circle implements IPhysicsObject
     {
         super(transform, color, radius, { SetActive: options.SetActive });
         this.speed = speed;
-        this.velocityVectorX = -speed;
-        this.velocityVectorY = speed;
+        this.velocityVectorX = -1;
+        this.velocityVectorY = 1;
         this.isColliderActive = options.SetCollider === undefined ? false : options.SetCollider;
         this.isInPlay = true;
         this.originalSpeed = speed;
@@ -120,22 +118,7 @@ export class Ball extends Circle implements IPhysicsObject
         // Update the Y component of the velocity
         this.VelocityVectorY = Math.sin(bounceAngleInRadians);
     }
-
-    public move(canvas: HTMLCanvasElement, physObjects: IPhysicsObject[] = [])
-    {
-        if (this.IsActive)
-        {
-            if (this.willCollideCanvas(canvas))
-                this.bounceY();
-            physObjects.forEach((physObject) => {
-                if (this.willCollide(physObject))
-                    this.bounceBack(physObject);
-            })
-            this.Transform.position.x += this.VelocityVectorX * this.Speed;
-            this.Transform.position.y += this.VelocityVectorY * this.Speed;
-        }
-    }
-
+    
     public willCollideCanvas(canvas: HTMLCanvasElement): boolean
     {
         let willCollide: boolean = false;
@@ -146,8 +129,8 @@ export class Ball extends Circle implements IPhysicsObject
                 nextPosition.y + this.HalfHeight > canvas.height
                 || nextPosition.y - this.HalfHeight < 0
                 );
-        }
-        return willCollide;
+            }
+            return willCollide;
     }
 
     public willCollide(collidable: IPhysicsObject): boolean
@@ -162,20 +145,20 @@ export class Ball extends Circle implements IPhysicsObject
                 || otherBoundingBox.top >= thisBoundingBox.bottom
                 || otherBoundingBox.left >= thisBoundingBox.right
                 || otherBoundingBox.bottom <= thisBoundingBox.top
-            )
+                )
+            }
+            return willCollide;
         }
-        return willCollide;
-    }
-
-    public resetBall(canvas: HTMLCanvasElement)
-    {
-        this.Transform.position = {
-            x: Math.round(canvas.width * 0.5),
+        
+        public resetBall(canvas: HTMLCanvasElement)
+        {
+            this.Transform.position = {
+                x: Math.round(canvas.width * 0.5),
             y: Math.round(canvas.height * 0.5)
         }
         this.VelocityVectorX = -this.VelocityVectorX;
     }
-
+    
     /**
      * Returns a normalized floating point number from -1 to 1 indicating the
      * point of collision on the 'collidable' Y axis, where 0 is the middle
@@ -185,11 +168,11 @@ export class Ball extends Circle implements IPhysicsObject
      * collide on this axis.
      * @param collidable The other object that this object is colliding with.
      * @returns The normalized collision point.
-     */
-    private whereWillCollideY(collidable: IPhysicsObject): number
-    {
-        let halfOffsetRange = collidable.HalfHeight;
-        return normalizeRange(this.NextPosition.y - collidable.NextPosition.y, -halfOffsetRange, halfOffsetRange);
+    */
+   private whereWillCollideY(collidable: IPhysicsObject): number
+   {
+       let halfOffsetRange = collidable.HalfHeight;
+       return normalizeRange(this.NextPosition.y - collidable.NextPosition.y, -halfOffsetRange, halfOffsetRange);
     }
     
     /**
@@ -213,10 +196,21 @@ export class Ball extends Circle implements IPhysicsObject
         super.onResizeCanvas(scaleX, scaleY, canvas, prevCanvasResolution);
         const scale = Math.min(scaleX, scaleY);
         this.Speed = this.OriginalSpeed * scale;
-        const directionX = Math.sign(this.velocityVectorX);
-        const directionY = Math.sign(this.velocityVectorY);
-        this.velocityVectorX = directionX;
-        this.velocityVectorY = directionY;
+    }
+    
+    public move(canvas: HTMLCanvasElement, physObjects: IPhysicsObject[] = [])
+    {
+        if (this.IsActive)
+        {
+            if (this.willCollideCanvas(canvas))
+                this.bounceY();
+            physObjects.forEach((physObject) => {
+                if (this.willCollide(physObject))
+                    this.bounceBack(physObject);
+            })
+            this.Transform.position.x += this.VelocityVectorX * this.Speed;
+            this.Transform.position.y += this.VelocityVectorY * this.Speed;
+        }
     }
     
     public draw(ctx: CanvasRenderingContext2D): void
