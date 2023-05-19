@@ -1,4 +1,4 @@
-import { DrawableOptions, Position, Resolution } from "./types.js";
+import { DrawableOptions, Position, Resolution, ScaleFactors } from "./types.js";
 import { IDrawable } from "./interfaces.js";
 import { Transform } from "./transform.js";
 import { PositionRatio } from "./position.ratio.js";
@@ -11,11 +11,11 @@ export class VerticalDashedLine implements IDrawable
     private width: number;
     private dashHeight: number;
     private color: string;
-    private originalWidth: number;
-    private originalHeight: number;
-    private originalDashHeight: number;
-    private originalPositionRatioX: PositionRatio;
-    private originalPositionRatioY: PositionRatio;
+    private referenceWidth: number;
+    private referenceHeight: number;
+    private referenceDashHeight: number;
+    private referencePositionRatioX: PositionRatio;
+    private referencePositionRatioY: PositionRatio;
 
     public get IsActive(): boolean
     {
@@ -69,24 +69,24 @@ export class VerticalDashedLine implements IDrawable
         this.color = value;
     }
 
-    private get OriginalWidth(): number {
-        return this.originalWidth;
+    private get ReferenceWidth(): number {
+        return this.referenceWidth;
     }
 
-    private get OriginalHeight(): number {
-        return this.originalHeight;
+    private get ReferenceHeight(): number {
+        return this.referenceHeight;
     }
 
-    private get OriginalDashHeight(): number {
-        return this.originalDashHeight;
+    private get ReferenceDashHeight(): number {
+        return this.referenceDashHeight;
     }
 
-    private get OriginalPositionRatioX(): PositionRatio {
-        return this.originalPositionRatioX;
+    private get ReferencePositionRatioX(): PositionRatio {
+        return this.referencePositionRatioX;
     }
 
-    private get OriginalPositionRatioY(): PositionRatio {
-        return this.originalPositionRatioY;
+    private get ReferencePositionRatioY(): PositionRatio {
+        return this.referencePositionRatioY;
     }
 
     private get DistToNextDash(): number {
@@ -102,11 +102,11 @@ export class VerticalDashedLine implements IDrawable
         this.height = height;
         this.dashHeight = dashHeight;
         this.isActive = options.SetActive === undefined ? true : options.SetActive;
-        this.originalHeight = height;
-        this.originalWidth = width;
-        this.originalDashHeight = dashHeight;
-        this.originalPositionRatioX = new PositionRatio(this.Transform.position.x, referenceResolution.width);
-        this.originalPositionRatioY = new PositionRatio(this.Transform.position.y, referenceResolution.height);
+        this.referenceHeight = height;
+        this.referenceWidth = width;
+        this.referenceDashHeight = dashHeight;
+        this.referencePositionRatioX = new PositionRatio(this.Transform.position.x, referenceResolution.width);
+        this.referencePositionRatioY = new PositionRatio(this.Transform.position.y, referenceResolution.height);
     }
 
     private getUpperLeftCorner(): Position
@@ -117,13 +117,13 @@ export class VerticalDashedLine implements IDrawable
         };
     }
 
-    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasResolution: Resolution): void
+    public onResizeCanvas(scaleFactors: ScaleFactors, currentCanvasResolution: Resolution, prevCanvasResolution: Resolution): void
     {
-        this.Width = Math.round(this.OriginalWidth * scaleX);
-        this.Height = Math.round(this.OriginalHeight * scaleY);
-        this.DashHeight = Math.round(this.OriginalDashHeight * scaleY);
-        this.Transform.position.x = this.OriginalPositionRatioX.getResizedPosition(canvas.width);
-        this.Transform.position.y = this.OriginalPositionRatioY.getResizedPosition(canvas.height);
+        this.Width = Math.round(this.ReferenceWidth * scaleFactors.scaleX);
+        this.Height = Math.round(this.ReferenceHeight * scaleFactors.scaleY);
+        this.DashHeight = Math.round(this.ReferenceDashHeight * scaleFactors.scaleY);
+        this.Transform.position.x = this.ReferencePositionRatioX.getResizedPosition(currentCanvasResolution.width);
+        this.Transform.position.y = this.ReferencePositionRatioY.getResizedPosition(currentCanvasResolution.height);
     }
 
     public draw(ctx: CanvasRenderingContext2D): void

@@ -1,4 +1,4 @@
-import { Resolution, Position, DrawableOptions } from "./types.js";
+import { Resolution, Position, DrawableOptions, ScaleFactors } from "./types.js";
 import { IDrawable, IUIObject } from "./interfaces.js";
 import { Alignment, HorizontalAnchor, VerticalAnchor } from "./alignment.js";
 import { Transform } from "./transform.js";
@@ -18,7 +18,7 @@ export class Text implements IDrawable, IUIObject
     private alignment: Alignment;
     private text: string;
     private color: string;
-    private originalFontSize: number;
+    private referenceFontSize: number;
 
     public get IsActive(): boolean {
         return this.isActive;
@@ -81,8 +81,8 @@ export class Text implements IDrawable, IUIObject
         this.color = value;
     }
 
-    public get OriginalFontSize(): number {
-        return this.originalFontSize;
+    public get ReferenceFontSize(): number {
+        return this.referenceFontSize;
     }
 
 
@@ -94,7 +94,7 @@ export class Text implements IDrawable, IUIObject
         this.color = color;
         this.font = new Fonts(fontSize, Text.PrimaryFont, Text.BackupFonts);
         this.isActive = options.SetActive === undefined ? true : options.SetActive;
-        this.originalFontSize = fontSize;
+        this.referenceFontSize = fontSize;
     }
 
     private alignmentToPosition(canvas: HTMLCanvasElement): Position
@@ -126,10 +126,10 @@ export class Text implements IDrawable, IUIObject
         return newPosition;
     }
 
-    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasResolution: Resolution): void
+    public onResizeCanvas(scaleFactors: ScaleFactors, currentCanvasResolution: Resolution, prevCanvasResolution: Resolution): void
     {
-        const scale = Math.min(scaleX, scaleY);
-        this.FontSize = this.OriginalFontSize * scale;
+        const scale = Math.min(scaleFactors.scaleX, scaleFactors.scaleY);
+        this.FontSize = this.ReferenceFontSize * scale;
     }
 
     public draw(ctx: CanvasRenderingContext2D): void

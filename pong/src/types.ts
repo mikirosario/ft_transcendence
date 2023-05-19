@@ -10,4 +10,6 @@ export type PhysicsOptions = { SetCollider?: boolean };
 
 export type DrawableOptions = { SetActive?: boolean };
 
+export type ScaleFactors = { scaleX: number, scaleY: number };
+
 export type RigidBodyOptions = PhysicsOptions & DrawableOptions;

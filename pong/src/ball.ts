@@ -1,7 +1,7 @@
 import { Circle } from "./circle.js";
 import { Transform } from "./transform.js";
 import { IPhysicsObject } from "./interfaces.js";
-import { BoundingBox, Resolution, Position, RigidBodyOptions } from "./types.js";
+import { BoundingBox, Resolution, Position, RigidBodyOptions, ScaleFactors } from "./types.js";
 import { isInRange, normalizeRange } from "./utils.js";
 
 export class Ball extends Circle implements IPhysicsObject
@@ -11,7 +11,7 @@ export class Ball extends Circle implements IPhysicsObject
     private speed: number;
     private velocityVectorX: number;
     private velocityVectorY: number;
-    private originalSpeed: number;
+    private referenceSpeed: number;
 
     public get IsColliderActive(): boolean {
         return this.IsActive && this.isColliderActive;
@@ -55,11 +55,11 @@ export class Ball extends Circle implements IPhysicsObject
         };
     }
 
-    public get OriginalSpeed(): number {
-        return this.originalSpeed;
+    public get ReferenceSpeed(): number {
+        return this.referenceSpeed;
     }
-    private set OriginalSpeed(value: number) {
-        this.originalSpeed = value;
+    private set ReferenceSpeed(value: number) {
+        this.referenceSpeed = value;
     }
 
     public get BoundingBoxNextPosition(): BoundingBox {
@@ -89,7 +89,7 @@ export class Ball extends Circle implements IPhysicsObject
         this.velocityVectorY = 1;
         this.isColliderActive = options.SetCollider === undefined ? false : options.SetCollider;
         this.isInPlay = true;
-        this.originalSpeed = speed;
+        this.referenceSpeed = speed;
     }
 
     public bounceY()
@@ -105,16 +105,16 @@ export class Ball extends Circle implements IPhysicsObject
     public bounceBack(physObject: IPhysicsObject)
     {
         const QUARTER_CIRCLE_IN_RADIANS = Math.PI * 0.25;
-        const originalDirectionX = Math.sign(this.VelocityVectorX);
+        const referenceDirectionX = Math.sign(this.VelocityVectorX);
         const collisionPointY = this.whereWillCollideY(physObject);
         const isSideCollision = isInRange(collisionPointY, -1, 1);
         const bounceAngleInRadians = collisionPointY * QUARTER_CIRCLE_IN_RADIANS;
         const newVelocityVectorX = Math.cos(bounceAngleInRadians);
 
         if (isSideCollision) // Side collisions invert the X direction of motion
-            this.VelocityVectorX = newVelocityVectorX * -originalDirectionX;
+            this.VelocityVectorX = newVelocityVectorX * -referenceDirectionX;
         else                 // Top or bottom collisions continue the X direction of motion
-            this.VelocityVectorX = newVelocityVectorX * originalDirectionX;
+            this.VelocityVectorX = newVelocityVectorX * referenceDirectionX;
         // Update the Y component of the velocity
         this.VelocityVectorY = Math.sin(bounceAngleInRadians);
     }
@@ -169,8 +169,8 @@ export class Ball extends Circle implements IPhysicsObject
      * @param collidable The other object that this object is colliding with.
      * @returns The normalized collision point.
     */
-   private whereWillCollideY(collidable: IPhysicsObject): number
-   {
+    private whereWillCollideY(collidable: IPhysicsObject): number
+    {
        let halfOffsetRange = collidable.HalfHeight;
        return normalizeRange(this.NextPosition.y - collidable.NextPosition.y, -halfOffsetRange, halfOffsetRange);
     }
@@ -185,17 +185,28 @@ export class Ball extends Circle implements IPhysicsObject
      * @param collidable The other object that this object is colliding with.
      * @returns The normalized collision point.
     */
-   private whereWillCollideX(collidable: IPhysicsObject): number
-   {
+    private whereWillCollideX(collidable: IPhysicsObject): number
+    {
        let halfOffsetRange = collidable.HalfWidth;
        return normalizeRange(this.NextPosition.x - collidable.NextPosition.x, -halfOffsetRange, halfOffsetRange);
     }
-    
-    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasResolution: Resolution): void
+
+    private rescaleSpeed(scaleFactors: ScaleFactors)
     {
-        super.onResizeCanvas(scaleX, scaleY, canvas, prevCanvasResolution);
-        const scale = Math.min(scaleX, scaleY);
-        this.Speed = this.OriginalSpeed * scale;
+        const scale = Math.min(scaleFactors.scaleX, scaleFactors.scaleY);
+        this.Speed = this.ReferenceSpeed * scale;
+    }
+
+    public updateSpeed(scaleFactors: ScaleFactors, newSpeed: number): void
+    {
+        this.ReferenceSpeed = newSpeed;
+        this.rescaleSpeed(scaleFactors);
+    }
+
+    public onResizeCanvas(scaleFactors: ScaleFactors, currentCanvasResolution: Resolution, prevCanvasResolution: Resolution): void
+    {
+        super.onResizeCanvas(scaleFactors, currentCanvasResolution, prevCanvasResolution);
+        this.rescaleSpeed(scaleFactors);
     }
     
     public move(canvas: HTMLCanvasElement, physObjects: IPhysicsObject[] = [])

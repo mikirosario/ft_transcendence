@@ -1,7 +1,7 @@
 import { IDrawable } from "./interfaces.js";
 import { PositionRatio } from "./position.ratio.js";
 import { Transform } from "./transform.js";
-import { Resolution, DrawableOptions } from "./types.js";
+import { Resolution, DrawableOptions, ScaleFactors } from "./types.js";
 
 export class Circle implements IDrawable
 {
@@ -9,7 +9,7 @@ export class Circle implements IDrawable
     private transform: Transform;
     private radius: number;
     private color: string;
-    private originalRadius: number;
+    private referenceRadius: number;
     
     public get IsActive(): boolean {
         return this.isActive;
@@ -55,8 +55,8 @@ export class Circle implements IDrawable
         return this.radius;
     }
 
-    private get OriginalRadius(): number {
-        return this.originalRadius;
+    private get ReferenceRadius(): number {
+        return this.referenceRadius;
     }
 
     constructor(transform: Transform, color: string, radius: number, options: DrawableOptions = {} )
@@ -65,17 +65,17 @@ export class Circle implements IDrawable
         this.color = color;
         this.radius = radius;
         this.isActive = options.SetActive === undefined ? true : options.SetActive;
-        this.originalRadius = radius;
+        this.referenceRadius = radius;
     }
 
-    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement,  prevCanvasResolution: Resolution): void
+    public onResizeCanvas(scaleFactor: ScaleFactors, currentCanvasResolution: Resolution,  prevCanvasResolution: Resolution): void
     {
-        const scale = Math.min(scaleX, scaleY);
+        const scale = Math.min(scaleFactor.scaleX, scaleFactor.scaleY);
         const prevPositionRatioX = new PositionRatio(this.Transform.position.x, prevCanvasResolution.width);
         const prevPositionRatioY = new PositionRatio(this.Transform.position.y, prevCanvasResolution.height);
-        this.radius = Math.round(this.originalRadius * scale);
-        this.transform.position.x = prevPositionRatioX.getResizedPosition(canvas.width);
-        this.transform.position.y = prevPositionRatioY.getResizedPosition(canvas.height);
+        this.radius = Math.round(this.ReferenceRadius * scale);
+        this.transform.position.x = prevPositionRatioX.getResizedPosition(currentCanvasResolution.width);
+        this.transform.position.y = prevPositionRatioY.getResizedPosition(currentCanvasResolution.height);
     }
 
     public draw(ctx: CanvasRenderingContext2D): void

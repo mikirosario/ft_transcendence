@@ -1,4 +1,4 @@
-import { DrawableOptions, Position, Resolution } from "./types.js";
+import { DrawableOptions, Position, Resolution, ScaleFactors } from "./types.js";
 import { IDrawable } from "./interfaces.js";
 import { Transform } from "./transform.js";
 import { PositionRatio } from "./position.ratio.js";
@@ -11,9 +11,9 @@ export class Rectangle implements IDrawable
     private height: number;
     private color: string;
 
-    private originalWidth: number;
-    private originalHeight: number;
-    private originalPositionRatioX: PositionRatio;
+    private referenceWidth: number;
+    private referenceHeight: number;
+    private referencePositionRatioX: PositionRatio;
 
     public get IsActive(): boolean {
         return this.isActive;
@@ -58,16 +58,16 @@ export class Rectangle implements IDrawable
         this.color = value;
     }
 
-    private get OriginalWidth(): number {
-        return this.originalWidth;
+    private get ReferenceWidth(): number {
+        return this.referenceWidth;
     }
 
-    private get OriginalHeight(): number {
-        return this.originalHeight;
+    private get ReferenceHeight(): number {
+        return this.referenceHeight;
     }
 
-    private get OriginalPositionRatioX(): PositionRatio {
-        return this.originalPositionRatioX;
+    private get ReferencePositionRatioX(): PositionRatio {
+        return this.referencePositionRatioX;
     }
 
     constructor(transform: Transform, color: string, width: number, height: number, referenceResolution: Resolution, options: DrawableOptions = {})
@@ -77,9 +77,9 @@ export class Rectangle implements IDrawable
         this.width = width;
         this.height = height;
         this.isActive = options.SetActive === undefined ? true : options.SetActive;
-        this.originalWidth = width;
-        this.originalHeight = height;
-        this.originalPositionRatioX = new PositionRatio(this.Transform.position.x, referenceResolution.width);
+        this.referenceWidth = width;
+        this.referenceHeight = height;
+        this.referencePositionRatioX = new PositionRatio(this.Transform.position.x, referenceResolution.width);
     }
 
     private getUpperLeftCorner(): Position
@@ -90,13 +90,13 @@ export class Rectangle implements IDrawable
         };
     }
 
-    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasResolution: Resolution): void
+    public onResizeCanvas(scaleFactors: ScaleFactors, currentCanvasResolution: Resolution, prevCanvasResolution: Resolution): void
     {
-        this.width = Math.round(this.originalWidth * scaleX);
-        this.height = Math.round(this.originalHeight * scaleY);
+        this.width = Math.round(this.referenceWidth * scaleFactors.scaleX);
+        this.height = Math.round(this.referenceHeight * scaleFactors.scaleY);
         const prevPositionRatioY = new PositionRatio(this.Transform.position.y, prevCanvasResolution.height);
-        this.transform.position.x = this.OriginalPositionRatioX.getResizedPosition(canvas.width);
-        this.transform.position.y = prevPositionRatioY.getResizedPosition(canvas.height);
+        this.transform.position.x = this.ReferencePositionRatioX.getResizedPosition(currentCanvasResolution.width);
+        this.transform.position.y = prevPositionRatioY.getResizedPosition(currentCanvasResolution.height);
     }
 
     public draw(ctx: CanvasRenderingContext2D): void

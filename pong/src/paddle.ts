@@ -1,7 +1,7 @@
 import { Rectangle } from "./rectangle.js";
 import { Transform } from "./transform.js";
 import { IPhysicsObject } from "./interfaces.js";
-import { PlayerInputs, BoundingBox, Position, RigidBodyOptions, Resolution } from "./types.js";
+import { PlayerInputs, BoundingBox, Position, RigidBodyOptions, Resolution, ScaleFactors } from "./types.js";
 
 export class Paddle extends Rectangle implements IPhysicsObject
 {
@@ -10,7 +10,7 @@ export class Paddle extends Rectangle implements IPhysicsObject
     private speed: number;
     private velocityVectorX: number;
     private velocityVectorY: number;
-    private originalSpeed: number;
+    private referenceSpeed: number;
     
     public get IsColliderActive(): boolean {
         return  this.IsActive && this.isColliderActive;
@@ -44,8 +44,8 @@ export class Paddle extends Rectangle implements IPhysicsObject
         this.velocityVectorY = value;
     }
 
-    public get OriginalSpeed(): number {
-        return this.originalSpeed;
+    public get ReferenceSpeed(): number {
+        return this.referenceSpeed;
     }
 
     public get NextPosition(): Position {
@@ -82,7 +82,7 @@ export class Paddle extends Rectangle implements IPhysicsObject
         this.velocityVectorX = 0;
         this.velocityVectorY = 0;
         this.playerInputs = { up: false, down: false };
-        this.originalSpeed = speed;
+        this.referenceSpeed = speed;
     }
 
     public willCollideCanvas(canvas: HTMLCanvasElement): boolean
@@ -117,11 +117,11 @@ export class Paddle extends Rectangle implements IPhysicsObject
         return willCollide;
     }
 
-    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasResolution: Resolution): void
+    public onResizeCanvas(scaleFactors: ScaleFactors, currentCanvasResolution: Resolution, prevCanvasResolution: Resolution): void
     {
-        super.onResizeCanvas(scaleX, scaleY, canvas, prevCanvasResolution);
-        const scale = Math.min(scaleX, scaleY);
-        this.Speed = this.OriginalSpeed * scale;
+        super.onResizeCanvas(scaleFactors, currentCanvasResolution, prevCanvasResolution);
+        const scale = Math.min(scaleFactors.scaleX, scaleFactors.scaleY);
+        this.Speed = this.ReferenceSpeed * scale;
     }
 
     public move(canvas: HTMLCanvasElement, collidables: IPhysicsObject[] = [])

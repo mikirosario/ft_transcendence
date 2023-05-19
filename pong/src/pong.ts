@@ -1,5 +1,5 @@
 import { getGameCanvas, getGameRenderingContext, initGameCanvas, fetchColorConstants } from "./init.js";
-import { Position, Resolution } from "./types.js";
+import { Position, Resolution, ScaleFactors } from "./types.js";
 import { IDrawable } from "./interfaces.js";
 import { centerPositionInRange, centerPositionInRangeX, centerPositionInRangeY, showError } from "./utils.js";
 import { Transform } from "./transform.js";
@@ -149,57 +149,32 @@ class Pong
         return new Score(alignment, playerNick, color, fontSize);
     }
 
-    public resizeCanvas(newWindowWidth: number, newWindowHeight: number): void
-    {
-        const verticalMargin = 200;
-        const availableHeight = newWindowHeight - verticalMargin;
-        let newCanvasWidth = newWindowWidth * 0.7;
-        let newCanvasHeight = newCanvasWidth / (this.referenceResolution.width / this.referenceResolution.height);
-
-        if (newCanvasHeight > availableHeight)
-        {
-            newCanvasHeight = availableHeight;
-            newCanvasWidth = newCanvasHeight * (this.referenceResolution.width / this.referenceResolution.height);
-        }
-
-        const scaleX = newCanvasWidth / this.referenceResolution.width;
-        const scaleY = newCanvasHeight / this.referenceResolution.height;
-        const prevCanvasResolution: Resolution = {
-            width: this.canvas.width,
-            height: this.canvas.height
-        };
-        this.canvas.width = Math.round(newCanvasWidth);
-        this.canvas.height = Math.round(newCanvasHeight);
-        this.drawables.forEach((drawable) => {
-            drawable.onResizeCanvas(scaleX, scaleY, this.canvas, prevCanvasResolution);
-        })
-    }
-
-    whoScored(): Score | null
+    
+    private whoScored(): Score | null
     {
         let scoreRef: Score | null = null;
         let ballBoundingBox = this.ball.BoundingBoxPosition;
         if (ballBoundingBox.left < 0)
-            scoreRef = this.rightScore;
+        scoreRef = this.rightScore;
         else if (ballBoundingBox.right > this.canvas.width)
-            scoreRef = this.leftScore;
+        scoreRef = this.leftScore;
         return scoreRef;
     }
-
-    clearScreen()
+    
+    private clearScreen()
     {
         this.ctx.fillStyle = this.backgroundColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
-
-    physicsUpdate()
+    
+    private physicsUpdate()
     {
         this.ball.move(this.canvas, [ this.leftPaddle, this.rightPaddle ]);
         this.leftPaddle.move(this.canvas);
         this.rightPaddle.move(this.canvas);
     }
-
-    async scoreUpdate()
+    
+    private async scoreUpdate()
     {
         if (this.ball.IsInPlay)
         {
@@ -208,14 +183,65 @@ class Pong
             {
                 player.Score += 1;
                 this.ball.IsInPlay = false;
+                // 1 second pause, to give the ball time to move out of view
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 this.ball.IsInPlay = true;
+                let currentResolution = {
+                    width: this.canvas.width,
+                    height: this.canvas.height
+                }
+                let scaleFactors = this.getScaleFactors(currentResolution, this.referenceResolution);
+                this.ball.updateSpeed(scaleFactors, this.ball.ReferenceSpeed + 1);
                 this.ball.resetBall(this.canvas);
             }
         }
     }
 
-    renderFrame()
+    private getScaleFactors(currentCanvasResolution: Resolution, referenceCanvasResolution: Resolution): ScaleFactors
+    {
+        return {
+            scaleX: currentCanvasResolution.width / referenceCanvasResolution.width,
+            scaleY: currentCanvasResolution.height / referenceCanvasResolution.height
+        }
+    }
+
+    private resizeCanvas(newWindowWidth: number, newWindowHeight: number): void
+    {
+        // Calculate new canvas resolution, applying layout constraints
+        const verticalMargin = 200;
+        const availableHeight = newWindowHeight - verticalMargin;
+        let newCanvasWidth = newWindowWidth * 0.7;
+        let newCanvasHeight = newCanvasWidth / (this.referenceResolution.width / this.referenceResolution.height);
+        if (newCanvasHeight > availableHeight)
+        {
+            newCanvasHeight = availableHeight;
+            newCanvasWidth = newCanvasHeight * (this.referenceResolution.width / this.referenceResolution.height);
+        }
+        const newCanvasResolution = {
+            width: Math.round(newCanvasWidth),
+            height: Math.round(newCanvasHeight)
+        }
+
+        // Save previous canvas resolution
+        const prevCanvasResolution: Resolution = {
+            width: this.canvas.width,
+            height: this.canvas.height
+        };
+
+        // Calculate scale factors
+        const scaleFactors: ScaleFactors = this.getScaleFactors(newCanvasResolution, this.referenceResolution);
+
+        // Apply new canvas resolution
+        this.canvas.width = newCanvasResolution.width;
+        this.canvas.height = newCanvasResolution.height;
+
+        // Rescale all drawables on canvas
+        this.drawables.forEach((drawable) => {
+            drawable.onResizeCanvas(scaleFactors, newCanvasResolution, prevCanvasResolution);
+        })
+    }
+
+    private renderFrame()
     {
         this.physicsUpdate();
         this.scoreUpdate();
