@@ -49,6 +49,16 @@ export function padEnd(str: string, maxWidth: number, padChar: string = ' '): st
 }
 
 /**
+ * Centers a position along the given vector.
+ * @param min The lower bound of the range.
+ * @param max The upper bound of the range.
+ */
+export function centerPositionInRange(min: number, max: number): number
+{
+  return Math.round((min + max) * 0.5);
+}
+
+/**
  * Centers a position along a vector on the X axis. Note, this modifies the
  * position in place.
  * @param position The position to center.
