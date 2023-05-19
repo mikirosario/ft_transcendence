@@ -27,9 +27,9 @@ Welcome to the original Pong game! Experience the thrill of the classic arcade g
 
 ### Controls :joystick:
 
-- Control the left paddle with the <span style="background-color:white; padding:5px;"><img src="./readme_assets/w_key.png" width="20"/></span> and <span style="background-color:white; padding:5px;"><img src="./readme_assets/s_key.png" width="20"/></span> keys.
+- Control the left paddle with the <span style="background-color:white; padding:5px;"><img src="./readme_assets/w_key.png" width="40"/></span> and <span style="background-color:white; padding:5px;"><img src="./readme_assets/s_key.png" width="40"/></span> keys.
 
-- Control the right paddle with the <span style="background-color:white; padding:5px;"><img src="./readme_assets/arrow_up_key.png" width="20"/></span> and <span style="background-color:white; padding:5px;"><img src="./readme_assets/arrow_down_key.png" width="20"/></span> keys.
+- Control the right paddle with the <span style="background-color:white; padding:5px;"><img src="./readme_assets/arrow_up_key.png" width="40"/></span> and <span style="background-color:white; padding:5px;"><img src="./readme_assets/arrow_down_key.png" width="40"/></span> keys.
 
 ## Screenshots :camera:
 
