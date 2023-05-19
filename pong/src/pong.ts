@@ -2,7 +2,6 @@ import { getGameCanvas, getGameRenderingContext, initGameCanvas, fetchColorConst
 import { Resolution } from "./types.js";
 import { IDrawable } from "./interfaces.js";
 import { showError } from "./utils.js";
-import { AspectRatio } from "./aspect.ratio.js";
 import { Transform } from "./transform.js";
 import { Alignment, HorizontalAnchor, VerticalAnchor } from "./alignment.js";
 import { Paddle } from "./paddle.js";
