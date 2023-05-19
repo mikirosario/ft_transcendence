@@ -41,8 +41,7 @@ async function loadFont(font: string) {
 
 class Pong
 {
-    private static PADDLE_MARGIN: number = 100;
-    private static FONT_SIZE_SCORE: number = 20;
+    private static PADDLE_MARGIN: number = 25;
     // Esto se pillará por API REST con credenciales del usuario
     private leftPlayerNick: string = "pongFu";
     // Esto se pillará por API REST con credenciales de1 usuario
@@ -146,7 +145,8 @@ class Pong
     {
         let alignment: Alignment = new Alignment(horizontalAnchor, verticalAnchor);
         let color = "white";
-        return new Score(alignment, playerNick, color, Pong.FONT_SIZE_SCORE);
+        let fontSize = 20;
+        return new Score(alignment, playerNick, color, fontSize);
     }
 
     public resizeCanvas(newWindowWidth: number, newWindowHeight: number): void
