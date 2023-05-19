@@ -176,18 +176,6 @@ export class Ball extends Circle implements IPhysicsObject
         this.VelocityVectorX = -this.VelocityVectorX;
     }
 
-    public draw(ctx: CanvasRenderingContext2D): void
-    {
-        if (this.IsActive)
-        {
-            ctx.fillStyle = this.Color;
-            ctx.beginPath();
-            ctx.arc(this.Transform.position.x, this.Transform.position.y, this.HalfWidth, 0, Math.PI * 2, false);
-            ctx.closePath();
-            ctx.fill();
-        }
-    }
-    
     /**
      * Returns a normalized floating point number from -1 to 1 indicating the
      * point of collision on the 'collidable' Y axis, where 0 is the middle
@@ -203,7 +191,7 @@ export class Ball extends Circle implements IPhysicsObject
         let halfOffsetRange = collidable.HalfHeight;
         return normalizeRange(this.NextPosition.y - collidable.NextPosition.y, -halfOffsetRange, halfOffsetRange);
     }
-
+    
     /**
      * Returns a normalized floating point number from -1 to 1 indicating the
      * point of collision on the 'collidable' X axis, where 0 is the middle
@@ -213,13 +201,13 @@ export class Ball extends Circle implements IPhysicsObject
      * collide on this axis.
      * @param collidable The other object that this object is colliding with.
      * @returns The normalized collision point.
-     */
-    private whereWillCollideX(collidable: IPhysicsObject): number
-    {
-        let halfOffsetRange = collidable.HalfWidth;
-        return normalizeRange(this.NextPosition.x - collidable.NextPosition.x, -halfOffsetRange, halfOffsetRange);
+    */
+   private whereWillCollideX(collidable: IPhysicsObject): number
+   {
+       let halfOffsetRange = collidable.HalfWidth;
+       return normalizeRange(this.NextPosition.x - collidable.NextPosition.x, -halfOffsetRange, halfOffsetRange);
     }
-
+    
     public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasResolution: Resolution): void
     {
         super.onResizeCanvas(scaleX, scaleY, canvas, prevCanvasResolution);
@@ -231,3 +219,4 @@ export class Ball extends Circle implements IPhysicsObject
         this.velocityVectorY = directionY * this.speed;
     }
 }
+
