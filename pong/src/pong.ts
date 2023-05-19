@@ -124,7 +124,7 @@ class Pong
         let color = "black";
         let width = 10;
         let height = 100;
-        let speed = 5;
+        let speed = 0.75;
         return new Paddle(transform, color, width, height, speed, this.referenceResolution, { SetCollider: true });
     }
 

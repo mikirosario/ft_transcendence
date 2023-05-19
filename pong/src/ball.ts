@@ -111,14 +111,14 @@ export class Ball extends Circle implements IPhysicsObject
         const collisionPointY = this.whereWillCollideY(physObject);
         const isSideCollision = isInRange(collisionPointY, -1, 1);
         const bounceAngleInRadians = collisionPointY * QUARTER_CIRCLE_IN_RADIANS;
-        const newVelocityVectorX = this.Speed * Math.cos(bounceAngleInRadians);
+        const newVelocityVectorX = Math.cos(bounceAngleInRadians);
 
         if (isSideCollision) // Side collisions invert the X direction of motion
             this.VelocityVectorX = newVelocityVectorX * -originalDirectionX;
         else                 // Top or bottom collisions continue the X direction of motion
             this.VelocityVectorX = newVelocityVectorX * originalDirectionX;
         // Update the Y component of the velocity
-        this.VelocityVectorY = this.Speed * Math.sin(bounceAngleInRadians);
+        this.VelocityVectorY = Math.sin(bounceAngleInRadians);
     }
 
     public move(canvas: HTMLCanvasElement, physObjects: IPhysicsObject[] = [])
@@ -131,8 +131,8 @@ export class Ball extends Circle implements IPhysicsObject
                 if (this.willCollide(physObject))
                     this.bounceBack(physObject);
             })
-            this.Transform.position.x += this.VelocityVectorX;
-            this.Transform.position.y += this.VelocityVectorY;
+            this.Transform.position.x += this.VelocityVectorX * this.Speed;
+            this.Transform.position.y += this.VelocityVectorY * this.Speed;
         }
     }
 
@@ -212,11 +212,23 @@ export class Ball extends Circle implements IPhysicsObject
     {
         super.onResizeCanvas(scaleX, scaleY, canvas, prevCanvasResolution);
         const scale = Math.min(scaleX, scaleY);
-        this.speed = this.originalSpeed * scale;
+        this.Speed = this.OriginalSpeed * scale;
         const directionX = Math.sign(this.velocityVectorX);
         const directionY = Math.sign(this.velocityVectorY);
-        this.velocityVectorX = directionX * this.speed;
-        this.velocityVectorY = directionY * this.speed;
+        this.velocityVectorX = directionX;
+        this.velocityVectorY = directionY;
+    }
+    
+    public draw(ctx: CanvasRenderingContext2D): void
+    {
+        if (this.IsActive)
+        {
+            ctx.fillStyle = this.Color;
+            ctx.beginPath();
+            ctx.arc(this.Transform.position.x, this.Transform.position.y, this.HalfWidth, 0, Math.PI * 2, false);
+            ctx.closePath();
+            ctx.fill();
+        }
     }
 }
 

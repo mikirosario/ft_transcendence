@@ -5,11 +5,19 @@ import { PlayerInputs, BoundingBox, Position, RigidBodyOptions, Resolution } fro
 
 export class Paddle extends Rectangle implements IPhysicsObject
 {
+    private isColliderActive: boolean;
     private playerInputs: PlayerInputs;
     private speed: number;
     private velocityVectorX: number;
     private velocityVectorY: number;
-    private isColliderActive: boolean;
+    private originalSpeed: number;
+    
+    public get IsColliderActive(): boolean {
+        return  this.IsActive && this.isColliderActive;
+    }
+    public set IsColliderActive(value: boolean) {
+        this.isColliderActive = value;
+    }
 
     public get PlayerInputs(): PlayerInputs {
         return this.playerInputs;
@@ -29,18 +37,15 @@ export class Paddle extends Rectangle implements IPhysicsObject
         this.velocityVectorX = value;
     }
 
-    public get VelocityVectorY() : number {
+    public get VelocityVectorY(): number {
         return this.velocityVectorY;
     }
     public set VelocityVectorY(value: number) {
         this.velocityVectorY = value;
     }
 
-    public get IsColliderActive(): boolean {
-        return  this.IsActive && this.isColliderActive;
-    }
-    public set IsColliderActive(value: boolean) {
-        this.isColliderActive = value;
+    public get OriginalSpeed(): number {
+        return this.originalSpeed;
     }
 
     public get NextPosition(): Position {
@@ -77,6 +82,7 @@ export class Paddle extends Rectangle implements IPhysicsObject
         this.velocityVectorX = 0;
         this.velocityVectorY = 0;
         this.playerInputs = { up: false, down: false };
+        this.originalSpeed = speed;
     }
 
     public willCollideCanvas(canvas: HTMLCanvasElement): boolean
@@ -111,12 +117,21 @@ export class Paddle extends Rectangle implements IPhysicsObject
         return willCollide;
     }
 
+    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasResolution: Resolution): void
+    {
+        super.onResizeCanvas(scaleX, scaleY, canvas, prevCanvasResolution);
+        const scale = Math.min(scaleX, scaleY);
+        this.Speed = this.OriginalSpeed * scale;
+    }
+
     public move(canvas: HTMLCanvasElement, collidables: IPhysicsObject[] = [])
     {
         if (this.IsActive && !this.willCollideCanvas(canvas))
         {
-            this.Transform.position.x += this.VelocityVectorX;
-            this.Transform.position.y += this.VelocityVectorY;
+            this.Transform.position.x += this.VelocityVectorX * this.Speed;
+            this.Transform.position.y += this.VelocityVectorY * this.Speed;
         }
     }
+
+
 }
