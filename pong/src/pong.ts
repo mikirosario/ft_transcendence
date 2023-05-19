@@ -4,6 +4,7 @@ import { IDrawable } from "./interfaces.js";
 import { centerPositionInRange, centerPositionInRangeX, centerPositionInRangeY, showError } from "./utils.js";
 import { Transform } from "./transform.js";
 import { Alignment, HorizontalAnchor, VerticalAnchor } from "./alignment.js";
+import { Text } from "./text.js";
 import { Paddle } from "./paddle.js";
 import { Ball } from "./ball.js";
 import { Score } from "./score.js";
@@ -42,6 +43,7 @@ async function loadFont(font: string) {
 class Pong
 {
     private static PADDLE_MARGIN: number = 25;
+    private static MATCH_POINT: number = 3;
     // Esto se pillará por API REST con credenciales del usuario
     private leftPlayerNick: string = "pongFu";
     // Esto se pillará por API REST con credenciales de1 usuario
@@ -56,6 +58,7 @@ class Pong
     private ball: Ball;
     private leftScore: Score;
     private rightScore: Score;
+    private gameOverText: Text;
     private drawables: IDrawable[];
 
     constructor(
@@ -83,6 +86,7 @@ class Pong
             x: this.canvas.width - Pong.PADDLE_MARGIN,
             y: centerPositionInRange(0, this.canvas.height)
         })
+        this.gameOverText = this.initGameOverText(HorizontalAnchor.MIDDLE, VerticalAnchor.MIDDLE);
 
         //Input Logic (Estos escucharán por el websocket)
         document.addEventListener("keydown", (event) => {
@@ -94,8 +98,9 @@ class Pong
         
         // Render Logic
         // Leftmost objects are rendered first
-        this.drawables = [ this.net, this.leftPaddle, this.rightPaddle, this.ball, this.leftScore, this.rightScore ];
+        this.drawables = [ this.gameOverText, this.net, this.leftPaddle, this.rightPaddle, this.ball, this.leftScore, this.rightScore ];
         this.renderFrame = this.renderFrame.bind(this);
+        this.renderGameOverFrame = this.renderGameOverFrame.bind(this);
         this.resizeCanvas(window.innerWidth, window.innerHeight);
         window.addEventListener('resize', () => {
             this.resizeCanvas(window.innerWidth, window.innerHeight);
@@ -149,6 +154,19 @@ class Pong
         return new Score(alignment, playerNick, color, fontSize);
     }
 
+    private initGameOverText(horizontalAnchor: HorizontalAnchor, verticalAnchor: VerticalAnchor)
+    {
+        let alignment: Alignment = new Alignment(horizontalAnchor, verticalAnchor);
+        let color = "white";
+        let fontSize = 40;
+        return new Text(alignment, "", color, fontSize, { SetActive: false });
+    }
+
+    private isGameOver(): boolean
+    {
+        // Additional game over logic here, such as by timeout
+        return this.leftScore.Score == Pong.MATCH_POINT || this.rightScore.Score == Pong.MATCH_POINT;
+    }
     
     private whoScored(): Score | null
     {
@@ -160,11 +178,29 @@ class Pong
         scoreRef = this.leftScore;
         return scoreRef;
     }
-    
+
+    private whoWon(): Score | undefined
+    {
+        let winner: Score | undefined = undefined;
+        if (this.leftScore.Score == Pong.MATCH_POINT)
+            winner = this.leftScore;
+        else if (this.rightScore.Score == Pong.MATCH_POINT)
+            winner = this.rightScore;
+        return winner;
+    }
+
     private clearScreen()
     {
         this.ctx.fillStyle = this.backgroundColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    private onGameOver()
+    {
+        let winner: Score | undefined = this.whoWon();            
+        this.gameOverText.Text = `${ winner ? winner.PlayerName : "Nobody" } WINS`;
+        this.gameOverText.IsActive = true;
+        this.drawables.splice(1, this.drawables.length);
     }
     
     private physicsUpdate()
@@ -243,12 +279,30 @@ class Pong
 
     private renderFrame()
     {
-        this.physicsUpdate();
-        this.scoreUpdate();
+        if (!this.isGameOver())
+        {
+            // Physics update will probably need to be behind a sync check once websocket implemented
+            this.physicsUpdate();
+            this.scoreUpdate();
+            this.clearScreen();
+            this.drawables.forEach((drawable) => {
+                drawable.draw(this.ctx);
+            })
+            requestAnimationFrame(this.renderFrame);
+        }
+        else
+        {
+            this.onGameOver();
+            requestAnimationFrame(this.renderGameOverFrame);
+        }
+    }
+
+    private renderGameOverFrame()
+    {
         this.clearScreen();
         this.drawables.forEach((drawable) => {
             drawable.draw(this.ctx);
         })
-        requestAnimationFrame(this.renderFrame);
+        requestAnimationFrame(this.renderGameOverFrame);
     }
 }
