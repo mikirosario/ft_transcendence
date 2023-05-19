@@ -1,6 +1,6 @@
 export type Position = { x: number, y: number };
 
-export type Plane = { width: number, height: number }
+export type Resolution = { width: number, height: number }
 
 export type BoundingBox = { top: number, bottom: number, right: number, left: number};
 

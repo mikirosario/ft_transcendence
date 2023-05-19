@@ -1,6 +1,5 @@
-import { fillCanvas } from "./effects.js";
 import { ColorConstants } from "./colors.constants.js"
-import { AspectRatio } from "./aspect.ratio";
+import { Resolution } from "./types.js";
 
 export function getGameCanvas(canvasElement: HTMLElement | null): HTMLCanvasElement {
     if (!canvasElement || !(canvasElement instanceof HTMLCanvasElement)) { 
@@ -23,7 +22,7 @@ export async function fetchColorConstants(): Promise<ColorConstants> {
     return colorConstants;
 }
 
-export function initGameCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, aspectRatio: AspectRatio, canvasColor: string) {
-    canvas.width = aspectRatio.Width;
-    canvas.height = aspectRatio.Height;
+export function initGameCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, resolution: Resolution, canvasColor: string) {
+    canvas.width = resolution.width;
+    canvas.height = resolution.height;
 }

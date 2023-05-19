@@ -1,6 +1,7 @@
 import { IDrawable } from "./interfaces.js";
+import { PositionRatio } from "./position.ratio.js";
 import { Transform } from "./transform.js";
-import { Plane, DrawableOptions } from "./types.js";
+import { Resolution, DrawableOptions } from "./types.js";
 
 export class Circle implements IDrawable
 {
@@ -49,8 +50,13 @@ export class Circle implements IDrawable
     public get HalfHeight(): number {
         return this.radius;
     }
+
     public get HalfWidth(): number {
         return this.radius;
+    }
+
+    private get OriginalRadius(): number {
+        return this.originalRadius;
     }
 
     constructor(transform: Transform, color: string, radius: number, options: DrawableOptions = {} )
@@ -62,15 +68,14 @@ export class Circle implements IDrawable
         this.originalRadius = radius;
     }
 
-    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement,  prevCanvasDimensions: Plane): void
+    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement,  prevCanvasResolution: Resolution): void
     {
         const scale = Math.min(scaleX, scaleY);
-        const relativeX = this.transform.position.x / prevCanvasDimensions.width;
-        const relativeY = this.transform.position.y / prevCanvasDimensions.height;
-
+        const prevPositionRatioX = new PositionRatio(this.Transform.position.x, prevCanvasResolution.width);
+        const prevPositionRatioY = new PositionRatio(this.Transform.position.y, prevCanvasResolution.height);
         this.radius = Math.round(this.originalRadius * scale);
-        this.transform.position.x = Math.round(relativeX * canvas.width);
-        this.transform.position.y = Math.round(relativeY * canvas.height);
+        this.transform.position.x = prevPositionRatioX.getResizedPosition(canvas.width);
+        this.transform.position.y = prevPositionRatioY.getResizedPosition(canvas.height);
     }
 
     public draw(ctx: CanvasRenderingContext2D): void

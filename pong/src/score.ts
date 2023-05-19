@@ -1,6 +1,7 @@
 import { Text } from "./text.js";
 import { Alignment } from "./alignment.js";
 import { padEnd } from "./utils.js";
+import { DrawableOptions } from "./types";
 
 export class Score extends Text
 {
@@ -27,10 +28,10 @@ export class Score extends Text
         this.playerName = Score.formatPlayerName(value);
     }
     
-    constructor(alignment: Alignment, playerName: string, color: string, fontSize: number, isActive: boolean = true)
+    constructor(alignment: Alignment, playerName: string, color: string, fontSize: number, options: DrawableOptions = {})
     {
         playerName = Score.formatPlayerName(playerName);
-        super(alignment, Score.generateScoreDisplay(playerName, 0), color, fontSize, isActive);
+        super(alignment, Score.generateScoreDisplay(playerName, 0), color, fontSize, options);
         this.playerName = playerName;
     }
 

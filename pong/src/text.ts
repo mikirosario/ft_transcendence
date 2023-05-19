@@ -1,19 +1,23 @@
-import { Plane, Position } from "./types.js";
+import { Resolution, Position, DrawableOptions } from "./types.js";
 import { IDrawable, IUIObject } from "./interfaces.js";
 import { Alignment, HorizontalAnchor, VerticalAnchor } from "./alignment.js";
 import { Transform } from "./transform.js";
 import { centerPositionInRangeX, centerPositionInRangeY } from "./utils.js";
+import { Fonts } from "./fonts.js";
 
 export class Text implements IDrawable, IUIObject
 {
+    private static PrimaryFont: string = "press_start_2p";
+    private static BackupFonts: string[] = [
+        "monospace",
+        "sans-serif"
+    ];
     private isActive: boolean;
-    private alignment: Alignment;
     private transform: Transform;
+    private font: Fonts;
+    private alignment: Alignment;
     private text: string;
-    private fontSize: number;
     private color: string;
-    private font: string;
-
     private originalFontSize: number;
 
     public get IsActive(): boolean {
@@ -27,13 +31,8 @@ export class Text implements IDrawable, IUIObject
         return this.transform;
     }
 
-    public get Text(): string
-    {
-        return this.text;
-    }
-    public set Text(value: string)
-    {
-        this.text = value;
+    public get Font(): Fonts {
+        return this.font;
     }
 
     public get Alignment(): Alignment {
@@ -43,25 +42,20 @@ export class Text implements IDrawable, IUIObject
         this.alignment = value;
     }
 
+    public get Text(): string
+    {
+        return this.text;
+    }
+    public set Text(value: string)
+    {
+        this.text = value;
+    }
+
     public get FontSize(): number {
-        return this.fontSize;
+        return this.font.FontSize;
     }
     public set FontSize(value: number) {
-        this.fontSize = value;
-    }
-
-    public get Color(): string {
-        return this.color;
-    }
-    public set Color(value: string) {
-        this.color = value;
-    }
-
-    public get Font(): string {
-        return this.font;
-    }
-    private set Font(value: string) {
-        this.font = value;
+        this.font.FontSize = value;
     }
 
     public get Height(): number {
@@ -80,15 +74,26 @@ export class Text implements IDrawable, IUIObject
         return Math.round(this.Width * 0.5);
     }
 
-    constructor(alignment: Alignment, text: string, color: string, fontSize: number, isActive: boolean = true)
+    public get Color(): string {
+        return this.color;
+    }
+    public set Color(value: string) {
+        this.color = value;
+    }
+
+    public get OriginalFontSize(): number {
+        return this.originalFontSize;
+    }
+
+
+    constructor(alignment: Alignment, text: string, color: string, fontSize: number, options: DrawableOptions = {})
     {
         this.alignment = alignment;
         this.transform = new Transform();
         this.text = text;
         this.color = color;
-        this.fontSize = fontSize;
-        this.font = `${fontSize}px press_start_2p, monospace`;
-        this.isActive = isActive;
+        this.font = new Fonts(fontSize, Text.PrimaryFont, Text.BackupFonts);
+        this.isActive = options.SetActive === undefined ? true: options.SetActive;
         this.originalFontSize = fontSize;
     }
 
@@ -121,11 +126,10 @@ export class Text implements IDrawable, IUIObject
         return newPosition;
     }
 
-    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasDimensions: Plane): void
+    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasResolution: Resolution): void
     {
         const scale = Math.min(scaleX, scaleY);
-        this.FontSize = this.originalFontSize * scale;
-        this.Font = `${this.FontSize}px press_start_2p, monospace`; // Todo: extract to build string method
+        this.FontSize = this.OriginalFontSize * scale;
     }
 
     public draw(ctx: CanvasRenderingContext2D): void
@@ -133,10 +137,10 @@ export class Text implements IDrawable, IUIObject
         if (this.IsActive)
         {
             this.Transform.position = this.alignmentToPosition(ctx.canvas);
-            ctx.fillStyle = this.color;
+            ctx.fillStyle = this.Color;
             ctx.textAlign = "center";
-            ctx.font = this.font;
-            ctx.fillText(this.text, this.Transform.position.x, this.Transform.position.y);
+            ctx.font = this.Font.toString();
+            ctx.fillText(this.Text, this.Transform.position.x, this.Transform.position.y);
         }
     }
 }

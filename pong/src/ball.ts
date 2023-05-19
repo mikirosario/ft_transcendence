@@ -1,7 +1,7 @@
 import { Circle } from "./circle.js";
 import { Transform } from "./transform.js";
 import { IPhysicsObject } from "./interfaces.js";
-import { BoundingBox, Plane, Position, RigidBodyOptions } from "./types.js";
+import { BoundingBox, Resolution, Position, RigidBodyOptions } from "./types.js";
 import { isInRange, normalizeRange } from "./utils.js";
 
 export class Ball extends Circle implements IPhysicsObject
@@ -220,9 +220,9 @@ export class Ball extends Circle implements IPhysicsObject
         return normalizeRange(this.NextPosition.x - collidable.NextPosition.x, -halfOffsetRange, halfOffsetRange);
     }
 
-    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasDimensions: Plane): void
+    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasResolution: Resolution): void
     {
-        super.onResizeCanvas(scaleX, scaleY, canvas, prevCanvasDimensions);
+        super.onResizeCanvas(scaleX, scaleY, canvas, prevCanvasResolution);
         const scale = Math.min(scaleX, scaleY);
         this.speed = this.originalSpeed * scale;
         const directionX = Math.sign(this.velocityVectorX);

@@ -1,7 +1,7 @@
 import { Rectangle } from "./rectangle.js";
 import { Transform } from "./transform.js";
 import { IPhysicsObject } from "./interfaces.js";
-import { PlayerInputs, BoundingBox, Position } from "./types.js";
+import { PlayerInputs, BoundingBox, Position, RigidBodyOptions, Resolution } from "./types.js";
 
 export class Paddle extends Rectangle implements IPhysicsObject
 {
@@ -69,11 +69,11 @@ export class Paddle extends Rectangle implements IPhysicsObject
         }
     }
 
-    constructor(transform: Transform, color: string, width: number, height: number, speed: number, canvas: HTMLCanvasElement, isColliderActive: boolean = false, isActive: boolean = true)
+    constructor(transform: Transform, color: string, width: number, height: number, speed: number, referenceResolution: Resolution, options: RigidBodyOptions = {})
     {
-        super(transform, color, width, height, canvas, isActive);
+        super(transform, color, width, height, referenceResolution, { SetActive: options.SetActive });
         this.speed = speed;
-        this.isColliderActive = isColliderActive;
+        this.isColliderActive = options.SetCollider === undefined ? false: options.SetCollider;
         this.velocityVectorX = 0;
         this.velocityVectorY = 0;
         this.playerInputs = { up: false, down: false };

@@ -1,5 +1,5 @@
 import { getGameCanvas, getGameRenderingContext, initGameCanvas, fetchColorConstants } from "./init.js";
-import { Plane } from "./types.js";
+import { Resolution } from "./types.js";
 import { IDrawable } from "./interfaces.js";
 import { showError } from "./utils.js";
 import { AspectRatio } from "./aspect.ratio.js";
@@ -24,11 +24,11 @@ async function main() {
         const canvasElement: HTMLElement | null = document.getElementById('pong');
         const canvas = getGameCanvas(canvasElement);
         const ctx = getGameRenderingContext(canvas);
-        const aspectRatio: AspectRatio = new AspectRatio(640, 480);
+        const referenceResolution: Resolution = { width: 640, height: 480 };
         const colorConstants = await fetchColorConstants();
         canvasBackgroundColor = colorConstants.canvasBackgroundColor;
-        initGameCanvas(canvas, ctx, aspectRatio, canvasBackgroundColor);
-        const pong = new Pong(canvas, ctx, aspectRatio, canvasBackgroundColor);
+        initGameCanvas(canvas, ctx, referenceResolution, canvasBackgroundColor);
+        const pong = new Pong(canvas, ctx, referenceResolution, canvasBackgroundColor);
     }
     catch (err: any)
     {
@@ -44,7 +44,7 @@ class Pong
 {
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
-    private aspectRatio: AspectRatio;
+    private referenceResolution: Resolution;
     private backgroundColor: string;
     private net: VerticalDashedLine;
     private leftPaddle: Paddle;
@@ -54,28 +54,23 @@ class Pong
     private rightScore: Score;
     private drawables: IDrawable[];
 
-    private originalCanvasWidth: number;
-    private originalCanvasHeight: number;
-
     constructor(
         canvas: HTMLCanvasElement,
         context: CanvasRenderingContext2D,
-        aspectRatio: AspectRatio,
+        referenceResolution: Resolution,
         backgroundColor: string)
     {
         this.canvas = canvas;
         this.ctx = context;
-        this.aspectRatio = aspectRatio;
+        this.referenceResolution = referenceResolution;
         this.backgroundColor = backgroundColor;
-        this.net = new VerticalDashedLine(new Transform( {x: Math.round(this.canvas.width * 0.5), y: Math.round(this.canvas.height * 0.5) }, 1), "black", 5, this.canvas.height, 10, this.canvas);
-        this.leftPaddle = new Paddle(new Transform({ x: 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100, 5, this.canvas, true);
-        this.rightPaddle = new Paddle(new Transform({ x: this.canvas.width - 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100, 5, this.canvas, true);
+        this.net = new VerticalDashedLine(new Transform( {x: Math.round(this.canvas.width * 0.5), y: Math.round(this.canvas.height * 0.5) }, 1), "black", 5, this.canvas.height, 10, referenceResolution);
+        this.leftPaddle = new Paddle(new Transform({ x: 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100, 5, referenceResolution, { SetCollider: true });
+        this.rightPaddle = new Paddle(new Transform({ x: this.canvas.width - 100, y: Math.round(this.canvas.height * 0.5) }, 1), "black", 10, 100, 5, referenceResolution, { SetCollider: true });
         this.ball = new Ball(new Transform({ x: Math.round(this.canvas.width * 0.5), y: Math.round(this.canvas.height * 0.5) }, 1), "white", 1, 10, { SetCollider: true });
         this.leftScore = new Score(new Alignment(HorizontalAnchor.LEFT, VerticalAnchor.TOP), "pongmaster", "white", 20);
         this.rightScore = new Score(new Alignment(HorizontalAnchor.RIGHT, VerticalAnchor.TOP), "ponginator", "white", 20);
         this.drawables = [ this.net, this.leftPaddle, this.rightPaddle, this.ball, this.leftScore, this.rightScore ];
-        this.originalCanvasWidth =aspectRatio.Width;
-        this.originalCanvasHeight = aspectRatio.Height;
         this.renderFrame = this.renderFrame.bind(this);
         document.addEventListener("keydown", (event) => {
             onKeyDown(event, this.leftPaddle, this.rightPaddle);
@@ -94,26 +89,25 @@ class Pong
     {
         const verticalMargin = 200;
         const availableHeight = newWindowHeight - verticalMargin;
-        const windowAspectRatio = new AspectRatio(newWindowWidth, availableHeight);
         let newCanvasWidth = newWindowWidth * 0.7;
-        let newCanvasHeight = newCanvasWidth / (this.originalCanvasWidth / this.originalCanvasHeight);
+        let newCanvasHeight = newCanvasWidth / (this.referenceResolution.width / this.referenceResolution.height);
 
         if (newCanvasHeight > availableHeight)
         {
             newCanvasHeight = availableHeight;
-            newCanvasWidth = newCanvasHeight * (this.originalCanvasWidth / this.originalCanvasHeight);
+            newCanvasWidth = newCanvasHeight * (this.referenceResolution.width / this.referenceResolution.height);
         }
 
-        const scaleX = newCanvasWidth / this.originalCanvasWidth;
-        const scaleY = newCanvasHeight / this.originalCanvasHeight;
-        const prevCanvasDimensions: Plane = {
+        const scaleX = newCanvasWidth / this.referenceResolution.width;
+        const scaleY = newCanvasHeight / this.referenceResolution.height;
+        const prevCanvasResolution: Resolution = {
             width: this.canvas.width,
             height: this.canvas.height
         };
         this.canvas.width = Math.round(newCanvasWidth);
         this.canvas.height = Math.round(newCanvasHeight);
         this.drawables.forEach((drawable) => {
-            drawable.onResizeCanvas(scaleX, scaleY, this.canvas, prevCanvasDimensions);
+            drawable.onResizeCanvas(scaleX, scaleY, this.canvas, prevCanvasResolution);
         })
     }
 

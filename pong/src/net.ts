@@ -1,7 +1,7 @@
-import { Plane, Position } from "./types.js";
+import { DrawableOptions, Position, Resolution } from "./types.js";
 import { IDrawable } from "./interfaces.js";
 import { Transform } from "./transform.js";
-import { AspectRatio } from "./aspect.ratio.js";
+import { PositionRatio } from "./position.ratio.js";
 
 export class VerticalDashedLine implements IDrawable
 {
@@ -11,14 +11,11 @@ export class VerticalDashedLine implements IDrawable
     private width: number;
     private dashHeight: number;
     private color: string;
-    private aspectRatio: AspectRatio;
-    private dashAspectRatio: AspectRatio;
-
     private originalWidth: number;
     private originalHeight: number;
     private originalDashHeight: number;
-    private relativeX: number;
-    private relativeY: number;
+    private originalPositionRatioX: PositionRatio;
+    private originalPositionRatioY: PositionRatio;
 
     public get IsActive(): boolean
     {
@@ -41,8 +38,6 @@ export class VerticalDashedLine implements IDrawable
     }
     public set Width(value: number) {
         this.width = value;
-        // this.dashHeight = Math.round(value / this.DashAspectRatio.toNumber());
-        // this.height = Math.round(value / this.AspectRatio.toNumber());
     }
 
     public get Height(): number {
@@ -50,61 +45,85 @@ export class VerticalDashedLine implements IDrawable
     }
     public set Height(value: number) {
         this.height = value;
-        // this.width = Math.round(value * this.AspectRatio.toNumber());
+    }
+    
+    public get HalfWidth(): number {
+        return Math.round(this.Width * 0.5);
     }
 
-    private get AspectRatio(): AspectRatio {
-        return this.aspectRatio;
-    }
-    private set AspectRatio(value: AspectRatio) {
-        this.aspectRatio = value;
+    public get HalfHeight(): number {
+        return Math.round(this.Height * 0.5);
     }
 
-    private get DashAspectRatio(): AspectRatio {
-        return this.dashAspectRatio;
+    public get DashHeight(): number {
+        return this.dashHeight;
     }
-    private set DashAspectRatio(value: AspectRatio) {
-        this.dashAspectRatio = value;
+    public set DashHeight(value: number) {
+        this.dashHeight = value;
+    }
+
+    public get Color(): string {
+        return this.color;
+    }
+    public set Color(value: string) {
+        this.color = value;
+    }
+
+    private get OriginalWidth(): number {
+        return this.originalWidth;
+    }
+
+    private get OriginalHeight(): number {
+        return this.originalHeight;
+    }
+
+    private get OriginalDashHeight(): number {
+        return this.originalDashHeight;
+    }
+
+    private get OriginalPositionRatioX(): PositionRatio {
+        return this.originalPositionRatioX;
+    }
+
+    private get OriginalPositionRatioY(): PositionRatio {
+        return this.originalPositionRatioY;
     }
 
     private get DistToNextDash(): number {
-        return this.dashHeight * 2;
+        return this.DashHeight * 2;
     }
 
 
-    constructor(transform: Transform, color: string, width: number, height: number, dashHeight: number, canvas: HTMLCanvasElement, isActive: boolean = true)
+    constructor(transform: Transform, color: string, width: number, height: number, dashHeight: number, referenceResolution: Resolution, options: DrawableOptions = {})
     {
         this.transform = transform;
         this.color = color;
         this.width = width;
         this.height = height;
         this.dashHeight = dashHeight;
-        this.isActive = isActive;
-        this.aspectRatio = new AspectRatio(width, height);
-        this.dashAspectRatio = new AspectRatio(width, dashHeight);
-
+        this.isActive = options.SetActive === undefined ? true : options.SetActive;
         this.originalHeight = height;
         this.originalWidth = width;
         this.originalDashHeight = dashHeight;
-        this.relativeX = this.transform.position.x / canvas.width;
-        this.relativeY = this.transform.position.y / canvas.height;
+        this.originalPositionRatioX = new PositionRatio(this.Transform.position.x, referenceResolution.width);
+        this.originalPositionRatioY = new PositionRatio(this.Transform.position.y, referenceResolution.height);
     }
 
     private getUpperLeftCorner(): Position
     {
-        let halfWidth = Math.round(this.width * 0.5);
-        let halfHeight = Math.round(this.height * 0.5);
-
-        return { x: this.transform.position.x - halfWidth, y: this.transform.position.y - halfHeight};
+        return {
+            x: this.transform.position.x - this.HalfWidth,
+            y: this.transform.position.y - this.HalfHeight
+        };
     }
 
-    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasDimensions: Plane): void
+    public onResizeCanvas(scaleX: number, scaleY: number, canvas: HTMLCanvasElement, prevCanvasResolution: Resolution): void
     {
-        this.width = Math.round(this.originalWidth * scaleX);
-        this.height = Math.round(this.originalHeight * scaleY);
-        this.dashHeight = Math.round(this.originalDashHeight * scaleY);
-        this.transform.position.x = Math.round(this.relativeX * canvas.width);
-        this.transform.position.y = Math.round(this.relativeY * canvas.height);
+        this.Width = Math.round(this.OriginalWidth * scaleX);
+        this.Height = Math.round(this.OriginalHeight * scaleY);
+        this.DashHeight = Math.round(this.OriginalDashHeight * scaleY);
+        this.Transform.position.x = this.OriginalPositionRatioX.getResizedPosition(canvas.width);
+        this.Transform.position.y = this.OriginalPositionRatioY.getResizedPosition(canvas.height);
     }
 
     public draw(ctx: CanvasRenderingContext2D): void
@@ -112,10 +131,10 @@ export class VerticalDashedLine implements IDrawable
         if (this.IsActive)
         {
             let upperLeftCornerPosition = this.getUpperLeftCorner();
-            for (let i = 0; i <= this.height; i+=this.DistToNextDash)
+            for (let i = 0; i <= this.Height; i+=this.DistToNextDash)
             {
-                ctx.fillStyle = this.color;
-                ctx.fillRect(upperLeftCornerPosition.x, upperLeftCornerPosition.y + i, this.width, this.dashHeight);
+                ctx.fillStyle = this.Color;
+                ctx.fillRect(upperLeftCornerPosition.x, upperLeftCornerPosition.y + i, this.Width, this.DashHeight);
             }
         }
     }
