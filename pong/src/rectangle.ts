@@ -76,7 +76,7 @@ export class Rectangle implements IDrawable
         this.color = color;
         this.width = width;
         this.height = height;
-        this.isActive = options.SetActive === undefined ? true: options.SetActive;
+        this.isActive = options.SetActive === undefined ? true : options.SetActive;
         this.originalWidth = width;
         this.originalHeight = height;
         this.originalPositionRatioX = new PositionRatio(this.Transform.position.x, referenceResolution.width);

@@ -93,7 +93,7 @@ export class Text implements IDrawable, IUIObject
         this.text = text;
         this.color = color;
         this.font = new Fonts(fontSize, Text.PrimaryFont, Text.BackupFonts);
-        this.isActive = options.SetActive === undefined ? true: options.SetActive;
+        this.isActive = options.SetActive === undefined ? true : options.SetActive;
         this.originalFontSize = fontSize;
     }
 

@@ -73,7 +73,7 @@ export class Paddle extends Rectangle implements IPhysicsObject
     {
         super(transform, color, width, height, referenceResolution, { SetActive: options.SetActive });
         this.speed = speed;
-        this.isColliderActive = options.SetCollider === undefined ? false: options.SetCollider;
+        this.isColliderActive = options.SetCollider === undefined ? false : options.SetCollider;
         this.velocityVectorX = 0;
         this.velocityVectorY = 0;
         this.playerInputs = { up: false, down: false };
