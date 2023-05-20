@@ -1,9 +1,9 @@
-import { Resolution, Position, DrawableOptions, ScaleFactors } from "./types.js";
-import { IDrawable, IUIObject } from "./interfaces.js";
-import { Alignment, HorizontalAnchor, VerticalAnchor } from "./alignment.js";
-import { Transform } from "./transform.js";
-import { centerPositionInRangeX, centerPositionInRangeY } from "./utils.js";
-import { Fonts } from "./fonts.js";
+import { Resolution, Position, DrawableOptions, ScaleFactors } from "./types";
+import { IDrawable, IUIObject } from "./interfaces";
+import { Alignment, HorizontalAnchor, VerticalAnchor } from "./alignment";
+import { Transform } from "./transform";
+import { centerPositionInRangeX, centerPositionInRangeY } from "./utils";
+import { Fonts } from "./fonts";
 
 export class Text implements IDrawable, IUIObject
 {

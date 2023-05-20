@@ -1,8 +1,8 @@
-import { Circle } from "./circle.js";
-import { Transform } from "./transform.js";
-import { IPhysicsObject } from "./interfaces.js";
-import { BoundingBox, Resolution, Position, RigidBodyOptions, ScaleFactors } from "./types.js";
-import { isInRange, normalizeRange } from "./utils.js";
+import { Circle } from "./circle";
+import { Transform } from "./transform";
+import { IPhysicsObject } from "./interfaces";
+import { BoundingBox, Resolution, Position, RigidBodyOptions, ScaleFactors } from "./types";
+import { isInRange, normalizeRange } from "./utils";
 
 export class Ball extends Circle implements IPhysicsObject
 {

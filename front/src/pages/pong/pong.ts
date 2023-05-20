@@ -1,38 +1,37 @@
-import { getGameCanvas, getGameRenderingContext, initGameCanvas, fetchColorConstants } from "./init.js";
-import { Position, Resolution, ScaleFactors } from "./types.js";
-import { IDrawable } from "./interfaces.js";
-import { centerPositionInRange, centerPositionInRangeX, centerPositionInRangeY, showError } from "./utils.js";
-import { Transform } from "./transform.js";
-import { Alignment, HorizontalAnchor, VerticalAnchor } from "./alignment.js";
-import { Text } from "./text.js";
-import { Paddle } from "./paddle.js";
-import { Ball } from "./ball.js";
-import { Score } from "./score.js";
-import { VerticalDashedLine } from "./net.js";
-import { onKeyDown, onKeyUp } from "./input.handlers.js";
+import { getGameCanvas, getGameRenderingContext, initGameCanvas, fetchColorConstants } from "./init";
+import { Position, Resolution, ScaleFactors } from "./types";
+import { IDrawable } from "./interfaces";
+import { centerPositionInRange, centerPositionInRangeX, centerPositionInRangeY, showError } from "./utils";
+import { Transform } from "./transform";
+import { Alignment, HorizontalAnchor, VerticalAnchor } from "./alignment";
+import { Text } from "./text";
+import { Paddle } from "./paddle";
+import { Ball } from "./ball";
+import { Score } from "./score";
+import { VerticalDashedLine } from "./net";
+import { onKeyDown, onKeyUp } from "./input.handlers";
 
-window.onload = function() {
-    main();
-}
 
 let canvasBackgroundColor: string;
 
-async function main() {
+export async function main() {
     try
     {
+        
         await loadFont('10pt "press_start_2p"');
         const canvasElement: HTMLElement | null = document.getElementById('pong');
         const canvas = getGameCanvas(canvasElement);
         const ctx = getGameRenderingContext(canvas);
         const referenceResolution: Resolution = { width: 640, height: 480 };
         const colorConstants = await fetchColorConstants();
+        // const colorConstants = { "canvasBackgroundColor": "#66CC66" };
         canvasBackgroundColor = colorConstants.canvasBackgroundColor;
         initGameCanvas(canvas, ctx, referenceResolution, canvasBackgroundColor);
         const pong = new Pong(canvas, ctx, referenceResolution, canvasBackgroundColor);
     }
     catch (err: any)
     {
-        showError(err.message)
+        showError(err.message);
     }
 }
 
@@ -306,3 +305,5 @@ class Pong
         requestAnimationFrame(this.renderGameOverFrame);
     }
 }
+
+export default Pong;

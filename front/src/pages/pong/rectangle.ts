@@ -1,7 +1,7 @@
-import { DrawableOptions, Position, Resolution, ScaleFactors } from "./types.js";
-import { IDrawable } from "./interfaces.js";
-import { Transform } from "./transform.js";
-import { PositionRatio } from "./position.ratio.js";
+import { DrawableOptions, Position, Resolution, ScaleFactors } from "./types";
+import { IDrawable } from "./interfaces";
+import { Transform } from "./transform";
+import { PositionRatio } from "./position.ratio";
 
 export class Rectangle implements IDrawable
 {

@@ -1,7 +1,7 @@
-import { Rectangle } from "./rectangle.js";
-import { Transform } from "./transform.js";
-import { IPhysicsObject } from "./interfaces.js";
-import { PlayerInputs, BoundingBox, Position, RigidBodyOptions, Resolution, ScaleFactors } from "./types.js";
+import { Rectangle } from "./rectangle";
+import { Transform } from "./transform";
+import { IPhysicsObject } from "./interfaces";
+import { PlayerInputs, BoundingBox, Position, RigidBodyOptions, Resolution, ScaleFactors } from "./types";
 
 export class Paddle extends Rectangle implements IPhysicsObject
 {
