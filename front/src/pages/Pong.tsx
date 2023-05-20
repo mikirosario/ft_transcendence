@@ -1,20 +1,5 @@
 import React, { useEffect } from "react";
 import * as Pong from "./pong/pong";
-import { io, Socket } from 'socket.io-client';
-
-
-const socketOptions = {
-  transportOptions: {
-      polling: {
-          extraHeaders: {
-              Authorization: localStorage.getItem("token"),
-          }
-      }
-  }
-};
-
-const socket: Socket = io('http://localhost:8082/', socketOptions);
-
 
 
 
