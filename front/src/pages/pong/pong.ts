@@ -11,20 +11,17 @@ import { Score } from "./score";
 import { VerticalDashedLine } from "./net";
 import { onKeyDown, onKeyUp } from "./input.handlers";
 
-
 let canvasBackgroundColor: string;
 
 export async function main() {
     try
     {
-        
         await loadFont('10pt "press_start_2p"');
         const canvasElement: HTMLElement | null = document.getElementById('pong');
         const canvas = getGameCanvas(canvasElement);
         const ctx = getGameRenderingContext(canvas);
         const referenceResolution: Resolution = { width: 640, height: 480 };
         const colorConstants = await fetchColorConstants();
-        // const colorConstants = { "canvasBackgroundColor": "#66CC66" };
         canvasBackgroundColor = colorConstants.canvasBackgroundColor;
         initGameCanvas(canvas, ctx, referenceResolution, canvasBackgroundColor);
         const pong = new Pong(canvas, ctx, referenceResolution, canvasBackgroundColor);
