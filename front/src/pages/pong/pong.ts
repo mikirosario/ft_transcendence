@@ -10,18 +10,7 @@ import { Ball } from "./ball";
 import { Score } from "./score";
 import { VerticalDashedLine } from "./net";
 import { onKeyDown, onKeyUp } from "./input.handlers";
-import { io, Socket } from 'socket.io-client';
 
-
-const socketOptions = {
-  transportOptions: {
-      polling: {
-          extraHeaders: {
-              Authorization: localStorage.getItem("token"),
-          }
-      }
-  }
-};
 
 
 let canvasBackgroundColor: string;
@@ -29,9 +18,6 @@ let canvasBackgroundColor: string;
 export async function main() {
     try
     {
-        // Set socket conexion (isInGame)
-        const socket: Socket = io('http://localhost:8082/', socketOptions);
-
         await loadFont('10pt "press_start_2p"');
         const canvasElement: HTMLElement | null = document.getElementById('pong');
         const canvas = getGameCanvas(canvasElement);

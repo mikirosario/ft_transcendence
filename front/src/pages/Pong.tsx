@@ -1,12 +1,29 @@
 import React, { useEffect } from "react";
 import * as Pong from "./pong/pong";
+import { io, Socket } from 'socket.io-client';
 
+
+const socketOptions = {
+  transportOptions: {
+      polling: {
+          extraHeaders: {
+              Authorization: localStorage.getItem("token"),
+          }
+      }
+  }
+};
 
 
 function PongPage() {
 
     useEffect(() => {
+        // Set socket conexion (isInGame)
+        const socket: Socket = io('http://localhost:8082/', socketOptions);
         Pong.main();
+
+        return () => {
+            socket.close();
+          };
       }, []);
 
     const ErrorMessage: React.CSSProperties = {
