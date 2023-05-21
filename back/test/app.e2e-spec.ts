@@ -487,7 +487,7 @@ describe('App e2e', () => {
 							...dto1
 						})
 						.expectStatus(201)
-						.expectBodyContains(dto1.nick)
+						.expectBodyContains("[]")
 				});
 				it('should add friend 2', () => {
 					return pactum
@@ -500,8 +500,7 @@ describe('App e2e', () => {
 							...dto2
 						})
 						.expectStatus(201)
-						.expectBodyContains(dto1.nick)
-						.expectBodyContains(dto2.nick)
+						.expectBodyContains("[]")
 				});
 				it('should throw 404 if user not found', () => {
 					return pactum
@@ -614,6 +613,189 @@ describe('App e2e', () => {
 					return pactum
 						.spec()
 						.post('/users/friends')
+						.withHeaders({
+							Authorization: '',
+						})
+						.expectStatus(401)
+				});
+			});
+			describe('getFriendRequests', () => {
+				const dto1 = {
+					nick: "testuser3"
+				};
+				const dto2 = {
+					nick: "testuser4"
+				};
+				it('should get friends requests', () => {
+					return pactum
+						.spec()
+						.get('/users/friends/requests')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							...dto1
+						})
+						.expectStatus(200)
+						.expectBodyContains(dto1.nick)
+						.expectBodyContains(dto2.nick)
+				});
+				it('should throw 404 if user not found', () => {
+					return pactum
+						.spec()
+						.get('/users/friends/requests')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAtDel}',
+						})
+						.expectStatus(404)
+				});
+				it('should throw 401 if jwt token not provided', () => {
+					return pactum
+						.spec()
+						.get('/users/friends/requests')
+						.withHeaders({
+							Authorization: '',
+						})
+						.expectStatus(401)
+				});
+			});
+			describe('acceptFriend', () => {
+				const dto1 = {
+					nick: "testuser3"
+				};
+				const dto2 = {
+					nick: "testuser4"
+				};
+				const dto3 = {
+					nick: "testuser5"
+				};
+				it('should accept friend 1', () => {
+					return pactum
+						.spec()
+						.put('/users/friends')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							...dto1
+						})
+						.expectStatus(200)
+						.expectBodyContains(dto1.nick)
+				});
+				it('should accept friend 2', () => {
+					return pactum
+						.spec()
+						.put('/users/friends')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							...dto2
+						})
+						.expectStatus(200)
+						.expectBodyContains(dto1.nick)
+						.expectBodyContains(dto2.nick)
+				});
+				it('should not have reamining friend requests', () => {
+					return pactum
+						.spec()
+						.get('/users/friends/requests')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							...dto1
+						})
+						.expectStatus(200)
+						.expectBodyContains("[]")
+				});
+				it('should throw 404 if user not found', () => {
+					return pactum
+						.spec()
+						.put('/users/friends')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAtDel}',
+						})
+						.withBody({
+							...dto3
+						})
+						.expectStatus(404)
+				});
+				it('should throw 404 if friend user not found', () => {
+					return pactum
+						.spec()
+						.put('/users/friends')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							nick: "notuser"
+						})
+						.expectStatus(404)
+				});
+				it('should throw 400 if nick not provided', () => {
+					return pactum
+						.spec()
+						.put('/users/friends')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+						})
+						.expectStatus(400)
+				});
+				it('should throw 400 if bad format nick provided (short)', () => {
+					return pactum
+						.spec()
+						.put('/users/friends')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							nick: "aa"
+						})
+						.expectStatus(400)
+				});
+				it('should throw 400 if bad format nick provided (large)', () => {
+					return pactum
+						.spec()
+						.put('/users/friends')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							nick: "aaaaaaaaaaaaaaaaaaaaaa"
+						})
+						.expectStatus(400)
+				});
+				it('should throw 400 if bad format nick provided (bad characters)', () => {
+					return pactum
+						.spec()
+						.put('/users/friends')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							nick: "aaa aa"
+						})
+						.expectStatus(400)
+				});
+				it('should throw 400 if bad format nick provided (bad characters)', () => {
+					return pactum
+						.spec()
+						.put('/users/friends')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							nick: "aaa;aa"
+						})
+						.expectStatus(400)
+				});
+				it('should throw 401 if jwt token not provided', () => {
+					return pactum
+						.spec()
+						.put('/users/friends')
 						.withHeaders({
 							Authorization: '',
 						})
