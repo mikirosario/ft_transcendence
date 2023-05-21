@@ -6,10 +6,11 @@ import { BookmarkModule } from './bookmark/bookmark.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ServeImageModule } from './utils/serve-image/serve-image.module';
 import { FriendModule } from './friend/friend.module';
+import { PongModule } from './pong/pong.module';
 
 @Module({
 	imports: [AuthModule, UserModule, BookmarkModule, PrismaModule, ServeImageModule,
-		FriendModule,
+		FriendModule, PongModule,
 		ConfigModule.forRoot({ isGlobal: true }),
 	]
 })
