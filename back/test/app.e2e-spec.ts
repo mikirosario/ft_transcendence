@@ -177,6 +177,14 @@ describe('App e2e', () => {
 				return pactum
 					.spec()
 					.post('/auth/signin')
+					.withBody(dto1)
+					.expectStatus(200)
+					.stores('userAt1', 'access_token');
+			});
+			it('should sign in', () => {
+				return pactum
+					.spec()
+					.post('/auth/signin')
 					.withBody(dtoDel)
 					.expectStatus(200)
 					.stores('userAtDel', 'access_token');
@@ -633,9 +641,6 @@ describe('App e2e', () => {
 						.withHeaders({
 							Authorization: 'Bearer $S{userAt}',
 						})
-						.withBody({
-							...dto1
-						})
 						.expectStatus(200)
 						.expectBodyContains(dto1.nick)
 						.expectBodyContains(dto2.nick)
@@ -660,6 +665,9 @@ describe('App e2e', () => {
 				});
 			});
 			describe('acceptFriend', () => {
+				const dto = {
+					nick: "kar-is_tii"
+				}
 				const dto1 = {
 					nick: "testuser3"
 				};
@@ -669,6 +677,19 @@ describe('App e2e', () => {
 				const dto3 = {
 					nick: "testuser5"
 				};
+				it('friend 1 should not have any friend', () => {
+					return pactum
+						.spec()
+						.get('/users/friends')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt1}',
+						})
+						.withBody({
+							...dto
+						})
+						.expectStatus(200)
+						.expectBodyContains("[]")
+				});
 				it('should accept friend 1', () => {
 					return pactum
 						.spec()
@@ -681,6 +702,19 @@ describe('App e2e', () => {
 						})
 						.expectStatus(200)
 						.expectBodyContains(dto1.nick)
+				});
+				it('friend 1 should also have the other user as friend', () => {
+					return pactum
+						.spec()
+						.get('/users/friends')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt1}',
+						})
+						.withBody({
+							...dto
+						})
+						.expectStatus(200)
+						.expectBodyContains(dto.nick)
 				});
 				it('should accept friend 2', () => {
 					return pactum
@@ -815,9 +849,6 @@ describe('App e2e', () => {
 						.get('/users/friends')
 						.withHeaders({
 							Authorization: 'Bearer $S{userAt}',
-						})
-						.withBody({
-							...dto1
 						})
 						.expectStatus(200)
 						.expectBodyContains(dto1.nick)
