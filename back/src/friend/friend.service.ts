@@ -98,6 +98,22 @@ export class FriendService {
 			}
 		}
 
+		try {
+			const addedFriend = await this.prisma.friend.create({
+				data: {
+					userId: friend.id,
+					friend_userId: userId,
+					accepted: true
+				}
+			});
+		} catch (error) {
+			if (error instanceof PrismaClientKnownRequestError) {
+				// https://www.prisma.io/docs/reference/api-reference/error-reference
+				// P2025 Record not found
+				ThrowHttpException(error, 'Friendship already exists');
+			}
+		}
+
 		const friends = this.getFriends(userId);
 		return friends;
 	}
