@@ -1,4 +1,4 @@
-import { Paddle } from "./paddle.js";
+import { Paddle } from "./paddle";
 
 export function onKeyDown(event: KeyboardEvent, p1: Paddle, p2: Paddle): void
 {

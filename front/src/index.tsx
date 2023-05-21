@@ -7,9 +7,24 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from './pages/Homepage';
 import Options from './pages/Options';
 import GameSelector from './pages/GameSelector';
-import Pong from './pages/Pong';
+import PongPage from './pages/Pong';
 import Register from './pages/Register';
 import PreRegister from './pages/PreRegister';
+import { io, Socket } from 'socket.io-client';
+
+
+const socketOptions = {
+  transportOptions: {
+      polling: {
+          extraHeaders: {
+              Authorization: localStorage.getItem("token"),
+          }
+      }
+  }
+};
+
+const socket: Socket = io('http://localhost:8081/', socketOptions);
+
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -30,7 +45,7 @@ root.render(
           <Route path="register" element={<Register />} />
           <Route path="homepage" element={<Home />} />
           <Route path="settings" element={<Options />} />
-          <Route path="pong" element={<Pong />} />
+          <Route path="pong" element={<PongPage />} />
           <Route path="gameSelector" element={<GameSelector />} />
         </Route>
       </Routes>

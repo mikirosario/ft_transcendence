@@ -1,5 +1,6 @@
-import { ColorConstants } from "./colors.constants.js"
-import { Resolution } from "./types.js";
+import { ColorConstants } from "./colors.constants"
+import jsonData from "./colors.constants.json"
+import { Resolution } from "./types";
 
 export function getGameCanvas(canvasElement: HTMLElement | null): HTMLCanvasElement {
     if (!canvasElement || !(canvasElement instanceof HTMLCanvasElement)) { 
@@ -17,9 +18,7 @@ export function getGameRenderingContext(canvas: HTMLCanvasElement): CanvasRender
 }
 
 export async function fetchColorConstants(): Promise<ColorConstants> {
-    const response = await fetch("./colors.constants.json");
-    const colorConstants = await response.json();
-    return colorConstants;
+    return jsonData;
 }
 
 export function initGameCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, resolution: Resolution, canvasColor: string) {

@@ -1,7 +1,7 @@
-import { IDrawable } from "./interfaces.js";
-import { PositionRatio } from "./position.ratio.js";
-import { Transform } from "./transform.js";
-import { Resolution, DrawableOptions, ScaleFactors } from "./types.js";
+import { IDrawable } from "./interfaces";
+import { PositionRatio } from "./position.ratio";
+import { Transform } from "./transform";
+import { Resolution, DrawableOptions, ScaleFactors } from "./types";
 
 export class Circle implements IDrawable
 {

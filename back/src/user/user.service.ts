@@ -196,7 +196,7 @@ export class UserService {
 	}
 
 	/*
-	 * Set user status (co)
+	 * Set user status (online / offline)
 	*/
 	async setUserStatus(userId: number, status: string): Promise<any> {
 		try {
@@ -206,6 +206,27 @@ export class UserService {
 				},
 				data: {
 					status: status
+				},
+			});
+			delete user.hash;
+			return user;
+		}
+		catch (error) {
+			return (null);
+		}
+	}
+
+	/*
+	 * Set user status (online / offline)
+	*/
+	async setUserInGame(userId: number, isInGame: boolean): Promise<any> {
+		try {
+			const user = await this.prisma.user.update({
+				where: {
+					id: userId
+				},
+				data: {
+					isInGame: isInGame
 				},
 			});
 			delete user.hash;

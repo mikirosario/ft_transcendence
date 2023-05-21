@@ -27,7 +27,7 @@ function Home() {
 
 
     const gameSelectorLink = () => {
-        navigate('/GameSelector');
+        navigate('/pong');
     };
 
     return (

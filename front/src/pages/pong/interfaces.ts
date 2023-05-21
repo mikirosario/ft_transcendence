@@ -1,6 +1,6 @@
-import { Position, BoundingBox, Resolution, ScaleFactors } from "./types.js";
-import { Alignment } from "./alignment.js";
-import { Transform } from "./transform.js";
+import { Position, BoundingBox, Resolution, ScaleFactors } from "./types";
+import { Alignment } from "./alignment";
+import { Transform } from "./transform";
 
 export interface IDrawable
 {

@@ -4,20 +4,7 @@ import logo from './assets/images/logo.svg';
 import Home from './pages/Homepage';
 import Options from './pages/Options';
 import './assets/css/App.css';
-import { io, Socket } from 'socket.io-client';
 
-
-const socketOptions = {
-  transportOptions: {
-      polling: {
-          extraHeaders: {
-              Authorization: localStorage.getItem("token"),
-          }
-      }
-  }
-};
-
-const socket: Socket = io('http://localhost:8081/', socketOptions);
 
 const App: React.FC = () => {
   return (

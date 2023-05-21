@@ -1,8 +1,9 @@
-import { Position } from "./types.js";
+import { Position } from "./types";
 
 const errorMessage = document.getElementById('error-message');
 
 export function showError(message: string) {
+  console.log(message);
   if (errorMessage)
   {
     errorMessage.innerHTML = message;

@@ -1,23 +1,21 @@
-import { getGameCanvas, getGameRenderingContext, initGameCanvas, fetchColorConstants } from "./init.js";
-import { Position, Resolution, ScaleFactors } from "./types.js";
-import { IDrawable } from "./interfaces.js";
-import { centerPositionInRange, centerPositionInRangeX, centerPositionInRangeY, showError } from "./utils.js";
-import { Transform } from "./transform.js";
-import { Alignment, HorizontalAnchor, VerticalAnchor } from "./alignment.js";
-import { Text } from "./text.js";
-import { Paddle } from "./paddle.js";
-import { Ball } from "./ball.js";
-import { Score } from "./score.js";
-import { VerticalDashedLine } from "./net.js";
-import { onKeyDown, onKeyUp } from "./input.handlers.js";
+import { getGameCanvas, getGameRenderingContext, initGameCanvas, fetchColorConstants } from "./init";
+import { Position, Resolution, ScaleFactors } from "./types";
+import { IDrawable } from "./interfaces";
+import { centerPositionInRange, centerPositionInRangeX, centerPositionInRangeY, showError } from "./utils";
+import { Transform } from "./transform";
+import { Alignment, HorizontalAnchor, VerticalAnchor } from "./alignment";
+import { Text } from "./text";
+import { Paddle } from "./paddle";
+import { Ball } from "./ball";
+import { Score } from "./score";
+import { VerticalDashedLine } from "./net";
+import { onKeyDown, onKeyUp } from "./input.handlers";
 
-window.onload = function() {
-    main();
-}
+
 
 let canvasBackgroundColor: string;
 
-async function main() {
+export async function main() {
     try
     {
         await loadFont('10pt "press_start_2p"');
@@ -32,7 +30,7 @@ async function main() {
     }
     catch (err: any)
     {
-        showError(err.message)
+        showError(err.message);
     }
 }
 
@@ -306,3 +304,5 @@ class Pong
         requestAnimationFrame(this.renderGameOverFrame);
     }
 }
+
+export default Pong;

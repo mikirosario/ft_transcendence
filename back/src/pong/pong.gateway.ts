@@ -8,16 +8,16 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ConfigService } from "@nestjs/config";
-import { UserService } from "./user.service";
+import { UserService } from "../user/user.service";
 import { WebSocketService } from '../auth/websocket/websocket.service';
 
-@WebSocketGateway(8081, {
+@WebSocketGateway(8082, {
 	cors: {
 		origin: ['http://localhost:3001']
 		// origin: '*'
 	},
 })
-export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
 	@WebSocketServer() server: Server;
 	
@@ -33,14 +33,14 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			return;
 		}
 
-		const user = await this.userService.setUserStatus(userId, 'online');
+		const user = await this.userService.setUserInGame(userId, true);
 		if (user == null)
 		{
 			client.disconnect();
 			return;
 		}
 
-		console.log('Hola! ' + user.nick + ' está online ✅');
+		console.log('Hola! ' + user.nick + ' está jugando ✅');
 	}
 	
 	async handleDisconnect(client: any) {
@@ -51,16 +51,17 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			return;
 		}
 
-		const user = await this.userService.setUserStatus(userId, 'offline');
+		const user = await this.userService.setUserInGame(userId, false);
 		if (user == null)
 		{
 			client.disconnect();
 			return;
 		}
 		
-		console.log(user.nick + ' está offline ❌');
+		console.log(user.nick + ' ha salido del juego ❌');
 	}
 
+	
 	/*
 	@SubscribeMessage('event_join')
 	handleJoinRoom(client: Socket, room: string) {

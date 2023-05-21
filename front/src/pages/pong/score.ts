@@ -1,6 +1,6 @@
-import { Text } from "./text.js";
-import { Alignment } from "./alignment.js";
-import { padEnd } from "./utils.js";
+import { Text } from "./text";
+import { Alignment } from "./alignment";
+import { padEnd } from "./utils";
 import { DrawableOptions } from "./types";
 
 export class Score extends Text
