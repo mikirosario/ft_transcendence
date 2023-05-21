@@ -15,7 +15,7 @@ export class UserController {
 	constructor(private userService: UserService) { }
 	@Get('me')
 	async getMe(@GetJwt('sub') userId: number) {
-		return this.userService.getMe(userId);
+		return this.userService.getUserById(userId);
 	}
 
 	@Patch('me')
