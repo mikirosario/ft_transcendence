@@ -917,6 +917,26 @@ describe('App e2e', () => {
 						})
 						.expectStatus(200)
 				});
+				it('should not have friends', () => {
+					return pactum
+						.spec()
+						.get('/users/friends')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.expectStatus(200)
+						.expectBodyContains("[]")
+				});
+				it('should not have friends', () => {
+					return pactum
+						.spec()
+						.get('/users/friends')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt1}',
+						})
+						.expectStatus(200)
+						.expectBodyContains("[]")
+				});
 				it('should throw 404 if friendship not found', () => {
 					return pactum
 						.spec()
