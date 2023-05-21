@@ -201,16 +201,29 @@ export class FriendService {
 			ThrowHttpException(new NotFoundException, 'Friend not found');
 		}
 
-		const friendship = await this.prisma.friend.findFirst({
+		const friendship1 = await this.prisma.friend.findFirst({
 			where: { userId: user.id, friend_userId: friend.id },
 		});
-		if (friendship === null) {
+		if (friendship1 === null) {
 			ThrowHttpException(new NotFoundException, 'Friend relationship not found');
 		}
 
 		await this.prisma.friend.delete({
 			where: {
-				id: friendship.id
+				id: friendship1.id
+			}
+		});
+
+		const friendship2 = await this.prisma.friend.findFirst({
+			where: { userId: friend.id, friend_userId: user.id },
+		});
+		if (friendship2 === null) {
+			ThrowHttpException(new NotFoundException, 'Friend relationship not found');
+		}
+
+		await this.prisma.friend.delete({
+			where: {
+				id: friendship2.id
 			}
 		});
 
