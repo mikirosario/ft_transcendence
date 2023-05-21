@@ -54,6 +54,54 @@ export class FriendService {
 		return friends;
 	}
 
+	async acceptFriend(userId: number, dto: FriendDto) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: userId,
+			}
+		});
+
+		if (user === null) {
+			ThrowHttpException(new NotFoundException, 'User not found');
+		}
+
+		const friend = await this.prisma.user.findUnique({
+			where: {
+				nick: dto.nick
+			}
+		});
+
+		if (friend === null) {
+			ThrowHttpException(new NotFoundException, 'No user with such nick');
+		}
+
+		const friendship = await this.prisma.friend.findFirst({
+			where: { userId: user.id, friend_userId: friend.id },
+		});
+		if (friendship === null) {
+			ThrowHttpException(new NotFoundException, 'Friend relationship not found');
+		}
+
+		try {
+			const friendUpdated = await this.prisma.friend.update({
+				where: {
+					id: friendship.id
+				},
+				data: {
+					accepted: true
+				},
+			});
+		}
+		catch (error) {
+			if (error instanceof PrismaClientKnownRequestError) {
+				ThrowHttpException(error, 'Prisma error');
+			}
+		}
+
+		const friends = this.getFriends(userId);
+		return friends;
+	}
+
 	async getFriends(userId: number) {
 		const user = await this.prisma.user.findUnique({
 			where: { id: userId, },

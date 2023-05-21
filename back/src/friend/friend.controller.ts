@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Body, Delete, Post } from "@nestjs/common";
+import { Controller, Get, UseGuards, Body, Delete, Post, Put } from "@nestjs/common";
 import { ApiBearerAuth } from "@nestjs/swagger"
 import { JwtGuard } from "../auth/guard";
 import { GetJwt } from "../auth/decorator";
@@ -17,6 +17,11 @@ export class FriendController {
 	@Post('friends')
 	async addFriend(@GetJwt('sub') userId: number, @Body() dto: FriendDto) {
 		return this.friendService.addFriend(userId, dto);
+	}
+
+	@Put('friends')
+	async acceptFriend(@GetJwt('sub') userId: number, @Body() dto: FriendDto) {
+		return this.friendService.acceptFriend(userId, dto);
 	}
 
 	@Get('friends')
