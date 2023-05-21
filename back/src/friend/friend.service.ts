@@ -57,7 +57,47 @@ export class FriendService {
 	async getFriends(userId: number) {
 		const user = await this.prisma.user.findUnique({
 			where: { id: userId, },
-			include: { friendsUser: { include: { friend: true } } },
+			include: {
+				friendsUser: {
+					include: {
+						friend: true
+					},
+					where: {
+						accepted: true
+					}
+				} 
+			},
+		});
+
+		if (user === null) {
+			ThrowHttpException(new NotFoundException, 'User not found');
+		}
+
+		const friends = user.friendsUser;
+
+		const friendList: { nick: string; avatarUri: string; isOnline: boolean, isInGame: boolean }[] = friends.map((friend) => ({
+			nick: friend.friend.nick,
+			avatarUri: friend.friend.avatarUri,
+			isOnline: friend.friend.isOnline,
+			isInGame: friend.friend.isInGame,
+		}));
+
+		return friendList;
+	}
+	
+	async getFriendRequests(userId: number) {
+		const user = await this.prisma.user.findUnique({
+			where: { id: userId, },
+			include: {
+				friendsUser: {
+					include: {
+						friend: true
+					},
+					where: {
+						accepted: false
+					}
+				} 
+			},
 		});
 
 		if (user === null) {

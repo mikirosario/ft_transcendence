@@ -24,6 +24,11 @@ export class FriendController {
 		return this.friendService.getFriends(userId);
 	}
 
+	@Get('friends/requests')
+	async getFriendRequests(@GetJwt('sub') userId: number) {
+		return this.friendService.getFriendRequests(userId);
+	}
+
 	@Delete('friends')
 	async deleteFriend(@GetJwt('sub') userId: number, @Body() dto: FriendDto) {
 		return this.friendService.deleteFriend(userId, dto);
