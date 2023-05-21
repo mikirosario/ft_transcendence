@@ -299,7 +299,7 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 						<input
 							type="file"
 							id="image"
-							accept=".jpg,.png"
+							accept=".jpg,.png,jpeg"
 							onChange={handleImageChange}
 							style={ButtonStyle}
 						/>

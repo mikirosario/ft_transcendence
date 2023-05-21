@@ -60,7 +60,7 @@ function Register() {
                 </div>
                 <div className="NicknameInputWrapper" style={NicknameInputStyle}>
                     <section className="OptionsMenu">
-                        <UserSettingsButtons btnTxt="Register"></UserSettingsButtons>
+                        <UserSettingsButtons btnTxt="Confirm"></UserSettingsButtons>
                     </section>
                 </div>
             </div>
