@@ -22,7 +22,7 @@ model User {
   lastName  String?
 
   avatarUri String  @default("default.jpg")
-  status    String  @default("offline")
+  isOnline  Boolean @default(false)
   isInGame  Boolean @default(false)
 
   friendsUser        Friend[] @relation("FriendsUser")

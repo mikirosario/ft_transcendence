@@ -33,7 +33,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			return;
 		}
 
-		const user = await this.userService.setUserStatus(userId, 'online');
+		const user = await this.userService.setUserStatus(userId, true);
 		if (user == null)
 		{
 			client.disconnect();
@@ -51,7 +51,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			return;
 		}
 
-		const user = await this.userService.setUserStatus(userId, 'offline');
+		const user = await this.userService.setUserStatus(userId, false);
 		if (user == null)
 		{
 			client.disconnect();
