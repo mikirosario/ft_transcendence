@@ -10,6 +10,21 @@ import GameSelector from './pages/GameSelector';
 import PongPage from './pages/Pong';
 import Register from './pages/Register';
 import PreRegister from './pages/PreRegister';
+import { io, Socket } from 'socket.io-client';
+
+
+const socketOptions = {
+  transportOptions: {
+      polling: {
+          extraHeaders: {
+              Authorization: localStorage.getItem("token"),
+          }
+      }
+  }
+};
+
+const socket: Socket = io('http://localhost:8081/', socketOptions);
+
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
