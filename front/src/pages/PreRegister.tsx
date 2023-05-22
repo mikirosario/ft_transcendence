@@ -1,9 +1,11 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
 import PlayButton from "../components/home/StartButton";
+//import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function PreRegister() {
-    const navigate = useNavigate();
+    //const navigate = useNavigate();
 
     const LogoText: React.CSSProperties = {
         color: 'white',
@@ -25,9 +27,15 @@ function PreRegister() {
         transform: 'translate(-50%, -50%)',
       };
 
-    const AuthLoginLink = () => {
-        // window.location.href = 'xxxx'; // Auth URL
-        navigate('/register');
+    const AuthLoginLink = async () => {
+        try{
+            const response = await axios.get('http://localhost:3000/oauth/generateAuthURL');
+            const authUrl = response.data.url;
+            console.log(authUrl);
+            window.location.href = authUrl;
+        } catch (error){
+            console.log('Failed to retrieve OAuth URL: ', error);
+        }
     };
 
 
