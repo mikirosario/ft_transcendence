@@ -21,8 +21,9 @@ model User {
   firstName String?
   lastName  String?
 
-  avatarUri String @default("default.jpg")
-  status    String @default("offline")
+  avatarUri String  @default("default.jpg")
+  isOnline  Boolean @default(false)
+  isInGame  Boolean @default(false)
 
   friendsUser        Friend[] @relation("FriendsUser")
   friendsUserFriends Friend[] @relation("FriendsUserFriend")
@@ -45,9 +46,8 @@ model Friend {
   friend_userId Int
   friend        User @relation(name: "FriendsUserFriend", fields: [friend_userId], references: [id], onDelete: Cascade)
 
-  @@map("friends")
-
   @@unique([userId, friend_userId])
+  @@map("friends")
 }
 
 model Bookmark {

@@ -11,7 +11,7 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 	const [image, setImage] = useState<File | null>(null);
 	const [name, setName] = useState('');
 	const [userImage, setUserImage] = useState<string>();
-    const navigate = useNavigate();
+	const navigate = useNavigate();
 
 	const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setUsername(event.target.value);
