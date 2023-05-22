@@ -40,11 +40,12 @@ model User {
 }
 
 model Friend {
-  id            Int  @id @default(autoincrement())
+  id            Int     @id @default(autoincrement())
   userId        Int
-  user          User @relation(name: "FriendsUser", fields: [userId], references: [id], onDelete: Cascade)
+  user          User    @relation(name: "FriendsUser", fields: [userId], references: [id], onDelete: Cascade)
   friend_userId Int
-  friend        User @relation(name: "FriendsUserFriend", fields: [friend_userId], references: [id], onDelete: Cascade)
+  friend        User    @relation(name: "FriendsUserFriend", fields: [friend_userId], references: [id], onDelete: Cascade)
+  accepted      Boolean @default(false)
 
   @@unique([userId, friend_userId])
   @@map("friends")

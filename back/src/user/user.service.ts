@@ -11,10 +11,24 @@ import * as fs from 'fs';
 @Injectable()
 export class UserService {
 	constructor(private prisma: PrismaService, private config: ConfigService) { }
-	async getMe(userId: number) {
+
+	async getUserById(userId: number) {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				id: userId,
+			}
+		});
+		if (user === null) {
+			ThrowHttpException(new NotFoundException, 'User not found');
+		}
+		delete user.hash;
+		return user;
+	}
+
+	async getUserByNick(nick: string) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				nick: nick,
 			}
 		});
 		if (user === null) {
