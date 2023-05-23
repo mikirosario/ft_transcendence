@@ -24,6 +24,7 @@ model User {
   isOnline  Boolean @default(false)
   isInGame  Boolean @default(false)
 
+<<<<<<< HEAD
   friendsUser           Friend[]             @relation("FriendsUser")
   friendsUserFriends    Friend[]             @relation("FriendsUserFriend")
   chatOwner             ChatChannel[]        @relation("ChatChannelOwner")
@@ -34,6 +35,11 @@ model User {
   chatDirectUser1       ChatDirect[]         @relation("ChatDirectUser1")
   chatDirectUser2       ChatDirect[]         @relation("ChatDirectUser2")
   chatDirectMessageUser ChatDirectMessage[]  @relation("ChatDirectMessageUser")
+=======
+  friendsUser        Friend[]      @relation("FriendsUser")
+  friendsUserFriends Friend[]      @relation("FriendsUserFriend")
+  chatOwner          ChatChannel[] @relation("ChatOwner")
+>>>>>>> 5f5eeef (ChatChannel model)
 
   score       Int @default(0)
   gamesWon    Int @default(0)
