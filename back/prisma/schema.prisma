@@ -24,16 +24,9 @@ model User {
   isOnline  Boolean @default(false)
   isInGame  Boolean @default(false)
 
-  friendsUser           Friend[]             @relation("FriendsUser")
-  friendsUserFriends    Friend[]             @relation("FriendsUserFriend")
-  chatOwner             ChatChannel[]        @relation("ChatChannelOwner")
-  chatChannelUser       ChatChannelUser[]    @relation("ChatChannelUserUser")
-  chatChannelMessage    ChatChannelMessage[] @relation("ChatChannelMessageUser")
-  chatBlockedUser       ChatBlockedUser[]    @relation("ChatBlockedUser")
-  chatBlockedOtherUser  ChatBlockedUser[]    @relation("ChatBlockedOtherUser")
-  chatDirectUser1       ChatDirect[]         @relation("ChatDirectUser1")
-  chatDirectUser2       ChatDirect[]         @relation("ChatDirectUser2")
-  chatDirectMessageUser ChatDirectMessage[]  @relation("ChatDirectMessageUser")
+  friendsUser        Friend[]      @relation("FriendsUser")
+  friendsUserFriends Friend[]      @relation("FriendsUserFriend")
+  chatOwner          ChatChannel[] @relation("ChatOwner")
 
   score       Int @default(0)
   gamesWon    Int @default(0)
@@ -62,6 +55,7 @@ model ChatChannel {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
   ownerUserId Int
+<<<<<<< HEAD
   owner       User     @relation(name: "ChatChannelOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
   name        String   @unique
   isPrivate   Boolean  @default(false)
@@ -135,6 +129,12 @@ model ChatDirectMessage {
   message  String
 
   @@map("chatdirectmessages")
+=======
+  owner       User     @relation(name: "ChatOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
+  name        String   @unique
+  isPrivate   Boolean  @default(false)
+  password    String?
+>>>>>>> a028186 (ChatChannel model)
 }
 
 model Bookmark {
