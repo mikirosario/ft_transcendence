@@ -24,8 +24,9 @@ model User {
   isOnline  Boolean @default(false)
   isInGame  Boolean @default(false)
 
-  friendsUser        Friend[] @relation("FriendsUser")
-  friendsUserFriends Friend[] @relation("FriendsUserFriend")
+  friendsUser        Friend[]      @relation("FriendsUser")
+  friendsUserFriends Friend[]      @relation("FriendsUserFriend")
+  chatOwner          ChatChannel[] @relation("ChatOwner")
 
   score       Int @default(0)
   gamesWon    Int @default(0)
@@ -48,6 +49,16 @@ model Friend {
 
   @@unique([userId, friend_userId])
   @@map("friends")
+}
+
+model ChatChannel {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  ownerUserId Int
+  owner       User     @relation(name: "ChatOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
+  name        String   @unique
+  isPrivate   Boolean  @default(false)
+  password    String?
 }
 
 model Bookmark {
