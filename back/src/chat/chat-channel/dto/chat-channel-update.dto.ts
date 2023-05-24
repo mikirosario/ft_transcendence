@@ -13,8 +13,7 @@ export class ChatChannelUpdateDto {
 	@MinLength(3)
 	@MaxLength(15)
 	@IsChannelName()
-	@IsOptional()
-	name?: string
+	name: string
 
 	@ApiProperty()
 	@IsString()
