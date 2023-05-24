@@ -1,7 +1,12 @@
-import { IsString, IsOptional } from "class-validator";
+import { IsString, IsOptional, IsNumber } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger"
 
 export class ChatChannelDto {
+	@ApiProperty()
+	@IsNumber()
+	@IsOptional()
+	id: number
+
 	@ApiProperty()
 	@IsString()
 	@IsOptional()
