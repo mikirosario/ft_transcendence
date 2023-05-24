@@ -7,6 +7,10 @@ export class ChatService {
 	constructor(private prisma: PrismaService) { }
 
 	async getChats(userId: number) {
-		return {};
+		return {
+			channels: [],
+			directs: [],
+			blocked_users: []
+		};
 	}
 }
