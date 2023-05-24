@@ -75,7 +75,7 @@ model ChatChannel {
 
 model ChatChannelUser {
   id        Int         @id @default(autoincrement())
-  createdAt DateTime    @default(now())
+  joinedAt  DateTime    @default(now())
   channelId Int
   channel   ChatChannel @relation(name: "ChatChannelUserChannel", fields: [channelId], references: [id], onDelete: Cascade)
   userId    Int
@@ -90,7 +90,7 @@ model ChatChannelUser {
 
 model ChatChannelMessage {
   id        Int         @id @default(autoincrement())
-  createdAt DateTime    @default(now())
+  sentAt    DateTime    @default(now())
   channelId Int
   channel   ChatChannel @relation(name: "chatChannelMessageChannel", fields: [channelId], references: [id], onDelete: Cascade)
   userId    Int
@@ -126,13 +126,13 @@ model ChatDirect {
 }
 
 model ChatDirectMessage {
-  id        Int        @id @default(autoincrement())
-  createdAt DateTime   @default(now())
-  directId  Int
-  direct    ChatDirect @relation(name: "ChatDirectMessageDirect", fields: [directId], references: [id], onDelete: Cascade)
-  userId    Int
-  user      User       @relation(name: "ChatDirectMessageUser", fields: [userId], references: [id], onDelete: Cascade)
-  message   String
+  id       Int        @id @default(autoincrement())
+  sentAt   DateTime   @default(now())
+  directId Int
+  direct   ChatDirect @relation(name: "ChatDirectMessageDirect", fields: [directId], references: [id], onDelete: Cascade)
+  userId   Int
+  user     User       @relation(name: "ChatDirectMessageUser", fields: [userId], references: [id], onDelete: Cascade)
+  message  String
 
   @@map("chatdirectmessages")
 }
