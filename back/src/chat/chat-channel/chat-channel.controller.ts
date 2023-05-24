@@ -3,7 +3,7 @@ import { ApiBody, ApiBearerAuth } from "@nestjs/swagger"
 import { JwtGuard } from "../../auth/guard";
 import { GetJwt } from "../../auth/decorator";
 import { ChatChannelService } from "./chat-channel.service";
-import { ChatChannelCreateDto, ChatChannelUpdateDto } from "./dto";
+import { ChatChannelDto } from "./dto/chat-channel.dto"
 
 
 
@@ -15,20 +15,19 @@ export class ChatChannelController {
 	constructor(private chatChannelService: ChatChannelService) { }
 
 	@Post()
-	@ApiBody({ type: ChatChannelCreateDto })
-	async createChannel(@GetJwt('sub') userId: number, @Body() dto: ChatChannelCreateDto) {
+	@ApiBody({ type: ChatChannelDto })
+	async createChannel(@GetJwt('sub') userId: number, @Body() dto: ChatChannelDto) {
 		return this.chatChannelService.createChannel(userId, dto);
 	}
 
 	@Put()
-	@ApiBody({ type: ChatChannelUpdateDto })
-	async updateChannel(@GetJwt('sub') userId: number, @Body() dto: ChatChannelUpdateDto) {
+	@ApiBody({ type: ChatChannelDto })
+	async updateChannel(@GetJwt('sub') userId: number, @Body() dto: ChatChannelDto) {
 		return this.chatChannelService.updateChannel(userId, dto);
 	}
 
-	@Delete()
-	@ApiBody({ type: ChatChannelUpdateDto })
-	async deleteChannel(@GetJwt('sub') userId: number, @Body() dto: ChatChannelUpdateDto) {
-		return this.chatChannelService.deleteChannel(userId, dto);
+	@Delete('/:id')
+	async deleteChannel(@GetJwt('sub') userId: number, @Param('id') channelId) {
+		return this.chatChannelService.deleteChannel(userId, channelId);
 	}
 }
