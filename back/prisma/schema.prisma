@@ -74,15 +74,15 @@ model ChatChannel {
 }
 
 model ChatChannelUser {
-  id        Int         @id @default(autoincrement())
-  joinedAt  DateTime    @default(now())
-  channelId Int
-  channel   ChatChannel @relation(name: "ChatChannelUserChannel", fields: [channelId], references: [id], onDelete: Cascade)
-  userId    Int
-  user      User        @relation(name: "ChatChannelUserUser", fields: [userId], references: [id], onDelete: Cascade)
-  isAdmin   Boolean     @default(false)
-  isBanned  Boolean     @default(false)
-  isMuted   Boolean     @default(false)
+  id           Int         @id @default(autoincrement())
+  joinedAt     DateTime    @default(now())
+  channelId    Int
+  channel      ChatChannel @relation(name: "ChatChannelUserChannel", fields: [channelId], references: [id], onDelete: Cascade)
+  userId       Int
+  user         User        @relation(name: "ChatChannelUserUser", fields: [userId], references: [id], onDelete: Cascade)
+  isAdmin      Boolean     @default(false)
+  isBanned     Boolean     @default(false)
+  isMutedUntil DateTime?
 
   @@unique([channelId, userId])
   @@map("chatchannelusers")
