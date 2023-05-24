@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import { updateProfile } from '../../requests/UserRequests';
+
+axios.defaults.baseURL = 'http://localhost:3000';
+axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
+
 
 interface Args {
 	btnTxt: string
@@ -52,35 +58,30 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 	};
 
 
+	// https://www.freecodecamp.org/espanol/news/como-usar-axios-con-react/#axios
 
-	const handleSubmit = async (event: React.FormEvent) => {
-		event.preventDefault();
+	// const handleSubmit = async (event: React.FormEvent) => {
+	// 	event.preventDefault();
 
-		const formData = new FormData();
-		formData.append('nick', username);
-		if (image) {
-			formData.append('file', image);
-		}
+	// 	const formData = new FormData();
+	// 	formData.append('nick', username);
+	// 	if (image) {
+	// 		formData.append('file', image);
+	// 	}
 
-		try {
-			const response = await fetch('http://localhost:3000/users/profile', {
-				method: 'PUT',
-				headers: {
-					Authorization: 'Bearer ' + localStorage.getItem('token'),
-				},
-				body: formData,
-			});
+	// 	try {
+	// 		const response = await axios.put('/users/profile', formData);
 
-			if (response.ok) {
-				console.log('Changes applied successfully');
-				navigate('/homepage');							// TEST
-			} else {
-				console.log('Failed to apply changes');
-			}
-		} catch (error) {
-			console.log('Error:', error);
-		}
-	};
+	// 		if (response.status == 200) {
+	// 			console.log('Changes applied successfully');
+	// 			navigate('/homepage');							// TEST
+	// 		} else {
+	// 			console.log('Failed to apply changes');
+	// 		}
+	// 	} catch (error) {
+	// 		console.log('Error:', error);
+	// 	}
+	// };
 
 	const resetAvatar = async (event: React.FormEvent) => {
 		event.preventDefault();
@@ -265,7 +266,7 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 
 	return (
 		<div>
-			<form onSubmit={handleSubmit}>
+			<form onSubmit={updateProfile}>
 				<div style={TextWrapperStyle}>
 					<div style={UsernameStyle}>
 						Nickname:

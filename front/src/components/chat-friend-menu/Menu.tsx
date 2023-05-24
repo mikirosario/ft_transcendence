@@ -3,81 +3,92 @@ import UserProfile from "./ProfileDisplay";
 import DefaultIMG from "../../assets/images/default.jpg"
 import { useNavigate } from "react-router-dom";
 
+import { useState } from 'react';
+
 function Menu() {
+  const [selectedButton, setSelectedButton] = useState('');
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
+  const nickProfileLink = () => {
+    navigate('/settings');
+  };
 
-    const gameSelectorLink = () => {
-        // navigate('/GameSelector');
-    };
+  const MenuStyle: React.CSSProperties = {
+    height: '100vh',
+    width: '20vw',
+    backgroundColor: '#1C2C4A',
+    top: '0%',
+    left: '80%',
+    position: 'absolute',
+  };
 
-    const MenuStyle: React.CSSProperties = {
-        height: '100vh',
-        width: '20vw',
-        backgroundColor: '#1C2C4A',
-        top: '0%',
-        left: '80%',
-        position: 'absolute',
-    };
+  const ProfileButtonStyle: React.CSSProperties = {
+    border: 'none',
+    background: 'none',
+    height: '12%',
+    width: '75%',
+    top: '4%',
+    left: '12%',
+    position: 'absolute',
+    cursor: 'pointer',
+    borderRadius: '25%',
+  };
 
-    const ProfileButtonStyle: React.CSSProperties = {
-        border: 'none',
-        background: 'none',
-        height: '12%',
-        width: '75%',
-        top: '4%',
-        left: '12%',
-        position: 'absolute',
-        cursor: 'pointer',
-        borderRadius: '25%',
-    };
+  const FriendButtonStyle: React.CSSProperties = {
+    border: 'none',
+    background: 'none',
+    fontFamily: 'Quantico',
+    fontSize: '1vw',
+    height: '5vh',
+    width: '50%',
+    top: '18%',
+    left: '0%',
+    position: 'absolute',
+    cursor: 'pointer',
+    minBlockSize: '25px',
+    borderBottom: selectedButton === 'friend' ? '3px solid #D4D4D4' : '3px double black',
+    color: selectedButton === 'friend' ? '#FFFFFF' : '#D4D4D4',
+    textShadow: selectedButton === 'friend' ? '0.6px 0 0 black' : 'none',
+  };
 
-    const FriendButtonStyle: React.CSSProperties = {
-        border: 'none',
-        background: 'none',
-        fontFamily: 'Quantico',
-        color: '#D4D4D4',
-        fontSize: '1vw',
-        height: '5vh',
-        width: '50%',
-        top: '18%',
-        left: '0%',
-        position: 'absolute',
-        cursor: 'pointer',
-        minBlockSize: '25px',
-        borderBottom: '3px double black',
-    };
+  const ChannelsButtonStyle: React.CSSProperties = {
+    border: 'none',
+    background: 'none',
+    fontFamily: 'Quantico',
+    fontSize: '1vw',
+    height: '5vh',
+    width: '50%',
+    top: '18%',
+    left: '50%',
+    position: 'absolute',
+    cursor: 'pointer',
+    minBlockSize: '25px',
+    borderBottom: selectedButton === 'channels' ? '3px solid #D4D4D4' : '3px double black',
+    color: selectedButton === 'channels' ? '#FFFFFF' : '#D4D4D4',
+    textShadow: selectedButton === 'channels' ? '0.6px 0 0 black' : 'none',
+  };
 
-    const ChannelsButtonStyle: React.CSSProperties = {
-        border: 'none',
-        background: 'none',
-        fontFamily: 'Quantico',
-        color: '#D4D4D4',
-        fontSize: '1vw',
-        height: '5vh',
-        width: '50%',
-        top: '18%',
-        left: '50%',
-        position: 'absolute',
-        cursor: 'pointer',
-        minBlockSize: '25px',
-        borderBottom: '3px double black',
-    }
+  const handleFriendButtonClick = () => {
+    setSelectedButton('friend');
+  };
 
+  const handleChannelsButtonClick = () => {
+    setSelectedButton('channels');
+  };
 
-    return (
-        <div style={MenuStyle}>
-            <button style={ProfileButtonStyle}>
-                <UserProfile image={DefaultIMG} name={"Gonzaaaalo"}></UserProfile>
-            </button>
-            <button style={FriendButtonStyle}>
-                Amigos
-            </button>
-            <button style={ChannelsButtonStyle}>
-                Canales
-            </button>
-        </div>
-    );
+  return (
+    <div style={MenuStyle}>
+      <button style={ProfileButtonStyle} onClick={nickProfileLink}>
+        <UserProfile image={DefaultIMG} name={'Gonzalo'}></UserProfile>
+      </button>
+      <button style={FriendButtonStyle} onClick={handleFriendButtonClick}>
+        Amigos
+      </button>
+      <button style={ChannelsButtonStyle} onClick={handleChannelsButtonClick}>
+        Canales
+      </button>
+    </div>
+  );
 }
 
 export default Menu;
