@@ -8,10 +8,11 @@ import { ServeImageModule } from './utils/serve-image/serve-image.module';
 import { OAuthModule } from './oauth/oauth.module';
 import { FriendModule } from './friend/friend.module';
 import { PongModule } from './pong/pong.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
 	imports: [AuthModule, UserModule, BookmarkModule, PrismaModule, ServeImageModule,
-		FriendModule, PongModule,
+		FriendModule, PongModule, ChatModule,
 		ConfigModule.forRoot({ isGlobal: true }),
 		OAuthModule,
 	]
