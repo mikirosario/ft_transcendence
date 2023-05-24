@@ -62,7 +62,6 @@ model ChatChannel {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
   ownerUserId Int
-<<<<<<< HEAD
   owner       User     @relation(name: "ChatChannelOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
   name        String   @unique
   isPrivate   Boolean  @default(false)
@@ -136,12 +135,6 @@ model ChatDirectMessage {
   message  String
 
   @@map("chatdirectmessages")
-=======
-  owner       User     @relation(name: "ChatOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
-  name        String   @unique
-  isPrivate   Boolean  @default(false)
-  password    String?
->>>>>>> 6a7daa7 (ChatChannel model)
 }
 
 model Bookmark {
