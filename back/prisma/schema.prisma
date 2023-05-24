@@ -65,7 +65,7 @@ model ChatChannel {
   owner       User     @relation(name: "ChatChannelOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
   name        String   @unique
   isPrivate   Boolean  @default(false)
-  password    String?
+  hash        String?
 
   chatChannelUser    ChatChannelUser[]    @relation("ChatChannelUserChannel")
   chatChannelMessage ChatChannelMessage[] @relation("chatChannelMessageChannel")
