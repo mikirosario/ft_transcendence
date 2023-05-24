@@ -25,9 +25,16 @@ model User {
   isOnline  Boolean @default(false)
   isInGame  Boolean @default(false)
 
-  friendsUser        Friend[]      @relation("FriendsUser")
-  friendsUserFriends Friend[]      @relation("FriendsUserFriend")
-  chatOwner          ChatChannel[] @relation("ChatOwner")
+  friendsUser           Friend[]             @relation("FriendsUser")
+  friendsUserFriends    Friend[]             @relation("FriendsUserFriend")
+  chatOwner             ChatChannel[]        @relation("ChatChannelOwner")
+  chatChannelUser       ChatChannelUser[]    @relation("ChatChannelUserUser")
+  chatChannelMessage    ChatChannelMessage[] @relation("ChatChannelMessageUser")
+  chatBlockedUser       ChatBlockedUser[]    @relation("ChatBlockedUser")
+  chatBlockedOtherUser  ChatBlockedUser[]    @relation("ChatBlockedOtherUser")
+  chatDirectUser1       ChatDirect[]         @relation("ChatDirectUser1")
+  chatDirectUser2       ChatDirect[]         @relation("ChatDirectUser2")
+  chatDirectMessageUser ChatDirectMessage[]  @relation("ChatDirectMessageUser")
 
   score       Int @default(0)
   gamesWon    Int @default(0)
@@ -56,10 +63,79 @@ model ChatChannel {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
   ownerUserId Int
-  owner       User     @relation(name: "ChatOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
+  owner       User     @relation(name: "ChatChannelOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
   name        String   @unique
   isPrivate   Boolean  @default(false)
   password    String?
+
+  chatChannelUser    ChatChannelUser[]    @relation("ChatChannelUserChannel")
+  chatChannelMessage ChatChannelMessage[] @relation("chatChannelMessageChannel")
+
+  @@map("chatchannels")
+}
+
+model ChatChannelUser {
+  id        Int         @id @default(autoincrement())
+  createdAt DateTime    @default(now())
+  channelId Int
+  channel   ChatChannel @relation(name: "ChatChannelUserChannel", fields: [channelId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User        @relation(name: "ChatChannelUserUser", fields: [userId], references: [id], onDelete: Cascade)
+  isAdmin   Boolean     @default(false)
+  isBanned  Boolean     @default(false)
+  isMuted   Boolean     @default(false)
+
+  @@unique([channelId, userId])
+  @@map("chatchannelusers")
+}
+
+model ChatChannelMessage {
+  id        Int         @id @default(autoincrement())
+  createdAt DateTime    @default(now())
+  channelId Int
+  channel   ChatChannel @relation(name: "chatChannelMessageChannel", fields: [channelId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User        @relation(name: "ChatChannelMessageUser", fields: [userId], references: [id], onDelete: Cascade)
+  message   String
+
+  @@map("chatchannelmessages")
+}
+
+model ChatBlockedUser {
+  id          Int  @id @default(autoincrement())
+  userId      Int
+  user        User @relation(name: "ChatBlockedUser", fields: [userId], references: [id], onDelete: Cascade)
+  otherUserId Int
+  otherUser   User @relation(name: "ChatBlockedOtherUser", fields: [otherUserId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, otherUserId])
+  @@map("chatblockedusers")
+}
+
+model ChatDirect {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  userId1   Int
+  user1     User     @relation(name: "ChatDirectUser1", fields: [userId1], references: [id], onDelete: Cascade)
+  userId2   Int
+  user2     User     @relation(name: "ChatDirectUser2", fields: [userId2], references: [id], onDelete: Cascade)
+
+  chatDirectMessageDirect ChatDirectMessage[] @relation("ChatDirectMessageDirect")
+
+  @@unique([userId1, userId2])
+  @@map("chatdirects")
+}
+
+model ChatDirectMessage {
+  id        Int        @id @default(autoincrement())
+  createdAt DateTime   @default(now())
+  directId  Int
+  direct    ChatDirect @relation(name: "ChatDirectMessageDirect", fields: [directId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User       @relation(name: "ChatDirectMessageUser", fields: [userId], references: [id], onDelete: Cascade)
+  message   String
+
+  @@map("chatdirectmessages")
 }
 
 model Bookmark {
