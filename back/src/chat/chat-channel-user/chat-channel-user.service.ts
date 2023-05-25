@@ -18,7 +18,7 @@ export class ChatChannelUserService {
 		const channel = await this.chatChannelService.getChannel(dto.id);
 
 		if (channel.isPrivate == true)
-			await this.checkChannelPassword(channel.hash, dto.password);
+			this.checkChannelPassword(channel.hash, dto.password);
 
 		try {
 			const newChannelUser = await this.prisma.chatChannelUser.create({
@@ -40,7 +40,6 @@ export class ChatChannelUserService {
 	async leaveChannel(userId: number, dto: ChatChannelUserDto) {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.chatChannelService.getChannel(dto.id);
-		
 		const channelUser = await this.prisma.chatChannelUser.findFirst({
 			where: {
 				channelId: channel.id,
