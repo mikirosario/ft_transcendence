@@ -101,7 +101,7 @@ export class ChatChannelService {
 	/*
 	 * Private methods
 	*/
-	private async getChannel(channelId: number) {
+	async getChannel(channelId: number) {
 		if (channelId == null)
 			ThrowHttpException(new BadRequestException, 'You must provide channel id');
 
@@ -118,7 +118,7 @@ export class ChatChannelService {
 		return channel;
 	}
 
-	private checkUserIsAuthorizedInChannnel(user, channel) {
+	checkUserIsAuthorizedInChannnel(user, channel) {
 		
 		if (channel.ownerUserId != user.id)
 		{
