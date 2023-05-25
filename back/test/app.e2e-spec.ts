@@ -1317,65 +1317,53 @@ describe('App e2e', () => {
 				it('should delete channel', () => {
 					return pactum
 						.spec()
-						.delete('/chat/channels')
+						.delete('/chat/channels/$S{channelId1}')
 						.withHeaders({
 							Authorization: 'Bearer $S{userAt}',
-						})
-						.withBody({
-							id: "$S{channelId1}",
 						})
 						.expectStatus(200)
 						.expectBodyContains("42_nomadrid")
 				});
-				it('should throw 400 if channel id not provided', () => {
+				it('should throw 404 if channel id not provided', () => {
 					return pactum
 						.spec()
 						.delete('/chat/channels')
 						.withHeaders({
 							Authorization: 'Bearer $S{userAt}',
 						})
-						.expectStatus(400)
+						.expectStatus(404)
 				});
 				it('should throw 401 if user not channel owner', () => {
 					return pactum
 						.spec()
-						.delete('/chat/channels')
+						.delete('/chat/channels/$S{channelId3}')
 						.withHeaders({
 							Authorization: 'Bearer $S{userAt1}',
-						})
-						.withBody({
-							id: "$S{channelId3}",
 						})
 						.expectStatus(401)
 				});
 				it('should throw 404 if invalid channel id', () => {
 					return pactum
 						.spec()
-						.delete('/chat/channels')
+						.delete('/chat/channels/111111')
 						.withHeaders({
 							Authorization: 'Bearer $S{userAt}',
-						})
-						.withBody({
-							id: 1111,
 						})
 						.expectStatus(404)
 				});
 				it('should throw 404 if user not found', () => {
 					return pactum
 						.spec()
-						.delete('/chat/channels')
+						.delete('/chat/channels/$S{channelId3}')
 						.withHeaders({
 							Authorization: 'Bearer $S{userAtDel}',
-						})
-						.withBody({
-							id: "$S{channelId3}",
 						})
 						.expectStatus(404)
 				});
 				it('should throw 401 if jwt token not provided', () => {
 					return pactum
 						.spec()
-						.delete('/chat/channels')
+						.delete('/chat/channels/$S{channelId3}')
 						.withHeaders({
 							Authorization: '',
 						})
