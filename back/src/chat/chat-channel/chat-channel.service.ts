@@ -49,14 +49,7 @@ export class ChatChannelService {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.getChannel(dto.id);
 
-		if (channel.ownerUserId != user.id)
-		{
-			ThrowHttpException(new UnauthorizedException, 'You must be admin to change channel details');
-		}
-
-		/*
-		TODO: Comprobar si el usuario que lo intenta es administrador en el canal (ChannelUsers)
-		*/
+		this.checkUserIsAuthorizedInChannnel(user, channel);
 
 		if (dto.password != null && dto.password.length > 0)
 		{
@@ -88,17 +81,16 @@ export class ChatChannelService {
 	}
 
 	async deleteChannel(userId: number, channelId: number) {
+		channelId = Number(channelId);
+		
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.getChannel(channelId);
 
-		if (channel.ownerUserId != user.id)
-		{
-			ThrowHttpException(new UnauthorizedException, 'You must be admin to delete channel');
-		}
+		this.checkUserIsAuthorizedInChannnel(user, channel);
 
 		await this.prisma.chatChannel.delete({
 			where: {
-				id: channelId
+				id: channel.id
 			}
 		});
 		
@@ -110,6 +102,9 @@ export class ChatChannelService {
 	 * Private methods
 	*/
 	private async getChannel(channelId: number) {
+		if (channelId == null)
+			ThrowHttpException(new BadRequestException, 'You must provide channel id');
+
 		const channel = await this.prisma.chatChannel.findUnique({
 			where: {
 				id: channelId,
@@ -121,5 +116,19 @@ export class ChatChannelService {
 		}
 
 		return channel;
+	}
+
+	private checkUserIsAuthorizedInChannnel(user, channel) {
+		
+		if (channel.ownerUserId != user.id)
+		{
+			ThrowHttpException(new UnauthorizedException, 'You must be admin to delete channel');
+		}
+
+		/*
+		TODO: Comprobar también si el usuario que lo intenta es administrador en el canal (ChannelUsers)
+		*/
+
+		return true;
 	}
 }
