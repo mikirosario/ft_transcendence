@@ -21,7 +21,7 @@ export class UserService {
 		if (user === null) {
 			ThrowHttpException(new NotFoundException, 'User not found');
 		}
-		delete user.hash;
+		
 		return user;
 	}
 
@@ -34,7 +34,6 @@ export class UserService {
 		if (user === null) {
 			ThrowHttpException(new NotFoundException, 'User not found');
 		}
-		delete user.hash;
 		return user;
 	}
 
@@ -48,7 +47,6 @@ export class UserService {
 					...dto,
 				},
 			});
-			delete user.hash;
 			return user;
 		}
 		catch (error) {
@@ -73,7 +71,7 @@ export class UserService {
 			});
 			
 			this.removeAvatar(user.avatarUri);
-			delete user.hash;
+			
 			return user;
 		}
 		catch (error) {
@@ -147,7 +145,7 @@ export class UserService {
 				this.removeAvatar(prevAvatar);
 			}
 
-			delete user.hash;
+			
 			return user;
 		}
 		catch (error) {
@@ -186,7 +184,7 @@ export class UserService {
 
 			this.removeAvatar(avatar);
 
-			delete user.hash;
+			
 			return user;
 		}
 		catch (error) {
@@ -222,7 +220,7 @@ export class UserService {
 					isOnline: isOnline
 				},
 			});
-			delete user.hash;
+			
 			return user;
 		}
 		catch (error) {
@@ -243,7 +241,7 @@ export class UserService {
 					isInGame: isInGame
 				},
 			});
-			delete user.hash;
+			
 			return user;
 		}
 		catch (error) {
