@@ -2,6 +2,7 @@ import { Get, Controller, Query, Redirect} from "@nestjs/common";
 import { OAuthService} from "./oauth.service";
 import { ApiBody, ApiBearerAuth } from "@nestjs/swagger"
 import { OAuthDto } from "./dto";
+import { UserOAuthDto } from "../user/dto/user-oauth.dto";
 
 @Controller('oauth')
 @ApiBearerAuth()
@@ -19,14 +20,13 @@ export class OAuthController {
     @ApiBody({type: OAuthDto})
     @Redirect('http://localhost:3001/register')
     async getAuthToken(@Query('code') code: string){
-        console.log(code);
         const accessToken = await this.oAuthService.exchangeAuthorizationCode(code);
-        console.log(accessToken);
-    
-        /*const isUserLoggedIn = request.isAuth();
-        if(isUserLoggedIn){
-            return {url: '/pong'}
-        }*/
-        //TODO redirigir si esta log already a menu base si no el otro
+        const userInfo = await this.oAuthService.fetchUserInfo(accessToken);
+        let user: UserOAuthDto = {
+            login: userInfo.login,
+            email: userInfo.email,
+            avatar: userInfo.image.versions.small,
+        };
+        await this.oAuthService.signup(user);
     }
 }
