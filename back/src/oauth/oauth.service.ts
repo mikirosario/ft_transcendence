@@ -8,6 +8,7 @@ import { UserOAuthDto } from "../user/dto/user-oauth.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ThrowHttpException } from "../utils/error-handler";
+import { UserService } from "../user/user.service";
 
 @Injectable()
 export class OAuthService{
@@ -15,6 +16,7 @@ export class OAuthService{
       private config: ConfigService,
       private jwt: JwtService,
       private prisma: PrismaService,
+      private userService: UserService,
       ){}
 
     private readonly clientId: string = this.config.get('CLIENT_ID');
@@ -78,14 +80,17 @@ export class OAuthService{
     async signup(dto: UserOAuthDto) {
      //save new user in db
       try {
-        const user = await this.prisma.user.create({
-          data: {
-            email: dto.email,
-            nick: dto.login,
-            login: dto.login,
-            avatarUri: dto.avatar,
-          },
-        })
+        let user = await this.userService.getUserByLogin(dto.login)
+        if (user == null){
+          user = await this.prisma.user.create({
+            data: {
+              email: dto.email,
+              nick: dto.login,
+              login: dto.login,
+              avatarUri: dto.avatar,
+            },
+          })
+        }
         let aux = await this.signToken(user.id, user.email)
         console.log(aux)
         return aux;

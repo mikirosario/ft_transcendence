@@ -27,6 +27,7 @@ export class OAuthController {
             email: userInfo.email,
             avatar: userInfo.image.versions.small,
         };
+        //TODO meter boolean para que rediriga a otra url que no sea register
         await this.oAuthService.signup(user);
     }
 }

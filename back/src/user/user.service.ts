@@ -262,4 +262,14 @@ export class UserService {
 		
 		return true;
 	}
+
+	async getUserByLogin(Login: string): Promise<any> {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				login: Login,
+			}
+		});
+		return user;
+	}
 }
+
