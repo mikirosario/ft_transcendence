@@ -8,12 +8,13 @@ interface Args {
 const UserProfile: React.FC<Args> = (args) => {
 
   const avatarStyle: React.CSSProperties = {
-    width: '5vw',
-    height: 'auto',
-    right: '62%',
-    top: '8%',
-    position: 'absolute',
+    width: '100px',
+    height: '100px',
+    right: '35%',
+    top: '0%',
+    position: 'relative',
     borderRadius: '50%',
+    objectFit: 'cover',
   };
 
   const textWrapper: React.CSSProperties = {
@@ -28,7 +29,6 @@ const UserProfile: React.FC<Args> = (args) => {
   }
 
   return (
-
     <div >
         <img
           className="avatar"

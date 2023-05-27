@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import UserProfile from "./ProfileDisplay";
-import DefaultIMG from "../../assets/images/default.jpg"
 import { useNavigate } from "react-router-dom";
 import { getUserProfile } from '../../requests/User.Service';
 
 function Menu() {
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState(''); 
 	const [userImage, setUserImage] = useState<string>('');
-  const [selectedButton, setSelectedButton] = useState('');
+  const [selectedButton, setSelectedButton] = useState('friend');
   const navigate = useNavigate();
 
   const nickProfileLink = () => {
@@ -88,9 +87,6 @@ function Menu() {
   const handleChannelsButtonClick = () => {
     setSelectedButton('channels');
   };
-
-
-  // image tiene que ser del request
 
   return (
     <div style={MenuStyle}>
