@@ -26,8 +26,9 @@ export class ChatChannelController {
 		return this.chatChannelService.updateChannel(userId, dto);
 	}
 
-	@Delete('/:id')
-	async deleteChannel(@GetJwt('sub') userId: number, @Param('id') channelId: number) {
-		return this.chatChannelService.deleteChannel(userId, channelId);
+	@Delete()
+	@ApiBody({ type: ChatChannelUpdateDto })
+	async deleteChannel(@GetJwt('sub') userId: number, @Body() dto: ChatChannelUpdateDto) {
+		return this.chatChannelService.deleteChannel(userId, dto);
 	}
 }
