@@ -5,6 +5,7 @@ import { UserService } from '../../user/user.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as argon from "argon2"
+import { UserProfileDto } from 'src/user/dto';
 
 @Injectable()
 export class ChatChannelService {
@@ -84,11 +85,9 @@ export class ChatChannelService {
 		}
 	}
 
-	async deleteChannel(userId: number, channelId: number) {
-		channelId = Number(channelId);
-		
+	async deleteChannel(userId: number, dto: ChatChannelUpdateDto) {
 		const user = await this.userService.getUserById(userId);
-		const channel = await this.getChannel(channelId);
+		const channel = await this.getChannel(dto.id);
 
 		this.checkUserIsAuthorizedInChannnel(user, channel);
 
