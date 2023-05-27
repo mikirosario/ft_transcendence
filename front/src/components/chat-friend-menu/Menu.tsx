@@ -1,17 +1,30 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import UserProfile from "./ProfileDisplay";
 import DefaultIMG from "../../assets/images/default.jpg"
 import { useNavigate } from "react-router-dom";
-
-import { useState } from 'react';
+import { getUserProfile } from '../../requests/User.Service';
 
 function Menu() {
+  const [username, setUsername] = useState('');
+	const [userImage, setUserImage] = useState<string>('');
   const [selectedButton, setSelectedButton] = useState('');
   const navigate = useNavigate();
 
   const nickProfileLink = () => {
     navigate('/settings');
   };
+
+  useEffect(() => {
+		const fetchUserProfile = async () => {
+			const userProfile = await getUserProfile();
+			setUsername(userProfile.username);
+			setUserImage(userProfile.userImage);
+		  };
+		  
+		  fetchUserProfile();
+	}, []);
+
+
 
   const MenuStyle: React.CSSProperties = {
     height: '100vh',
@@ -76,10 +89,13 @@ function Menu() {
     setSelectedButton('channels');
   };
 
+
+  // image tiene que ser del request
+
   return (
     <div style={MenuStyle}>
       <button style={ProfileButtonStyle} onClick={nickProfileLink}>
-        <UserProfile image={DefaultIMG} name={'Gonzalo'}></UserProfile>
+        <UserProfile image={userImage} name={username}></UserProfile>
       </button>
       <button style={FriendButtonStyle} onClick={handleFriendButtonClick}>
         Amigos
