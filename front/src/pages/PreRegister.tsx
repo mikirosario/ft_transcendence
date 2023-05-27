@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
-import PlayButton from "../components/home/RoundStartButton";
+import PlayButton from "../components/home/StartButton";
 
 function PreRegister() {
     const navigate = useNavigate();

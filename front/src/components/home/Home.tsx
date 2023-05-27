@@ -12,7 +12,7 @@ function Home() {
         position: 'absolute',
         top: '0px',
         left: '20px',
-        cursor: 'pointer', // Add cursor pointer to indicate it's clickable
+        cursor: 'pointer',
     };
 
     const AuthLoginLink = () => {
