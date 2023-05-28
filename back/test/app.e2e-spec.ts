@@ -215,7 +215,6 @@ describe('App e2e', () => {
 		})
 		describe('EditUser', () => {
 			const dto: EditUserDto = {
-				firstName: "Miki",
 				email: "miki@42mars.com"
 			}
 			it('should edit user', () => {
@@ -227,7 +226,6 @@ describe('App e2e', () => {
 					})
 					.withBody(dto)
 					.expectStatus(200)
-					.expectBodyContains(dto.firstName)
 					.expectBodyContains(dto.email);
 			});
 			it('should throw 404 if user not found', () => {
