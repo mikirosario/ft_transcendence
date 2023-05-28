@@ -280,7 +280,9 @@ export class UserService {
 			}
 		});
 
-		delete user.hash;
+		if (user != null)
+			delete user.hash;
+
 		return user;
 	}
 }

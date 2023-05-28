@@ -81,7 +81,7 @@ export class OAuthService{
      //save new user in db
       try {
         let user = await this.userService.getUserByLogin(dto.login)
-        if (user == null){
+        if (user == null) {
           user = await this.prisma.user.create({
             data: {
               email: dto.email,
@@ -91,9 +91,9 @@ export class OAuthService{
             },
           })
         }
-        let aux = await this.signToken(user.id, user.email)
-        console.log(aux)
-        return aux;
+        let jwtToken = await this.signToken(user.id, user.email)
+        console.log(jwtToken)
+        return { jtw_token: jwtToken };
       }
       catch (error) {
         if (error instanceof PrismaClientKnownRequestError) {
