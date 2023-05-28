@@ -15,11 +15,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  email     String  @unique
-  nick      String  @unique
-  login     String  @unique
-  firstName String?
-  lastName  String?
+  email String  @unique
+  nick  String  @unique
+  login String  @unique
+  hash  String?
 
   avatarUri String  @default("default.jpg")
   isOnline  Boolean @default(false)

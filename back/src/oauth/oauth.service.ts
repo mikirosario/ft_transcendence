@@ -5,7 +5,7 @@ import axios from 'axios';
 import { JwtService } from "@nestjs/jwt";
 import { OAuthDto } from "./dto/oauth.dto";
 import { UserOAuthDto } from "../user/dto/user-oauth.dto";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../prisma/prisma.service";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ThrowHttpException } from "../utils/error-handler";
 import { UserService } from "../user/user.service";

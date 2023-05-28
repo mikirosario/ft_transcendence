@@ -16,5 +16,4 @@ export class AuthDto {
 	@IsString()
 	@IsNotEmpty()
 	nick: string
-	
 }

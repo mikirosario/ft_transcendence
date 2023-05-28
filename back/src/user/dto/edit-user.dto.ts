@@ -6,14 +6,4 @@ export class EditUserDto {
 	@IsEmail()
 	@IsOptional()
 	email?: string
-
-	@ApiProperty()
-	@IsString()
-	@IsOptional()
-	firstName?: string
-
-	@ApiProperty()
-	@IsString()
-	@IsOptional()
-	lastName?: string
 }
