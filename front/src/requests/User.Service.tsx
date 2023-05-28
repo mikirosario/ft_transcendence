@@ -1,5 +1,4 @@
 import axios from "axios";
-import { useState } from "react";
 
 axios.defaults.baseURL = 'http://localhost:3000';
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
@@ -41,9 +40,12 @@ export async function getUserProfile() {
       }
   
       const fetchedName = response.data.nick;
-      const fetchedImage = response.data.avatarUri;
-  
-      const imageResponse = await axios.get('/uploads/avatars/' + fetchedImage, {
+      let fetchedImage = response.data.avatarUri;
+
+      if (!fetchedImage.includes('https://cdn.intra.42.fr/users/'))
+        fetchedImage = '/uploads/avatars/' + fetchedImage;
+
+      const imageResponse = await axios.get(fetchedImage, {
         responseType: 'blob',
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -60,7 +62,7 @@ export async function getUserProfile() {
   
     } catch (error) {
       console.log('Error:', error);
-      return { username: "", userImage: "" };  // Devolver un objeto vacío en caso de error
+      return { username: "", userImage: "" };
     }
   }
 

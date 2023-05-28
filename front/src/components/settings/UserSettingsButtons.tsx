@@ -56,11 +56,11 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 	const handleSubmit = async (event: React.FormEvent) => {
 		event.preventDefault();
 	  
-		await updateUserProfile(username, image);
+		const success = await updateUserProfile(username, image);
 	  
-		// if (success) {
-		//   navigate('/homepage');
-		// }
+		if (success) {
+		  navigate('/homepage');
+		}
 	  };
 
 	const resetAvatar = async (event: React.FormEvent) => {
