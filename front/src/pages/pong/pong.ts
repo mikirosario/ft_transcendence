@@ -10,12 +10,13 @@ import { Ball } from "./ball";
 import { Score } from "./score";
 import { VerticalDashedLine } from "./net";
 import { onKeyDown, onKeyUp } from "./input.handlers";
+import { Socket, io } from "socket.io-client";
 
 
 
 let canvasBackgroundColor: string;
 
-export async function main() {
+export async function main(socket: Socket) {
     try
     {
         await loadFont('10pt "press_start_2p"');
@@ -26,7 +27,7 @@ export async function main() {
         const colorConstants = await fetchColorConstants();
         canvasBackgroundColor = colorConstants.canvasBackgroundColor;
         initGameCanvas(canvas, ctx, referenceResolution, canvasBackgroundColor);
-        const pong = new Pong(canvas, ctx, referenceResolution, canvasBackgroundColor);
+        const pong = new Pong(socket, canvas, ctx, referenceResolution, canvasBackgroundColor);
     }
     catch (err: any)
     {
@@ -58,13 +59,20 @@ class Pong
     private rightScore: Score;
     private gameOverText: Text;
     private drawables: IDrawable[];
+    private socket: Socket; 
 
     constructor(
+        socket: Socket,
         canvas: HTMLCanvasElement,
         context: CanvasRenderingContext2D,
         referenceResolution: Resolution,
         backgroundColor: string)
     {
+        // Connect to server
+        this.socket = socket;
+        socket.on('connect', () => {
+            console.log('Successfully connected to the server');
+        });
         // Canvas Info
         this.canvas = canvas;
         this.ctx = context;

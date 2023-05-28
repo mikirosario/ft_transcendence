@@ -7,7 +7,8 @@ const socketOptions = {
   transportOptions: {
       polling: {
           extraHeaders: {
-              Authorization: 'Bearer ' + localStorage.getItem("token"),
+              Authorization: localStorage.getItem("token"),
+              userID: '1234'
           }
       }
   }
@@ -59,7 +60,7 @@ function PongPage() {
 
     useEffect(() => {
         const socket: Socket = io('http://localhost:8082/', socketOptions);
-        Pong.main();
+        Pong.main(socket);
     
         return () => {
             socket.close();
