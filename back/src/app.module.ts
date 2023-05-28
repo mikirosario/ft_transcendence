@@ -5,6 +5,7 @@ import { UserModule } from './user/user.module';
 import { BookmarkModule } from './bookmark/bookmark.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ServeImageModule } from './utils/serve-image/serve-image.module';
+import { OAuthModule } from './oauth/oauth.module';
 import { FriendModule } from './friend/friend.module';
 import { PongModule } from './pong/pong.module';
 
@@ -12,6 +13,7 @@ import { PongModule } from './pong/pong.module';
 	imports: [AuthModule, UserModule, BookmarkModule, PrismaModule, ServeImageModule,
 		FriendModule, PongModule,
 		ConfigModule.forRoot({ isGlobal: true }),
+		OAuthModule,
 	]
 })
 export class AppModule { }
