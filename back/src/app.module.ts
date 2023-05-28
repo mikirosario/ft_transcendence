@@ -8,7 +8,6 @@ import { ServeImageModule } from './utils/serve-image/serve-image.module';
 import { OAuthModule } from './oauth/oauth.module';
 import { FriendModule } from './friend/friend.module';
 import { PongModule } from './pong/pong.module';
-import { OAuthModule } from './oauth/oauth.module';
 
 @Module({
 	imports: [AuthModule, UserModule, BookmarkModule, PrismaModule, ServeImageModule,
