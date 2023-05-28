@@ -55,7 +55,6 @@ export class ChatChannelService {
 		/*
 		TODO: Comprobar si el usuario que lo intenta es administrador en el canal (ChannelUsers)
 		*/
-
 		if (dto.password != null && dto.password.length > 0)
 		{
 			hash = await argon.hash(dto.password);
