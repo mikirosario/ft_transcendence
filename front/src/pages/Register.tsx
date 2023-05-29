@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import UserSettingsButtons from "../components/settings/UserSettingsButtons";
 import { useSearchParams } from 'react-router-dom';
 
 function Register() {
+    const [ready, setReady] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
 
     useEffect(() => {
@@ -10,6 +11,7 @@ function Register() {
             const token = searchParams.get("token");
             if (token) {
                 localStorage.setItem('token', token);
+                setReady(true);
                 searchParams.delete("token");
                 setSearchParams(searchParams);
             }
@@ -73,7 +75,7 @@ function Register() {
                 </div>
                 <div className="NicknameInputWrapper" style={NicknameInputStyle}>
                     <section className="OptionsMenu">
-                        <UserSettingsButtons btnTxt="Confirm"></UserSettingsButtons>
+                    {ready && <UserSettingsButtons btnTxt="Confirm"></UserSettingsButtons>}
                     </section>
                 </div>
             </div>
