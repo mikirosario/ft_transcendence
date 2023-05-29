@@ -29,40 +29,45 @@ export async function updateUserProfile(username: string, image: File | null) {
 };
 
 export async function getUserProfile() {
-    try {
-      const response = await axios.get('/users/profile', {
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token'),
-        },
-      });
-      
-      if (response.status !== 200) {
-        throw new Error('Request failed with status ' + response.status);
-      }
-  
-      const fetchedName = response.data.nick;
-      const fetchedImage = response.data.avatarUri;
-  
-      const imageResponse = await axios.get('/uploads/avatars/' + fetchedImage, {
-        responseType: 'blob',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token'),
-        },
-      });
-  
-      if (imageResponse.status !== 200) {
-        throw new Error('Request failed with status ' + imageResponse.status);
-      }
-  
-      const imageURL = URL.createObjectURL(imageResponse.data);
-  
-      return { username: fetchedName, userImage: imageURL };
-  
-    } catch (error) {
-      console.log('Error:', error);
-      return { username: "", userImage: "" };  // Devolver un objeto vacío en caso de error
+  try {
+    const response = await axios.get('/users/profile', {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+      },
+    });
+    
+    if (response.status !== 200) {
+      throw new Error('Request failed with status ' + response.status);
     }
+
+    const fetchedName = response.data.nick;
+    const fetchedImage = response.data.avatarUri;
+
+    const authorization = axios.defaults.headers.common["Authorization"];
+    delete axios.defaults.headers.common["Authorization"];
+
+    const imageResponse = await axios.get(fetchedImage, {
+      responseType: 'blob',
+      headers: {
+        'Accept': 'image/avif,image/webp,image/apng'
+      },
+    });
+
+    axios.defaults.headers.common["Authorization"] = authorization;
+
+    if (imageResponse.status !== 200) {
+      throw new Error('Request failed with status ' + imageResponse.status);
+    }
+
+    const imageURL = URL.createObjectURL(imageResponse.data);
+
+    return { username: fetchedName, userImage: imageURL };
+
+  } catch (error) {
+    console.log('Error:', error);
+    return { username: "", userImage: "" };  // Devolver un objeto vacío en caso de error
   }
+}
 
 export async function deleteAvatarProfile() {
   try {
