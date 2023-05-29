@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
 import PlayButton from "../components/home/StartButton";
-//import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function PreRegister() {
