@@ -1,10 +1,8 @@
 import React from "react";
-import { useNavigate } from 'react-router-dom';
 import PlayButton from "../components/home/StartButton";
 import axios from 'axios';
 
 function PreRegister() {
-    //const navigate = useNavigate();
 
     const LogoText: React.CSSProperties = {
         color: 'white',

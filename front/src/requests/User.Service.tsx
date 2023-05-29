@@ -42,7 +42,6 @@ export async function getUserProfile() {
 
     if (fetchedImage.includes('https://cdn.intra.42.fr/users/')) {
 
-      
       const authorization = axios.defaults.headers.common["Authorization"];
       delete axios.defaults.headers.common["Authorization"];
 
