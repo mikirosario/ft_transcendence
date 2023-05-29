@@ -16,6 +16,7 @@ function Register() {
                 setReady(true);
             }
         }
+        setReady(true);
     }, []);
 
     const NicknamePositionStyle: React.CSSProperties = {
