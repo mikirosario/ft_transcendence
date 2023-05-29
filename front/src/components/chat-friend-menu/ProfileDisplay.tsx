@@ -18,7 +18,7 @@ const UserProfile: React.FC<Args> = (args) => {
   };
 
   const textWrapper: React.CSSProperties = {
-    top: '32%',
+    top: '5%',
     left: '44%',
     position: 'absolute',
     fontFamily: 'Quantico',
@@ -37,7 +37,7 @@ const UserProfile: React.FC<Args> = (args) => {
           style={avatarStyle}
         />
         <div style={textWrapper}>
-          <div style={textWrapper}>{args.name}</div>
+          <p style={textWrapper}>{args.name}</p>
         </div>
     </div>
   );
