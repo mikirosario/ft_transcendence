@@ -1,3 +1,8 @@
+import { Ball } from "./ball";
+import { IPhysicsObject } from "./interfaces";
+import { Paddle } from "./paddle";
+import { Player, PlayerID } from "./player";
+
 export type Position = { x: number, y: number };
 
 export type Resolution = { width: number, height: number }
@@ -13,3 +18,24 @@ export type DrawableOptions = { SetActive?: boolean };
 export type ScaleFactors = { scaleX: number, scaleY: number };
 
 export type RigidBodyOptions = PhysicsOptions & DrawableOptions;
+
+export type GameState = {
+    leftPlayerScore: number,
+    rightPlayerScore: number,
+    ballReferenceSpeed: number,
+    ballVelocityVectorX: number,
+    ballVelocityVectorY: number,
+    leftPaddleReferenceSpeed: number,
+    leftPaddleVelocityVectorY: number,
+    rightPaddleReferenceSpeed: number,
+    rightPaddleVelocityVectorY: number,
+    reset: boolean,
+    gameOver: boolean,
+    winner: PlayerID,
+    referenceWidth: number,
+    referenceHeight: number
+  };
+
+export type InputState = {
+    paddleVelocityVectorY: number,
+}

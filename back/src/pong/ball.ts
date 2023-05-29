@@ -92,6 +92,7 @@ export class Ball extends Circle implements IPhysicsObject
 
     public bounceY()
     {
+        console.log("bounced");
         this.VelocityVectorY *= -1;
     }
 
@@ -109,6 +110,7 @@ export class Ball extends Circle implements IPhysicsObject
         const bounceAngleInRadians = collisionPointY * QUARTER_CIRCLE_IN_RADIANS;
         const newVelocityVectorX = Math.cos(bounceAngleInRadians);
 
+        console.log("I am bouncing back!");
         if (isSideCollision) // Side collisions invert the X direction of motion
             this.VelocityVectorX = newVelocityVectorX * -referenceDirectionX;
         else                 // Top or bottom collisions continue the X direction of motion
@@ -148,11 +150,11 @@ export class Ball extends Circle implements IPhysicsObject
             return willCollide;
         }
         
-        public resetBall(canvas: HTMLCanvasElement)
+        public resetBall(currentResolution: Resolution)
         {
             this.Transform.position = {
-                x: Math.round(canvas.width * 0.5),
-            y: Math.round(canvas.height * 0.5)
+                x: Math.round(currentResolution.width * 0.5),
+            y: Math.round(currentResolution.height * 0.5)
         }
         this.VelocityVectorX = -this.VelocityVectorX;
     }

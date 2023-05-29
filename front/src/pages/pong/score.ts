@@ -1,9 +1,11 @@
 import { Text } from "./text";
 import { Alignment } from "./alignment";
 import { padEnd } from "./utils";
-import { DrawableOptions } from "./types";
+import { DrawableOptions, GameState, ScaleFactors } from "./types";
+import { IStateSynchronizationObject } from "./interfaces";
+import { HorizontalAnchor } from "./alignment";
 
-export class Score extends Text
+export class Score extends Text implements IStateSynchronizationObject
 {
     playerName: string;
     score: number = 0;
@@ -43,5 +45,10 @@ export class Score extends Text
     private static generateScoreDisplay(playerName: string, score: number)
     {
         return `${playerName} ${score}`
+    }
+
+    synchronizeState(gameState: GameState, scaleFactors: ScaleFactors): void
+    {
+        // this.Score = this.Alignment.Horizontal === HorizontalAnchor.LEFT ? gameState.leftPlayer.Score : gameState.rightPlayer.Score;
     }
 }

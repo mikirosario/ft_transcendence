@@ -1,4 +1,4 @@
-import { Position, BoundingBox, Resolution, ScaleFactors } from "./types";
+import { Position, BoundingBox, Resolution, ScaleFactors, GameState } from "./types";
 import { Alignment } from "./alignment";
 import { Transform } from "./transform";
 
@@ -31,4 +31,9 @@ export interface IPhysicsObject
 export interface IUIObject
 {
     Alignment: Alignment;
+}
+
+export interface IStateSynchronizationObject
+{
+    synchronizeState(gameState: GameState, scaleFactors: ScaleFactors): void;
 }

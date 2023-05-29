@@ -1,75 +1,119 @@
 import { Transform } from "./transform";
 import { Ball } from "./ball";
 import { Paddle } from "./paddle";
-import { Position, Resolution } from "./types";
+import { GameState, InputState, Position, Resolution } from "./types";
 import { centerPositionInRange } from "./utils";
-import { Player } from "./player";
+import { Player, PlayerID } from "./player";
 import { IPhysicsObject } from "./interfaces";
 
-class Pong
+export class Pong
 {
     private static PADDLE_MARGIN: number = 25;
     private static MATCH_POINT: number = 3;
-    private referenceResolution: Resolution;
+    private referenceResolution: Resolution = { width: 640, height: 480 };
+    private collidables: IPhysicsObject[];
+    private gameState: GameState;
+    private ball: Ball;
+    private leftPaddle: Paddle;
+    private rightPaddle: Paddle;
+    private leftPlayer: Player;
+    private rightPlayer: Player;
+    private scorer: Player | null = null;
+    private reset: boolean = false;
+    private gameOver: boolean = false;
+    private winner: PlayerID = PlayerID.NONE;
   
-    private gameState: {
-      ball: Ball,
-      leftPaddle: Paddle,
-      rightPaddle: Paddle,
-      leftPlayer: Player,
-      rightPlayer: Player,
-      gameOver: boolean,
-      winner: Player | null,
-      referenceResolution: Resolution,
-      collidables: IPhysicsObject[]
-    };
-  
-    constructor() {
+    constructor()
+    {
+      this.ball = this.initBall();
+      this.leftPaddle = this.initPaddle({ x: Pong.PADDLE_MARGIN, y: Math.round(this.referenceResolution.height * 0.5) });
+      this.rightPaddle = this.initPaddle({ x: this.referenceResolution.width - Pong.PADDLE_MARGIN, y: Math.round(this.referenceResolution.height * 0.5) });
+      this.leftPlayer = new Player(PlayerID.LEFT_PLAYER);
+      this.rightPlayer = new Player(PlayerID.RIGHT_PLAYER);
       this.gameState = {
-        ball: this.initBall(),
-        leftPaddle: this.initPaddle({ x: Pong.PADDLE_MARGIN, y: 0 }),
-        rightPaddle: this.initPaddle({ x: 1 - Pong.PADDLE_MARGIN, y: 0 }),
-        leftPlayer: new Player(),
-        rightPlayer: new Player(),
+        leftPlayerScore: this.leftPlayer.Score,
+        rightPlayerScore: this.rightPlayer.Score,
+        ballReferenceSpeed: this.ball.ReferenceSpeed,
+        ballVelocityVectorX: this.ball.VelocityVectorX,
+        ballVelocityVectorY: this.ball.VelocityVectorY,
+        leftPaddleReferenceSpeed: this.leftPaddle.ReferenceSpeed,
+        leftPaddleVelocityVectorY: this.leftPaddle.VelocityVectorY,
+        rightPaddleReferenceSpeed: this.rightPaddle.ReferenceSpeed,
+        rightPaddleVelocityVectorY: this.rightPaddle.VelocityVectorY,
+        reset: false,
         gameOver: false,
-        winner: null,
-        referenceResolution: { width: 640, height: 480 },
-        collidables: [ this.gameState.leftPaddle, this.gameState.rightPaddle, this.gameState.ball ]
+        winner: PlayerID.NONE,
+        referenceWidth: this.referenceResolution.width,
+        referenceHeight: this.referenceResolution.height
       };
     }
-  
+
     // Initialize ball and paddles as before, but without any rendering context
   
-    getGameState() {
+    getGameState(): GameState
+    {     
       return this.gameState;
     }
-  
-    updateGameState() {
+
+    applyRemoteInputs(leftInputs: InputState, rightInputs: InputState)
+    {
+      console.log("Applied inputs");
+      this.leftPaddle.VelocityVectorY += leftInputs.paddleVelocityVectorY;
+      this.rightPaddle.VelocityVectorY += rightInputs.paddleVelocityVectorY;
+    }
+
+
+    physicsUpdate()
+    {
+      this.reset = false;
       // Update paddle positions based on input
-      this.gameState.leftPaddle.move(this.gameState.referenceResolution);
-      this.gameState.rightPaddle.move(this.gameState.referenceResolution);
+      this.leftPaddle.move(this.referenceResolution);
+      this.rightPaddle.move(this.referenceResolution);
   
       // Update ball position and handle collisions
-      this.gameState.ball.move(this.gameState.referenceResolution, this.gameState.collidables);
-  
-      // Handle scoring
+      this.ball.move(this.referenceResolution, [ this.leftPaddle, this.rightPaddle ]);
+
       const scorer = this.whoScored();
       if (scorer)
       {
         scorer.Score += 1;
+        this.ball.resetBall(this.referenceResolution);
+        this.reset = true;
         if (scorer.Score === Pong.MATCH_POINT)
         {
-          this.gameState.gameOver = true;
-          this.gameState.winner = scorer;
+          this.gameOver = true;
+          this.winner = scorer.ID;
         }
+      }
+    }
+
+    updateGameState()
+    {
+      if (!this.gameState.gameOver)
+      {
+        this.physicsUpdate();
+        this.gameState.leftPlayerScore = this.leftPlayer.Score;
+        this.gameState.rightPlayerScore = this.rightPlayer.Score;
+        this.gameState.ballReferenceSpeed = this.ball.ReferenceSpeed;
+        this.gameState.ballVelocityVectorX = this.ball.VelocityVectorX;
+        this.gameState.ballVelocityVectorY = this.ball.VelocityVectorY;
+        this.gameState.leftPaddleReferenceSpeed = this.leftPaddle.ReferenceSpeed;
+        this.gameState.leftPaddleVelocityVectorY = this.leftPaddle.VelocityVectorY;
+        this.gameState.rightPaddleReferenceSpeed = this.rightPaddle.ReferenceSpeed;
+        this.gameState.rightPaddleVelocityVectorY = this.rightPaddle.VelocityVectorY;
+        this.gameState.gameOver = this.gameOver;
+        this.gameState.reset = this.reset;
+        this.gameState.winner = this.winner;
+        this.gameState.referenceWidth = this.referenceResolution.width;
+        this.gameState.referenceHeight = this.referenceResolution.height;
       }
     }
   
     private initBall(): Ball
     {
         let position: Position = {
-            x: centerPositionInRange(0, this.gameState.referenceResolution.width),
-            y: centerPositionInRange(0, this.gameState.referenceResolution.height)
+          x: centerPositionInRange(0, this.referenceResolution.width),
+          y: centerPositionInRange(0, this.referenceResolution.height)
         }
         let transform: Transform = new Transform(position);
         let color = "white";
@@ -91,11 +135,11 @@ class Pong
     private whoScored(): Player | null
     {
         let scorer: Player | null = null;
-        let ballBoundingBox = this.gameState.ball.BoundingBoxPosition;
+        let ballBoundingBox = this.ball.BoundingBoxPosition;
         if (ballBoundingBox.left < 0)
-            scorer = this.gameState.rightPlayer;
-        else if (ballBoundingBox.right > this.gameState.referenceResolution.width)
-            scorer = this.gameState.leftPlayer;
+            scorer = this.rightPlayer;
+        else if (ballBoundingBox.right > this.referenceResolution.width)
+            scorer = this.leftPlayer;
         return scorer;
     }
   }

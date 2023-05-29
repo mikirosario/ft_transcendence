@@ -10,6 +10,8 @@ import { ConfigService } from "@nestjs/config";
 import { UserService } from "../user/user.service";
 import { WebSocketService } from '../auth/websocket/websocket.service';
 import { Console } from 'console';
+import { Pong } from './pong';
+import { InputState } from './types';
 
 @WebSocketGateway(8082, {
 	cors: {
@@ -21,11 +23,13 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 {
 	@WebSocketServer() server: Server;
 
+	private games: Map<string, Pong> = new Map();
+
 	constructor(private config: ConfigService, private userService: UserService, private webSocketService: WebSocketService) { }
 
 	afterInit(server: any) { }
 	
-	async handleConnection(client: any, ...args: any[]) {
+	async handleConnection(client: Socket, ...args: any[]) {
 		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
 		// if (userId == null)
 		// {
@@ -43,10 +47,24 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		// }
 
 		// console.log('Hola! ' + user.nick + ' está jugando ✅');
+		const pongBackend = new Pong();
+		this.games.set(client.id, pongBackend)
+		client.join(client.id);
 		console.log('Hola estoy jugando!');
+		setInterval(() => {
+			pongBackend.updateGameState();
+			//Emit game state to all clients in room
+			this.server.to(client.id).emit('gameState', pongBackend.getGameState());
+			//console.log("Game State Sent");
+		}, 1000 / 60); // 60 times a second
+		client.on('input', (input: InputState) => {
+			// Update paddle direction based on input
+			pongBackend.applyRemoteInputs(input, input);
+			console.log("Input");
+		  });
 	}
 	
-	async handleDisconnect(client: any) {
+	async handleDisconnect(client: Socket) {
 		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
 		if (userId == null)
 		{

@@ -1,9 +1,9 @@
 import { Rectangle } from "./rectangle";
 import { Transform } from "./transform";
-import { IPhysicsObject } from "./interfaces";
-import { PlayerInputs, BoundingBox, Position, RigidBodyOptions, Resolution, ScaleFactors } from "./types";
+import { IPhysicsObject, IStateSynchronizationObject } from "./interfaces";
+import { PlayerInputs, BoundingBox, Position, RigidBodyOptions, Resolution, ScaleFactors, GameState } from "./types";
 
-export class Paddle extends Rectangle implements IPhysicsObject
+export class Paddle extends Rectangle implements IPhysicsObject, IStateSynchronizationObject
 {
     private isColliderActive: boolean;
     private playerInputs: PlayerInputs;
@@ -46,6 +46,9 @@ export class Paddle extends Rectangle implements IPhysicsObject
 
     public get ReferenceSpeed(): number {
         return this.referenceSpeed;
+    }
+    private set ReferenceSpeed(value: number) {
+        this.referenceSpeed = value;
     }
 
     public get NextPosition(): Position {
@@ -117,11 +120,22 @@ export class Paddle extends Rectangle implements IPhysicsObject
         return willCollide;
     }
 
+    private rescaleSpeed(scaleFactors: ScaleFactors)
+    {
+        const scale = Math.min(scaleFactors.scaleX, scaleFactors.scaleY);
+        this.Speed = this.ReferenceSpeed * scale;
+    }
+
+    public updateSpeed(scaleFactors: ScaleFactors, newSpeed: number): void
+    {
+        this.ReferenceSpeed = newSpeed;
+        this.rescaleSpeed(scaleFactors);
+    }
+
     public onResizeCanvas(scaleFactors: ScaleFactors, currentCanvasResolution: Resolution, prevCanvasResolution: Resolution): void
     {
         super.onResizeCanvas(scaleFactors, currentCanvasResolution, prevCanvasResolution);
-        const scale = Math.min(scaleFactors.scaleX, scaleFactors.scaleY);
-        this.Speed = this.ReferenceSpeed * scale;
+        this.rescaleSpeed(scaleFactors);
     }
 
     public move(canvas: HTMLCanvasElement, collidables: IPhysicsObject[] = [])
@@ -131,5 +145,13 @@ export class Paddle extends Rectangle implements IPhysicsObject
             this.Transform.position.x += this.VelocityVectorX * this.Speed;
             this.Transform.position.y += this.VelocityVectorY * this.Speed;
         }
+    }
+
+    synchronizeState(gameState: GameState, scaleFactors: ScaleFactors): void
+    {
+        //this.updateSpeed(scaleFactors, gameState.ball.ReferenceSpeed);
+        // this.VelocityVectorX = gameState.ball.VelocityVectorX;
+        // this.VelocityVectorY = gameState.ball.VelocityVectorY;
+
     }
 }

@@ -1,10 +1,10 @@
 import { Circle } from "./circle";
 import { Transform } from "./transform";
-import { IPhysicsObject } from "./interfaces";
-import { BoundingBox, Resolution, Position, RigidBodyOptions, ScaleFactors } from "./types";
+import { IPhysicsObject, IStateSynchronizationObject } from "./interfaces";
+import { BoundingBox, Resolution, Position, RigidBodyOptions, ScaleFactors, GameState } from "./types";
 import { isInRange, normalizeRange } from "./utils";
 
-export class Ball extends Circle implements IPhysicsObject
+export class Ball extends Circle implements IPhysicsObject, IStateSynchronizationObject
 {
     private isColliderActive: boolean;
     private isInPlay: boolean;
@@ -37,14 +37,14 @@ export class Ball extends Circle implements IPhysicsObject
     public get VelocityVectorX() : number {
         return this.velocityVectorX;
     }
-    private set VelocityVectorX(value: number) {
+    public set VelocityVectorX(value: number) {
         this.velocityVectorX = value;
     }
 
     public get VelocityVectorY() : number {
         return this.velocityVectorY;
     }
-    private set VelocityVectorY(value: number) {
+    public set VelocityVectorY(value: number) {
         this.velocityVectorY = value;
     }
 
@@ -211,19 +211,28 @@ export class Ball extends Circle implements IPhysicsObject
     
     public move(canvas: HTMLCanvasElement, physObjects: IPhysicsObject[] = [])
     {
-        if (this.IsActive)
-        {
-            if (this.willCollideCanvas(canvas))
-                this.bounceY();
-            physObjects.forEach((physObject) => {
-                if (this.willCollide(physObject))
-                    this.bounceBack(physObject);
-            })
-            this.Transform.position.x += this.VelocityVectorX * this.Speed;
-            this.Transform.position.y += this.VelocityVectorY * this.Speed;
-        }
+        // if (this.IsActive)
+        // {
+        //     if (this.willCollideCanvas(canvas))
+        //         this.bounceY();
+        //     physObjects.forEach((physObject) => {
+        //         if (this.willCollide(physObject))
+        //             this.bounceBack(physObject);
+        //     })
+        //     this.Transform.position.x += this.VelocityVectorX * this.Speed;
+        //     this.Transform.position.y += this.VelocityVectorY * this.Speed;
+        // }
+        this.Transform.position.x += this.VelocityVectorX * this.Speed;
+        this.Transform.position.y += this.VelocityVectorY * this.Speed;
     }
-    
+
+    synchronizeState(gameState: GameState, scaleFactors: ScaleFactors): void
+    {
+        // this.updateSpeed(scaleFactors, gameState.ball.ReferenceSpeed);
+        // this.VelocityVectorX = gameState.ball.VelocityVectorX;
+        // this.VelocityVectorY = gameState.ball.VelocityVectorY;
+    }
+
     public draw(ctx: CanvasRenderingContext2D): void
     {
         if (this.IsActive)

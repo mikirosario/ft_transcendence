@@ -1,5 +1,5 @@
 import { getGameCanvas, getGameRenderingContext, initGameCanvas, fetchColorConstants } from "./init";
-import { Position, Resolution, ScaleFactors } from "./types";
+import { GameState, Position, Resolution, ScaleFactors } from "./types";
 import { IDrawable } from "./interfaces";
 import { centerPositionInRange, centerPositionInRangeX, centerPositionInRangeY, showError } from "./utils";
 import { Transform } from "./transform";
@@ -11,6 +11,7 @@ import { Score } from "./score";
 import { VerticalDashedLine } from "./net";
 import { onKeyDown, onKeyUp } from "./input.handlers";
 import { Socket, io } from "socket.io-client";
+import { PlayerID } from "./player";
 
 
 
@@ -59,7 +60,8 @@ class Pong
     private rightScore: Score;
     private gameOverText: Text;
     private drawables: IDrawable[];
-    private socket: Socket; 
+    private gameState: GameState | null = null;
+    private socket: Socket;
 
     constructor(
         socket: Socket,
@@ -72,6 +74,10 @@ class Pong
         this.socket = socket;
         socket.on('connect', () => {
             console.log('Successfully connected to the server');
+        });
+        socket.on('gameState', (gameState: GameState) => {
+            this.gameState = gameState;
+            console.log(gameState.ballVelocityVectorX);
         });
         // Canvas Info
         this.canvas = canvas;
@@ -96,10 +102,10 @@ class Pong
 
         //Input Logic (Estos escucharán por el websocket)
         document.addEventListener("keydown", (event) => {
-            onKeyDown(event, this.leftPaddle, this.rightPaddle);
+            onKeyDown(event, this.leftPaddle, this.rightPaddle, this.socket);
         })
         document.addEventListener("keyup", (event) => {
-            onKeyUp(event, this.leftPaddle, this.rightPaddle);
+            onKeyUp(event, this.leftPaddle, this.rightPaddle, this.socket);
         })
         
         // Render Logic
@@ -135,7 +141,7 @@ class Pong
         let color = "black";
         let width = 10;
         let height = 100;
-        let speed = 0.75;
+        let speed = 0;
         return new Paddle(transform, color, width, height, speed, this.referenceResolution, { SetCollider: true });
     }
 
@@ -147,7 +153,7 @@ class Pong
         }
         let transform: Transform = new Transform(position);
         let color = "white";
-        let speed = 1;
+        let speed = 0;
         let radius = 10;
         return new Ball(transform, color, speed, radius, { SetCollider: true });
     }
@@ -168,10 +174,18 @@ class Pong
         return new Text(alignment, "", color, fontSize, { SetActive: false });
     }
 
+    // private isGameOver(): boolean
+    // {
+    //     // Additional game over logic here, such as by timeout
+    //     return this.leftScore.Score == Pong.MATCH_POINT || this.rightScore.Score == Pong.MATCH_POINT;
+    // }
     private isGameOver(): boolean
     {
-        // Additional game over logic here, such as by timeout
-        return this.leftScore.Score == Pong.MATCH_POINT || this.rightScore.Score == Pong.MATCH_POINT;
+        if (this.gameState)
+        {
+            return this.gameState.gameOver;
+        }
+        return false;
     }
     
     private whoScored(): Score | null
@@ -185,13 +199,30 @@ class Pong
         return scoreRef;
     }
 
-    private whoWon(): Score | undefined
+    // private whoWon(): Score | undefined
+    // {
+    //     let winner: Score | undefined = undefined;
+    //     if (this.leftScore.Score == Pong.MATCH_POINT)
+    //         winner = this.leftScore;
+    //     else if (this.rightScore.Score == Pong.MATCH_POINT)
+    //         winner = this.rightScore;
+    //     return winner;
+    // }
+
+    private whoWon(gameState: GameState): Score | undefined
     {
         let winner: Score | undefined = undefined;
-        if (this.leftScore.Score == Pong.MATCH_POINT)
-            winner = this.leftScore;
-        else if (this.rightScore.Score == Pong.MATCH_POINT)
-            winner = this.rightScore;
+        switch (gameState.winner)
+        {
+            case PlayerID.LEFT_PLAYER:
+                winner = this.leftScore;
+                break;
+            case PlayerID.RIGHT_PLAYER:
+                winner = this.rightScore;
+                break;
+            default:
+                break;
+        }
         return winner;
     }
 
@@ -201,9 +232,9 @@ class Pong
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    private onGameOver()
+    private onGameOver(gameState: GameState)
     {
-        let winner: Score | undefined = this.whoWon();            
+        let winner: Score | undefined = this.whoWon(gameState);            
         this.gameOverText.Text = `${ winner ? winner.PlayerName : "Nobody" } WINS`;
         this.gameOverText.IsActive = true;
         this.drawables.splice(1, this.drawables.length);
@@ -214,6 +245,35 @@ class Pong
         this.ball.move(this.canvas, [ this.leftPaddle, this.rightPaddle ]);
         this.leftPaddle.move(this.canvas);
         this.rightPaddle.move(this.canvas);
+        if (this.gameState?.reset)
+        {
+            this.ball.resetBall(this.canvas);
+        }
+    }
+
+    private remoteUpdate()
+    {
+        if (this.gameState)
+        {
+            let currentResolution = {
+                width: this.canvas.width,
+                height: this.canvas.height
+            }
+            let referenceResolution = {
+                width: this.gameState.referenceWidth,
+                height: this.gameState.referenceHeight
+            }
+            let scaleFactors = this.getScaleFactors(currentResolution, referenceResolution);
+            this.ball.updateSpeed(scaleFactors, this.gameState.ballReferenceSpeed);
+            this.ball.VelocityVectorX = this.gameState.ballVelocityVectorX;
+            this.ball.VelocityVectorY = this.gameState.ballVelocityVectorY;
+            this.leftPaddle.updateSpeed(scaleFactors, this.gameState.leftPaddleReferenceSpeed);
+            this.leftPaddle.VelocityVectorY = this.gameState.leftPaddleVelocityVectorY;
+            this.rightPaddle.updateSpeed(scaleFactors, this.gameState.rightPaddleReferenceSpeed);
+            this.rightPaddle.VelocityVectorY = this.gameState.rightPaddleVelocityVectorY;
+            this.leftScore.Score = this.gameState.leftPlayerScore;
+            this.rightScore.Score = this.gameState.rightPlayerScore;
+        }
     }
     
     private async scoreUpdate()
@@ -287,18 +347,23 @@ class Pong
     {
         if (!this.isGameOver())
         {
-            // Physics update will probably need to be behind a sync check once websocket implemented
-            this.physicsUpdate();
-            this.scoreUpdate();
-            this.clearScreen();
-            this.drawables.forEach((drawable) => {
-                drawable.draw(this.ctx);
-            })
+            if (this.gameState)
+            {
+                // Physics update will probably need to be behind a sync check once websocket implemented
+                this.remoteUpdate();
+                this.physicsUpdate();
+                this.gameState = null;
+                // this.scoreUpdate();
+                this.clearScreen();
+                this.drawables.forEach((drawable) => {
+                    drawable.draw(this.ctx);
+                })
+            }
             requestAnimationFrame(this.renderFrame);
         }
         else
         {
-            this.onGameOver();
+            this.onGameOver(this.gameState!);
             requestAnimationFrame(this.renderGameOverFrame);
         }
     }

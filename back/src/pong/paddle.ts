@@ -119,8 +119,8 @@ export class Paddle extends Rectangle implements IPhysicsObject
     {
         if (this.IsActive && !this.willCollideCanvas(referenceResolution))
         {
-            this.Transform.position.x += this.VelocityVectorX * this.referenceSpeed;
-            this.Transform.position.y += this.VelocityVectorY * this.referenceSpeed;
+            this.Transform.position.x += this.VelocityVectorX * this.ReferenceSpeed;
+            this.Transform.position.y += this.VelocityVectorY * this.ReferenceSpeed;
         }
     }
 }
