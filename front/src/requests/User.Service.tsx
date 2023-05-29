@@ -29,11 +29,7 @@ export async function updateUserProfile(username: string, image: File | null) {
 
 export async function getUserProfile() {
   try {
-    const response = await axios.get('/users/profile', {
-      headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('token'),
-      },
-    });
+    const response = await axios.get('/users/profile');
 
     if (response.status !== 200) {
       throw new Error('Request failed with status ' + response.status);
@@ -42,19 +38,30 @@ export async function getUserProfile() {
     const fetchedName = response.data.nick;
     let fetchedImage = response.data.avatarUri;
 
-    if (!fetchedImage.includes('https://cdn.intra.42.fr/users/'))
+    let imageResponse;
+
+    if (fetchedImage.includes('https://cdn.intra.42.fr/users/')) {
+
+      
+      const authorization = axios.defaults.headers.common["Authorization"];
+      delete axios.defaults.headers.common["Authorization"];
+
+      imageResponse = await axios.get(fetchedImage, {
+        responseType: 'blob',
+        headers: {
+          'Accept': 'image/avif,image/webp,image/apng'
+        },
+      });
+
+      axios.defaults.headers.common["Authorization"] = authorization;
+      
+    } else {
+      
       fetchedImage = '/uploads/avatars/' + fetchedImage;
-
-    const authorization = axios.defaults.headers.common["Authorization"];
-    delete axios.defaults.headers.common["Authorization"];
-    const imageResponse = await axios.get(fetchedImage, {
-      responseType: 'blob',
-      headers: {
-        'Accept': 'image/avif,image/webp,image/apng'
-      },
-    });
-
-    axios.defaults.headers.common["Authorization"] = authorization;
+      imageResponse = await axios.get(fetchedImage, {
+        responseType: 'blob',
+      });
+    }
 
     if (imageResponse.status !== 200) {
       throw new Error('Request failed with status ' + imageResponse.status);
@@ -72,11 +79,7 @@ export async function getUserProfile() {
 
 export async function deleteAvatarProfile() {
   try {
-    const response = await axios.delete('users/profile', {
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('token'),
-      },
-    });
+    const response = await axios.delete('users/profile');
 
     if (response.status !== 200) {
       console.log('Failed to delete avatar');
@@ -88,9 +91,6 @@ export async function deleteAvatarProfile() {
 
     const imageResponse = await axios.get('uploads/avatars/' + fetchedImage, {
       responseType: 'blob',
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('token'),
-      },
     });
 
     if (imageResponse.status !== 200) {
