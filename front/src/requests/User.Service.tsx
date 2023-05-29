@@ -43,12 +43,17 @@ export async function getUserProfile() {
       const fetchedName = response.data.nick;
       const fetchedImage = response.data.avatarUri;
   
-      const imageResponse = await axios.get('/uploads/avatars/' + fetchedImage, {
+      const authorization = axios.defaults.headers.common["Authorization"];
+      delete axios.defaults.headers.common["Authorization"];
+
+      const imageResponse = await axios.get(fetchedImage, {
         responseType: 'blob',
         headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+          'Accept': 'image/avif,image/webp,image/apng'
         },
       });
+
+      axios.defaults.headers.common["Authorization"] = authorization;
   
       if (imageResponse.status !== 200) {
         throw new Error('Request failed with status ' + imageResponse.status);
