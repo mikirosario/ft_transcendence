@@ -69,7 +69,7 @@ export class Pong
     }
 
 
-    async physicsUpdate()
+    physicsUpdate()
     {
       this.reset = false;
       // Update paddle positions based on input
@@ -78,7 +78,10 @@ export class Pong
   
       // Update ball position and handle collisions
       this.ball.move(this.referenceResolution, [ this.leftPaddle, this.rightPaddle ]);
+    }
 
+    private async scoreUpdate()
+    {
       if (this.ball.IsInPlay)
       {
         const scorer = this.whoScored();
@@ -104,6 +107,7 @@ export class Pong
       if (!this.gameState.gameOver)
       {
         this.physicsUpdate();
+        this.scoreUpdate();
         this.gameState.ballPositionX = this.ball.Transform.position.x,
         this.gameState.ballPositionY = this.ball.Transform.position.y,
         this.gameState.leftPaddlePositionX = this.leftPaddle.Transform.position.x,
