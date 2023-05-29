@@ -1,4 +1,4 @@
-import { Get, Controller, Query, Redirect} from "@nestjs/common";
+import { Get, Controller, Query, Res} from "@nestjs/common";
 import { OAuthService} from "./oauth.service";
 import { ApiBody, ApiBearerAuth } from "@nestjs/swagger"
 import { OAuthDto } from "./dto";
@@ -18,8 +18,7 @@ export class OAuthController {
 
     @Get('getAuthToken')
     @ApiBody({type: OAuthDto})
-    @Redirect('http://localhost:3001/register')
-    async getAuthToken(@Query('code') code: string){
+    async getAuthToken(@Res() res, @Query('code') code: string){
         const accessToken = await this.oAuthService.exchangeAuthorizationCode(code);
         const userInfo = await this.oAuthService.fetchUserInfo(accessToken);
         let user: UserOAuthDto = {
@@ -28,6 +27,9 @@ export class OAuthController {
             avatar: userInfo.image.versions.small,
         };
         //TODO meter boolean para que rediriga a otra url que no sea register
-        await this.oAuthService.signup(user);
+        const jwt_token = await this.oAuthService.signup(user);
+        const jwt = jwt_token.access_token;
+
+        return res.redirect('http://localhost:3001/register?token=' + jwt);
     }
 }

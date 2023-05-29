@@ -91,9 +91,9 @@ export class OAuthService{
             },
           })
         }
-        let jwtToken = await this.signToken(user.id, user.email)
+        let jwtToken = await this.signToken(user.id, user.email);
         console.log(jwtToken)
-        return { jtw_token: jwtToken };
+        return jwtToken;
       }
       catch (error) {
         if (error instanceof PrismaClientKnownRequestError) {
