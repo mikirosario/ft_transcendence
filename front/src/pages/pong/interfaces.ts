@@ -35,5 +35,5 @@ export interface IUIObject
 
 export interface IStateSynchronizationObject
 {
-    synchronizeState(gameState: GameState, scaleFactors: ScaleFactors): void;
+    synchronizeState(gameState: GameState, currentResolution: Resolution): void;
 }

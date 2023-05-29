@@ -1,7 +1,7 @@
 import { Text } from "./text";
 import { Alignment } from "./alignment";
 import { padEnd } from "./utils";
-import { DrawableOptions, GameState, ScaleFactors } from "./types";
+import { DrawableOptions, GameState, Resolution, ScaleFactors } from "./types";
 import { IStateSynchronizationObject } from "./interfaces";
 import { HorizontalAnchor } from "./alignment";
 
@@ -47,7 +47,7 @@ export class Score extends Text implements IStateSynchronizationObject
         return `${playerName} ${score}`
     }
 
-    synchronizeState(gameState: GameState, scaleFactors: ScaleFactors): void
+    synchronizeState(gameState: GameState, currentResolution: Resolution): void
     {
         // this.Score = this.Alignment.Horizontal === HorizontalAnchor.LEFT ? gameState.leftPlayer.Score : gameState.rightPlayer.Score;
     }

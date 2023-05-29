@@ -2,7 +2,7 @@ import { Circle } from "./circle";
 import { Transform } from "./transform";
 import { IPhysicsObject, IStateSynchronizationObject } from "./interfaces";
 import { BoundingBox, Resolution, Position, RigidBodyOptions, ScaleFactors, GameState } from "./types";
-import { isInRange, normalizeRange } from "./utils";
+import { getScaleFactors, isInRange, normalizeRange } from "./utils";
 
 export class Ball extends Circle implements IPhysicsObject, IStateSynchronizationObject
 {
@@ -156,7 +156,7 @@ export class Ball extends Circle implements IPhysicsObject, IStateSynchronizatio
                 x: Math.round(canvas.width * 0.5),
             y: Math.round(canvas.height * 0.5)
         }
-        this.VelocityVectorX = -this.VelocityVectorX;
+        //this.VelocityVectorX = -this.VelocityVectorX;
     }
     
     /**
@@ -226,8 +226,14 @@ export class Ball extends Circle implements IPhysicsObject, IStateSynchronizatio
         this.Transform.position.y += this.VelocityVectorY * this.Speed;
     }
 
-    synchronizeState(gameState: GameState, scaleFactors: ScaleFactors): void
+    synchronizeState(gameState: GameState, currentResolution: Resolution): void
     {
+        let referenceResolution: Resolution = {
+            width: gameState.referenceWidth,
+            height: gameState.referenceHeight
+        }
+        let scaleFactors: ScaleFactors = getScaleFactors(currentResolution, referenceResolution);
+        super.onResizeCanvas(scaleFactors, currentResolution, referenceResolution);
         // this.updateSpeed(scaleFactors, gameState.ball.ReferenceSpeed);
         // this.VelocityVectorX = gameState.ball.VelocityVectorX;
         // this.VelocityVectorY = gameState.ball.VelocityVectorY;

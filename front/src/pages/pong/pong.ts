@@ -1,7 +1,7 @@
 import { getGameCanvas, getGameRenderingContext, initGameCanvas, fetchColorConstants } from "./init";
 import { GameState, Position, Resolution, ScaleFactors } from "./types";
 import { IDrawable } from "./interfaces";
-import { centerPositionInRange, centerPositionInRangeX, centerPositionInRangeY, showError } from "./utils";
+import { centerPositionInRange, centerPositionInRangeX, centerPositionInRangeY, getScaleFactors, showError } from "./utils";
 import { Transform } from "./transform";
 import { Alignment, HorizontalAnchor, VerticalAnchor } from "./alignment";
 import { Text } from "./text";
@@ -263,16 +263,25 @@ class Pong
                 width: this.gameState.referenceWidth,
                 height: this.gameState.referenceHeight
             }
-            let scaleFactors = this.getScaleFactors(currentResolution, referenceResolution);
-            this.ball.updateSpeed(scaleFactors, this.gameState.ballReferenceSpeed);
-            this.ball.VelocityVectorX = this.gameState.ballVelocityVectorX;
-            this.ball.VelocityVectorY = this.gameState.ballVelocityVectorY;
-            this.leftPaddle.updateSpeed(scaleFactors, this.gameState.leftPaddleReferenceSpeed);
-            this.leftPaddle.VelocityVectorY = this.gameState.leftPaddleVelocityVectorY;
-            this.rightPaddle.updateSpeed(scaleFactors, this.gameState.rightPaddleReferenceSpeed);
-            this.rightPaddle.VelocityVectorY = this.gameState.rightPaddleVelocityVectorY;
+            let scaleFactors = getScaleFactors(currentResolution, referenceResolution);
+            // this.ball.updateSpeed(scaleFactors, this.gameState.ballReferenceSpeed);
+            // this.ball.VelocityVectorX = this.gameState.ballVelocityVectorX;
+            // this.ball.VelocityVectorY = this.gameState.ballVelocityVectorY;
+            // this.leftPaddle.updateSpeed(scaleFactors, this.gameState.leftPaddleReferenceSpeed);
+            // this.leftPaddle.VelocityVectorY = this.gameState.leftPaddleVelocityVectorY;
+            // this.rightPaddle.updateSpeed(scaleFactors, this.gameState.rightPaddleReferenceSpeed);
+            // this.rightPaddle.VelocityVectorY = this.gameState.rightPaddleVelocityVectorY;
             this.leftScore.Score = this.gameState.leftPlayerScore;
             this.rightScore.Score = this.gameState.rightPlayerScore;
+            this.ball.Transform.position.x = this.gameState.ballPositionX;
+            this.ball.Transform.position.y = this.gameState.ballPositionY;
+            this.leftPaddle.Transform.position.x = this.gameState.leftPaddlePositionX;
+            this.leftPaddle.Transform.position.y = this.gameState.leftPaddlePositionY;
+            this.rightPaddle.Transform.position.x = this.gameState.rightPaddlePositionX;
+            this.rightPaddle.Transform.position.y = this.gameState.rightPaddlePositionY;
+            this.ball.synchronizeState(this.gameState, currentResolution);
+            this.leftPaddle.synchronizeState(this.gameState, currentResolution);
+            this.rightPaddle.synchronizeState(this.gameState, currentResolution);
         }
     }
     
@@ -292,18 +301,10 @@ class Pong
                     width: this.canvas.width,
                     height: this.canvas.height
                 }
-                let scaleFactors = this.getScaleFactors(currentResolution, this.referenceResolution);
+                let scaleFactors = getScaleFactors(currentResolution, this.referenceResolution);
                 this.ball.updateSpeed(scaleFactors, this.ball.ReferenceSpeed + 1);
                 this.ball.resetBall(this.canvas);
             }
-        }
-    }
-
-    private getScaleFactors(currentCanvasResolution: Resolution, referenceCanvasResolution: Resolution): ScaleFactors
-    {
-        return {
-            scaleX: currentCanvasResolution.width / referenceCanvasResolution.width,
-            scaleY: currentCanvasResolution.height / referenceCanvasResolution.height
         }
     }
 
@@ -331,7 +332,7 @@ class Pong
         };
 
         // Calculate scale factors
-        const scaleFactors: ScaleFactors = this.getScaleFactors(newCanvasResolution, this.referenceResolution);
+        const scaleFactors: ScaleFactors = getScaleFactors(newCanvasResolution, this.referenceResolution);
 
         // Apply new canvas resolution
         this.canvas.width = newCanvasResolution.width;
@@ -351,7 +352,7 @@ class Pong
             {
                 // Physics update will probably need to be behind a sync check once websocket implemented
                 this.remoteUpdate();
-                this.physicsUpdate();
+                //this.physicsUpdate();
                 this.gameState = null;
                 // this.scoreUpdate();
                 this.clearScreen();

@@ -31,6 +31,13 @@ export class Pong
       this.leftPlayer = new Player(PlayerID.LEFT_PLAYER);
       this.rightPlayer = new Player(PlayerID.RIGHT_PLAYER);
       this.gameState = {
+        ballPositionX: this.ball.Transform.position.x,
+        ballPositionY: this.ball.Transform.position.y,
+        leftPaddlePositionX: this.leftPaddle.Transform.position.x,
+        leftPaddlePositionY: this.leftPaddle.Transform.position.y,
+        rightPaddlePositionX: this.rightPaddle.Transform.position.x,
+        rightPaddlePositionY: this.rightPaddle.Transform.position.y,
+
         leftPlayerScore: this.leftPlayer.Score,
         rightPlayerScore: this.rightPlayer.Score,
         ballReferenceSpeed: this.ball.ReferenceSpeed,
@@ -63,7 +70,7 @@ export class Pong
     }
 
 
-    physicsUpdate()
+    async physicsUpdate()
     {
       this.reset = false;
       // Update paddle positions based on input
@@ -73,16 +80,22 @@ export class Pong
       // Update ball position and handle collisions
       this.ball.move(this.referenceResolution, [ this.leftPaddle, this.rightPaddle ]);
 
-      const scorer = this.whoScored();
-      if (scorer)
+      if (this.ball.IsInPlay)
       {
-        scorer.Score += 1;
-        this.ball.resetBall(this.referenceResolution);
-        this.reset = true;
-        if (scorer.Score === Pong.MATCH_POINT)
+        const scorer = this.whoScored();
+        if (scorer)
         {
-          this.gameOver = true;
-          this.winner = scorer.ID;
+          scorer.Score += 1;
+          this.ball.IsInPlay = false;
+          // 1 second pause, to give the ball time to move out of view
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          this.ball.IsInPlay = true;
+          this.ball.resetBall(this.referenceResolution);
+          if (scorer.Score === Pong.MATCH_POINT)
+          {
+            this.gameOver = true;
+            this.winner = scorer.ID;
+          }
         }
       }
     }
@@ -92,6 +105,12 @@ export class Pong
       if (!this.gameState.gameOver)
       {
         this.physicsUpdate();
+        this.gameState.ballPositionX = this.ball.Transform.position.x,
+        this.gameState.ballPositionY = this.ball.Transform.position.y,
+        this.gameState.leftPaddlePositionX = this.leftPaddle.Transform.position.x,
+        this.gameState.leftPaddlePositionY = this.leftPaddle.Transform.position.y,
+        this.gameState.rightPaddlePositionX = this.rightPaddle.Transform.position.x,
+        this.gameState.rightPaddlePositionY = this.rightPaddle.Transform.position.y,
         this.gameState.leftPlayerScore = this.leftPlayer.Score;
         this.gameState.rightPlayerScore = this.rightPlayer.Score;
         this.gameState.ballReferenceSpeed = this.ball.ReferenceSpeed;

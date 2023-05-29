@@ -20,6 +20,12 @@ export type ScaleFactors = { scaleX: number, scaleY: number };
 export type RigidBodyOptions = PhysicsOptions & DrawableOptions;
 
 export type GameState = {
+    ballPositionX: number,
+    ballPositionY: number,
+    leftPaddlePositionX: number,
+    leftPaddlePositionY: number,
+    rightPaddlePositionX: number,
+    rightPaddlePositionY: number,
     leftPlayerScore: number,
     rightPlayerScore: number,
     ballReferenceSpeed: number,

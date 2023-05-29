@@ -2,6 +2,7 @@ import { Rectangle } from "./rectangle";
 import { Transform } from "./transform";
 import { IPhysicsObject, IStateSynchronizationObject } from "./interfaces";
 import { PlayerInputs, BoundingBox, Position, RigidBodyOptions, Resolution, ScaleFactors, GameState } from "./types";
+import { getScaleFactors } from "./utils";
 
 export class Paddle extends Rectangle implements IPhysicsObject, IStateSynchronizationObject
 {
@@ -147,8 +148,14 @@ export class Paddle extends Rectangle implements IPhysicsObject, IStateSynchroni
         }
     }
 
-    synchronizeState(gameState: GameState, scaleFactors: ScaleFactors): void
+    synchronizeState(gameState: GameState, currentResolution: Resolution): void
     {
+        let referenceResolution: Resolution = {
+            width: gameState.referenceWidth,
+            height: gameState.referenceHeight
+        }
+        let scaleFactors: ScaleFactors = getScaleFactors(currentResolution, referenceResolution);
+        super.onResizeCanvas(scaleFactors, currentResolution, referenceResolution);
         //this.updateSpeed(scaleFactors, gameState.ball.ReferenceSpeed);
         // this.VelocityVectorX = gameState.ball.VelocityVectorX;
         // this.VelocityVectorY = gameState.ball.VelocityVectorY;

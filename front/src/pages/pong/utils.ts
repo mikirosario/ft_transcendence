@@ -1,4 +1,4 @@
-import { Position } from "./types";
+import { Position, Resolution, ScaleFactors } from "./types";
 
 const errorMessage = document.getElementById('error-message');
 
@@ -16,6 +16,13 @@ export function showError(message: string) {
   }
 }
 
+export function getScaleFactors(currentCanvasResolution: Resolution, referenceCanvasResolution: Resolution): ScaleFactors
+{
+    return {
+        scaleX: currentCanvasResolution.width / referenceCanvasResolution.width,
+        scaleY: currentCanvasResolution.height / referenceCanvasResolution.height
+    }
+}
 
 /**
  * Normalizes a number 'x' in a range between 'min' and 'max' to a number

@@ -19,6 +19,12 @@ export type ScaleFactors = { scaleX: number, scaleY: number };
 export type RigidBodyOptions = PhysicsOptions & DrawableOptions;
 
 export type GameState = {
+    ballPositionX: number,
+    ballPositionY: number,
+    leftPaddlePositionX: number,
+    leftPaddlePositionY: number,
+    rightPaddlePositionX: number,
+    rightPaddlePositionY: number,
     leftPlayerScore: number,
     rightPlayerScore: number,
     ballReferenceSpeed: number,
@@ -28,11 +34,11 @@ export type GameState = {
     leftPaddleVelocityVectorY: number,
     rightPaddleReferenceSpeed: number,
     rightPaddleVelocityVectorY: number,
-    referenceHeight: number,
     reset: boolean,
     gameOver: boolean,
     winner: PlayerID,
     referenceWidth: number,
+    referenceHeight: number
   };
 
   export type InputState = {
