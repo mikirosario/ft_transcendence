@@ -20,11 +20,11 @@ export interface IPhysicsObject
     VelocityVectorX: number;
     VelocityVectorY: number;
     NextPosition: Position;
-    move(canvas: HTMLCanvasElement, collidables: IPhysicsObject[]): void;
+    move(canvas: Resolution, collidables: IPhysicsObject[]): void;
     IsColliderActive: boolean;
     BoundingBoxNextPosition: BoundingBox;
     BoundingBoxPosition: BoundingBox;
-    willCollideCanvas(canvas: HTMLCanvasElement): boolean;
+    willCollideCanvas(canvas: Resolution): boolean;
     willCollide(collidable: IPhysicsObject): boolean;
 }
 

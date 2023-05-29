@@ -4,6 +4,7 @@ import { Transform } from "./transform";
 
 export interface IDrawable
 {
+    Transform: Transform;
     IsActive: boolean;
     Height: number;
     Width: number;

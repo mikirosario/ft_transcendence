@@ -52,7 +52,8 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		client.join(client.id);
 		console.log('Hola estoy jugando!');
 		setInterval(() => {
-			pongBackend.updateGameState();
+			//Set the game state for the next frame
+			pongBackend.setGameState();
 			//Emit game state to all clients in room
 			this.server.to(client.id).emit('gameState', pongBackend.getGameState());
 			//console.log("Game State Sent");
