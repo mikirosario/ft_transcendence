@@ -12,7 +12,11 @@ export async function updateUserProfile(username: string, image: File | null) {
   }
 
   try {
-    const response = await axios.put('/users/profile', formData);
+    const response = await axios.put('/users/profile', formData, {
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('token'),
+      },
+    });
 
     if (response.status === 200) {
       console.log('Changes applied successfully');
@@ -29,7 +33,11 @@ export async function updateUserProfile(username: string, image: File | null) {
 
 export async function getUserProfile() {
   try {
-    const response = await axios.get('/users/profile');
+    const response = await axios.get('users/profile', {
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('token'),
+      },
+    });
 
     if (response.status !== 200) {
       throw new Error('Request failed with status ' + response.status);
@@ -59,6 +67,9 @@ export async function getUserProfile() {
       fetchedImage = '/uploads/avatars/' + fetchedImage;
       imageResponse = await axios.get(fetchedImage, {
         responseType: 'blob',
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('token'),
+        },
       });
     }
 
@@ -78,7 +89,11 @@ export async function getUserProfile() {
 
 export async function deleteAvatarProfile() {
   try {
-    const response = await axios.delete('users/profile');
+    const response = await axios.delete('users/profile', {
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('token'),
+      },
+    });
 
     if (response.status !== 200) {
       console.log('Failed to delete avatar');
@@ -90,6 +105,9 @@ export async function deleteAvatarProfile() {
 
     const imageResponse = await axios.get('uploads/avatars/' + fetchedImage, {
       responseType: 'blob',
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('token'),
+      },
     });
 
     if (imageResponse.status !== 200) {
