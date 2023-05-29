@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import UserProfile from "./ProfileDisplay";
 import { useNavigate } from "react-router-dom";
 import { getUserProfile } from '../../requests/User.Service';
+import FriendDisplay from "./FriendDisplay";
+import ChannelDisplay from "./ChannelDisplay"
 
 function Menu() {
-  const [username, setUsername] = useState(''); 
-	const [userImage, setUserImage] = useState<string>('');
+  const [username, setUsername] = useState('');
+  const [userImage, setUserImage] = useState<string>('');
   const [selectedButton, setSelectedButton] = useState('friend');
   const navigate = useNavigate();
 
@@ -14,14 +16,14 @@ function Menu() {
   };
 
   useEffect(() => {
-		const fetchUserProfile = async () => {
-			const userProfile = await getUserProfile();
-			setUsername(userProfile.username);
-			setUserImage(userProfile.userImage);
-		  };
-		  
-		  fetchUserProfile();
-	}, []);
+    const fetchUserProfile = async () => {
+      const userProfile = await getUserProfile();
+      setUsername(userProfile.username);
+      setUserImage(userProfile.userImage);
+    };
+
+    fetchUserProfile();
+  }, []);
 
 
 
@@ -80,8 +82,18 @@ function Menu() {
     textShadow: selectedButton === 'channels' ? '0.6px 0 0 black' : 'none',
   };
 
+  const [SocialDisplay, setSocialDisplay] = useState<React.CSSProperties>({
+    width: '0%',
+    height: '77%',
+    backgroundColor: 'grey',
+    top: '23.09%',
+    left: '0%',
+    position: 'absolute',
+  });
+
   const handleFriendButtonClick = () => {
     setSelectedButton('friend');
+
   };
 
   const handleChannelsButtonClick = () => {
@@ -93,12 +105,19 @@ function Menu() {
       <button style={ProfileButtonStyle} onClick={nickProfileLink}>
         <UserProfile image={userImage} name={username}></UserProfile>
       </button>
-      <button style={FriendButtonStyle} onClick={handleFriendButtonClick}>
-        Amigos
-      </button>
-      <button style={ChannelsButtonStyle} onClick={handleChannelsButtonClick}>
-        Canales
-      </button>
+      <div>
+
+        <button style={FriendButtonStyle} onClick={handleFriendButtonClick}>
+          Amigos
+        </button>
+        <button style={ChannelsButtonStyle} onClick={handleChannelsButtonClick}>
+          Canales
+        </button>
+        <div style={SocialDisplay}>
+          {/* {selectedButton === 'friend'? <FriendDisplay/> : <ChannelDisplay/>} */}
+        </div>
+      </div>
+
     </div>
   );
 }

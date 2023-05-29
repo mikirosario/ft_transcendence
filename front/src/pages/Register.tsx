@@ -5,7 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 function Register() {
     const [ready, setReady] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
-
+    
     useEffect(() => {
         if (searchParams.has("token")) {
             const token = searchParams.get("token");

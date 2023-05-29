@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import PlayButton from "../components/home/StartButton";
 import SettingsButton from "../components/home/SettingsButton";
 import GoToHomepage from "../components/home/Home";
-import Menu from "../components/chat-friend-menu/Menu";
+import SocialMenu from "../components/chat-friend-menu/SocialMenu";
 
 function Home() {
     const navigate = useNavigate();
@@ -39,7 +39,7 @@ function Home() {
                 <PlayButton name="Play now" />
             </section>
             <section>
-                <Menu></Menu>
+                <SocialMenu></SocialMenu>
             </section>
         </div>
     );
