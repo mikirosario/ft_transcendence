@@ -242,13 +242,10 @@ class Pong
     
     private physicsUpdate()
     {
-        this.ball.move(this.canvas, [ this.leftPaddle, this.rightPaddle ]);
-        this.leftPaddle.move(this.canvas);
-        this.rightPaddle.move(this.canvas);
-        if (this.gameState?.reset)
-        {
-            this.ball.resetBall(this.canvas);
-        }
+        // For client-side prediction restore old physicsUpdate()...
+        // this.ball.move(this.canvas, [ this.leftPaddle, this.rightPaddle ]);
+        // this.leftPaddle.move(this.canvas);
+        // this.rightPaddle.move(this.canvas);
     }
 
     private remoteUpdate()

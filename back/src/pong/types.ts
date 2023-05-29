@@ -35,7 +35,6 @@ export type GameState = {
     leftPaddleVelocityVectorY: number,
     rightPaddleReferenceSpeed: number,
     rightPaddleVelocityVectorY: number,
-    reset: boolean,
     gameOver: boolean,
     winner: PlayerID,
     referenceWidth: number,

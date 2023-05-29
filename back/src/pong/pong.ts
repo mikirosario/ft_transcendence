@@ -47,7 +47,6 @@ export class Pong
         leftPaddleVelocityVectorY: this.leftPaddle.VelocityVectorY,
         rightPaddleReferenceSpeed: this.rightPaddle.ReferenceSpeed,
         rightPaddleVelocityVectorY: this.rightPaddle.VelocityVectorY,
-        reset: false,
         gameOver: false,
         winner: PlayerID.NONE,
         referenceWidth: this.referenceResolution.width,
@@ -121,7 +120,6 @@ export class Pong
         this.gameState.rightPaddleReferenceSpeed = this.rightPaddle.ReferenceSpeed;
         this.gameState.rightPaddleVelocityVectorY = this.rightPaddle.VelocityVectorY;
         this.gameState.gameOver = this.gameOver;
-        this.gameState.reset = this.reset;
         this.gameState.winner = this.winner;
         this.gameState.referenceWidth = this.referenceResolution.width;
         this.gameState.referenceHeight = this.referenceResolution.height;
