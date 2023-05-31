@@ -1,16 +1,24 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
-import PlayButton from "../components/home/RoundStartButton";
 import SettingsButton from "../components/home/SettingsButton";
-import GoToHomepage from "../components/home/Home";
+import HomeButton from "../components/B_Home";
+import GameButton from "../components/B_General";
 
 function Home() {
     const navigate = useNavigate();
-    const PlayButtonStyle: React.CSSProperties = {
-        transform: 'scale(1.3)',
+
+    const PlayFriendsButtonStyle: React.CSSProperties = {
         position: 'absolute',
         top: '250px',
-        left: '760px',
+        left: '600px',
+        display: 'flex',
+        alignItems: 'flex-end',
+    };
+
+    const PlayButtonStyle: React.CSSProperties = {
+        position: 'absolute',
+        bottom: '250px',
+        left: '600px',
         display: 'flex',
         alignItems: 'flex-end',
     };
@@ -18,28 +26,38 @@ function Home() {
 
     const SettingsStyle: React.CSSProperties = {
         position: 'fixed',
-        top: '350px',
-        left: '815px',
+        top: '30px',
+        right: '30px',
         display: 'flex',
         alignItems: 'flex-end',
-        scale: '1.2'
+        scale: '1.5'
     };
 
 
-    const gameSelectorLink = () => {
+    const GoGamePong = () => {
         navigate('/pong');
+    };
+
+    const GoGameSelector = () => {
+        navigate('/gameSelector');
     };
 
     return (
         <div>
-            <section className="Homepage">
-                <GoToHomepage></GoToHomepage>
+            <section className="B_Home">
+                <HomeButton></HomeButton>
             </section>
-            <section className="SetingsButton"style={SettingsStyle}>
+
+            <section className="B_PFriends" style={PlayFriendsButtonStyle} onClick={GoGamePong}>
+                <GameButton name="Play with friends" width={435} height={155} fsize={22}></GameButton>
+            </section>
+
+            <section className="B_Play" style={PlayButtonStyle} onClick={GoGameSelector}>
+                <GameButton name="Play" width={435} height={155} fsize={48}></GameButton>
+            </section>
+
+            <section className="B_Settings"style={SettingsStyle}>
                 <SettingsButton></SettingsButton>
-            </section>
-            <section className='PlayButton' style={PlayButtonStyle} onClick={gameSelectorLink}>
-                <PlayButton name="Play now"/>
             </section>
         </div>
     );

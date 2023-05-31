@@ -1,18 +1,17 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
+import Logo from '../../assets/images/Logo.png'
 
 function Home() {
     const navigate = useNavigate();
 
-    const LogoText: React.CSSProperties = {
-        color: 'white',
-        fontFamily: "'Press Start 2P'",
-        fontSize: '32px',
-        fontWeight: 400,
+    const LogoImg: React.CSSProperties = {
         position: 'absolute',
-        top: '0px',
-        left: '20px',
-        cursor: 'pointer', // Add cursor pointer to indicate it's clickable
+        width: '110px',
+        height: '100px',
+        top: '10px',
+        left: '10px',
+        cursor: 'pointer',
     };
 
     const AuthLoginLink = () => {
@@ -22,9 +21,7 @@ function Home() {
 
     return (
         <div>
-            <h1 className="Logo" style={LogoText} onClick={AuthLoginLink}>
-                Logo
-            </h1>
+            {/* <img src={Logo} alt="Logo of 42Pong" style={LogoImg} /> */}
         </div>
     );
 }

@@ -9,22 +9,25 @@ const RoundStartButton: React.FC<Args> = (args) => {
 
   const buttonStyle = {
     background: isHovered
-      ? 'linear-gradient(180deg, rgba(0,255,0,1) 0%, rgba(255,255,255,1) 100%)'
-      : 'linear-gradient(180deg, rgba(238,14,14,1) 0%, rgba(255,255,255,0.75) 100%)',
-    color: 'white',
-    borderRadius: '25px',
-    width: '150px',
-    height: '50px',
+      ? 'linear-gradient(45deg, rgba(122,151,204,1) 0%, rgba(102,204,102,1) 100%)'
+      : 'linear-gradient(45deg, rgba(122,151,204,1) 0%, rgba(102,204,102,1) 100%)',
+    color: isHovered 
+      ? 'white'
+      : 'black',
+    borderRadius: '100px',
+    width: '255px',
+    height: '110px',
     fontFamily: "'Press Start 2P'",
-    fontSize: '20px',
+    fontSize: '32px',
     fontStyle: 'normal',
     display: 'swap',
     justifyContent: 'center',
     alignItems: 'center',
     cursor: 'pointer',
-    border: 'none',
+    border: isHovered
+      ? '2px solid white'
+      : 'none',
     textShadow: '2px 2px 0px rgba(0, 0, 0, 0.4)'
-    // transition: 'background-color 0.3s' Not rowking
   };
 
   const handleMouseEnter = () => {
