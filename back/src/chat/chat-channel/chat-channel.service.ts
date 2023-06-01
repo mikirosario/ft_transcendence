@@ -8,7 +8,8 @@ import * as argon from "argon2";
 
 @Injectable()
 export class ChatChannelService {
-	constructor(private prisma: PrismaService, private userService: UserService) { }
+	constructor(private prisma: PrismaService, private userService: UserService,
+				private chatChannelUserService: ChatChannelUserService) { }
 
 	async createChannel(userId: number, dto: ChatChannelCreateDto) {
 		let hash: string = null;
