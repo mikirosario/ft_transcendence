@@ -5,11 +5,12 @@ import { UserService } from '../../user/user.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as argon from "argon2"
-import { UserProfileDto } from 'src/user/dto';
+import { ChatChannelUserService } from '../chat-channel-user/chat-channel-user.service';
 
 @Injectable()
 export class ChatChannelService {
-	constructor(private prisma: PrismaService, private userService: UserService) { }
+	constructor(private prisma: PrismaService, private userService: UserService,
+				private chatChannelUserService: ChatChannelUserService) { }
 
 	async createChannel(userId: number, dto: ChatChannelCreateDto) {
 		let hash: string = null;
@@ -50,11 +51,9 @@ export class ChatChannelService {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.getChannel(dto.id);
 
-		this.checkUserIsAuthorizedInChannnel(user, channel);
+		await this.chatChannelUserService.checkUserIsAuthorizedInChannnel(user, channel);
 
-		/*
-		TODO: Comprobar si el usuario que lo intenta es administrador en el canal (ChannelUsers)
-		*/
+
 		if (dto.password != null && dto.password.length > 0)
 		{
 			hash = await argon.hash(dto.password);
@@ -88,7 +87,7 @@ export class ChatChannelService {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.getChannel(dto.id);
 
-		this.checkUserIsAuthorizedInChannnel(user, channel);
+		await this.chatChannelUserService.checkUserIsAuthorizedInChannnel(user, channel);
 
 		await this.prisma.chatChannel.delete({
 			where: {
@@ -120,17 +119,4 @@ export class ChatChannelService {
 		return channel;
 	}
 
-	checkUserIsAuthorizedInChannnel(user, channel) {
-		
-		if (channel.ownerUserId != user.id)
-		{
-			ThrowHttpException(new UnauthorizedException, 'You must be admin to delete channel');
-		}
-
-		/*
-		TODO: Comprobar también si el usuario que lo intenta es administrador en el canal (ChannelUsers)
-		*/
-
-		return true;
-	}
 }
