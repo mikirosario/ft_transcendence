@@ -11,7 +11,7 @@ import { Score } from "./score";
 import { VerticalDashedLine } from "./net";
 import { onKeyDown, onKeyUp } from "./input.handlers";
 import { Socket, io } from "socket.io-client";
-import { PlayerID } from "./player";
+import { Player, PlayerID } from "./player";
 
 
 
@@ -55,6 +55,7 @@ class Pong
     private net: VerticalDashedLine;
     private leftPaddle: Paddle;
     private rightPaddle: Paddle;
+    private myPaddle: Paddle | undefined;
     private ball: Ball;
     private leftScore: Score;
     private rightScore: Score;
@@ -79,6 +80,12 @@ class Pong
             this.gameState = gameState;
             console.log(gameState.ballVelocityVectorX);
         });
+        socket.on('player-id', (playerId) => {
+            if (playerId == PlayerID.LEFT_PLAYER)
+                this.myPaddle = this.leftPaddle;
+            else if (playerId == PlayerID.RIGHT_PLAYER)
+                this.myPaddle = this.rightPaddle;
+        })
         // Canvas Info
         this.canvas = canvas;
         this.ctx = context;
@@ -102,10 +109,10 @@ class Pong
 
         //Input Logic (Estos escucharán por el websocket)
         document.addEventListener("keydown", (event) => {
-            onKeyDown(event, this.leftPaddle, this.rightPaddle, this.socket);
+            onKeyDown(event, this.myPaddle, this.socket);
         })
         document.addEventListener("keyup", (event) => {
-            onKeyUp(event, this.leftPaddle, this.rightPaddle, this.socket);
+            onKeyUp(event, this.myPaddle, this.socket);
         })
         
         // Render Logic

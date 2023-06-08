@@ -110,7 +110,7 @@ export class Ball extends Circle implements IPhysicsObject
         const bounceAngleInRadians = collisionPointY * QUARTER_CIRCLE_IN_RADIANS;
         const newVelocityVectorX = Math.cos(bounceAngleInRadians);
 
-        console.log("I am bouncing back!");
+        console
         if (isSideCollision) // Side collisions invert the X direction of motion
             this.VelocityVectorX = newVelocityVectorX * -referenceDirectionX;
         else                 // Top or bottom collisions continue the X direction of motion

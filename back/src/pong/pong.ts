@@ -150,11 +150,16 @@ export class Pong
         return scorer;
     }
     
-    public applyRemoteInputs(leftInputs: InputState, rightInputs: InputState)
+    public applyRemoteP1Input(inputs: InputState)
     {
-      console.log("Applied inputs");
-      this.leftPaddle.VelocityVectorY += leftInputs.paddleVelocityVectorY;
-      this.rightPaddle.VelocityVectorY += rightInputs.paddleVelocityVectorY;
+      console.log("Applied P1 input");
+      this.leftPaddle.VelocityVectorY += inputs.paddleVelocityVectorY;
+    }
+
+    public applyRemoteP2Input(inputs: InputState)
+    {
+      console.log("Applied P2 input");
+      this.rightPaddle.VelocityVectorY += inputs.paddleVelocityVectorY;
     }
 
     public getGameState(): GameState
