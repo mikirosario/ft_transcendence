@@ -76,16 +76,16 @@ class Pong
         socket.on('connect', () => {
             console.log('Successfully connected to the server');
         });
-        socket.on('gameState', (gameState: GameState) => {
-            this.gameState = gameState;
-            console.log(gameState.ballVelocityVectorX);
-        });
         socket.on('player-id', (playerId) => {
             if (playerId == PlayerID.LEFT_PLAYER)
                 this.myPaddle = this.leftPaddle;
             else if (playerId == PlayerID.RIGHT_PLAYER)
                 this.myPaddle = this.rightPaddle;
         })
+        socket.on('gameState', (gameState: GameState) => {
+            this.gameState = gameState;
+            console.log(gameState.ballVelocityVectorX);
+        });
         // Canvas Info
         this.canvas = canvas;
         this.ctx = context;
@@ -125,6 +125,8 @@ class Pong
             this.resizeCanvas(window.innerWidth, window.innerHeight);
         });
 
+        // Attempt to connect to server
+        socket.connect();
         //Game Loop
         requestAnimationFrame(this.renderFrame);
     }

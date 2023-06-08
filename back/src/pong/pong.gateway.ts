@@ -32,7 +32,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	afterInit(server: any) { }
 
-	tryStartGame()
+	matchPlayersAny()
 	{
 		// Spawn new games until queued clients come down to 1
 		while (this.waitingClients.length > 1)
@@ -53,28 +53,48 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	startGameLoop(player1: Socket, player2: Socket, roomId: string)
 	{
 		const pongBackend = this.games.get(roomId);
+		let isCleanedUp = false;
+		let gameLoop: NodeJS.Timer;
+		// Inform each player which paddle is theirs
 		player1.emit('player-id', PlayerID.LEFT_PLAYER);
 		player2.emit('player-id', PlayerID.RIGHT_PLAYER);
-		// Broadcast game state at regular intervals
-		setInterval(() => {
-			//Set the game state for the next frame
-			pongBackend.setGameState();
-			//Emit game state to all clients in room
-			this.server.to(roomId).emit('gameState', pongBackend.getGameState());
-		}, 1000 / 60); // 60 times a second
-
-		// Apply Player1 inputs
+		
+		// Set callback to apply Player1 inputs
 		player1.on('input', (input: InputState) => {
 			pongBackend.applyRemoteP1Input(input);
 			console.log("Input");
 		});
 
-		// Apply Player2 inputs
+		// Set callback to apply Player2 inputs
 		player2.on('input', (input: InputState) => {
 			pongBackend.applyRemoteP2Input(input);
 			console.log("Input");
 		});
+
+		//Cleanup logic - this should be own function or something
+		const cleanUp = () => {
+			if (isCleanedUp) return;
+			isCleanedUp = true;
+			// clean up event listeners and game loop
+			player1.removeAllListeners();
+			player2.removeAllListeners();
+			if (gameLoop)
+				clearInterval(gameLoop);
+			this.games.delete(roomId);
+		};
+		
+		player1.once('disconnect', cleanUp);
+		player2.once('disconnect', cleanUp);
+
+		// Broadcast game state at regular intervals
+		gameLoop = setInterval(() => {
+			//Set the game state for the next frame
+			pongBackend.setGameState();
+			//Emit game state to all clients in room
+			this.server.to(roomId).emit('gameState', pongBackend.getGameState());
+		}, 1000 / 60); // 60 times a second
 	}
+
 	async handleConnection(client: Socket, ...args: any[]) {
 		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
 		// if (userId == null)
@@ -93,7 +113,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		// }
 		// console.log('Hola! ' + user.nick + ' está jugando ✅');
 		this.waitingClients.enqueue(client);
-		this.tryStartGame();
+		this.matchPlayersAny();
 	}
 	
 	async handleDisconnect(client: Socket) {

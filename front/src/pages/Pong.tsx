@@ -11,7 +11,8 @@ const socketOptions = {
               userID: '1234'
           }
       }
-  }
+  },
+  autoConnect: false
 };
 
 
