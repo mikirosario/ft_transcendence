@@ -81,17 +81,20 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			if (gameLoop)
 				clearInterval(gameLoop);
 			this.games.delete(roomId);
+			console.log("Disconnected, nice and clean-like");
 		};
-		
-		player1.once('disconnect', cleanUp);
-		player2.once('disconnect', cleanUp);
 
 		// Broadcast game state at regular intervals
 		gameLoop = setInterval(() => {
 			//Set the game state for the next frame
 			pongBackend.setGameState();
+			//Get the game state
+			let gameState = pongBackend.getGameState();
 			//Emit game state to all clients in room
 			this.server.to(roomId).emit('gameState', pongBackend.getGameState());
+			//Check if game over
+			if (gameState.gameOver)
+				cleanUp();
 		}, 1000 / 60); // 60 times a second
 	}
 

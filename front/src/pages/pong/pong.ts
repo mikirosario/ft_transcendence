@@ -247,6 +247,7 @@ class Pong
         this.gameOverText.Text = `${ winner ? winner.PlayerName : "Nobody" } WINS`;
         this.gameOverText.IsActive = true;
         this.drawables.splice(1, this.drawables.length);
+        this.socket.disconnect();
     }
     
     private physicsUpdate()
