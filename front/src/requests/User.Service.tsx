@@ -3,7 +3,6 @@ import axios from "axios";
 axios.defaults.baseURL = 'http://localhost:3000';
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
 
-
 export async function updateUserProfile(username: string, image: File | null) {
   const formData = new FormData();
   formData.append('nick', username);
@@ -61,9 +60,9 @@ export async function getUserProfile() {
       });
 
       axios.defaults.headers.common["Authorization"] = authorization;
-      
+
     } else {
-      
+
       fetchedImage = '/uploads/avatars/' + fetchedImage;
       imageResponse = await axios.get(fetchedImage, {
         responseType: 'blob',
@@ -104,6 +103,29 @@ export async function deleteAvatarProfile() {
     const fetchedImage = response.data.avatarUri;
 
     const imageResponse = await axios.get('uploads/avatars/' + fetchedImage, {
+      responseType: 'blob',
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('token'),
+      },
+    });
+
+    if (imageResponse.status !== 200) {
+      throw new Error('Request failed with status ' + imageResponse.status);
+    }
+
+    const imageURL = URL.createObjectURL(imageResponse.data);
+
+    return imageURL;
+  } catch (error) {
+    console.error('Error:', error);
+    return null;
+  }
+}
+
+export async function getUserImage(URI: string) {
+  try {
+
+    const imageResponse = await axios.get('uploads/avatars/' + URI, {
       responseType: 'blob',
       headers: {
         Authorization: 'Bearer ' + localStorage.getItem('token'),
