@@ -4,7 +4,7 @@ import { ChatChannelCreateDto, ChatChannelUpdateDto } from "./dto";
 import { UserService } from '../../user/user.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import * as argon from "argon2"
+import * as argon from "argon2";
 import { ChatChannelUserService } from '../chat-channel-user/chat-channel-user.service';
 
 @Injectable()
