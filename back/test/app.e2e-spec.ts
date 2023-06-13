@@ -1313,7 +1313,7 @@ describe('App e2e', () => {
 						.expectStatus(401)
 				});
 			});
-			describe('DELETE /chat/channels/<id>', () => {
+			describe('DELETE /chat/channels', () => {
 				it('should delete channel', () => {
 					return pactum
 						.spec()
