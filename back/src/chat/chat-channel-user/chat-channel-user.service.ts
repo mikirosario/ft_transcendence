@@ -122,6 +122,7 @@ export class ChatChannelUserService {
 		}
 	}
 
+
 	/*
 	 * Private methods
 	*/
