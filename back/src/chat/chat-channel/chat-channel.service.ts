@@ -5,12 +5,10 @@ import { UserService } from '../../user/user.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as argon from "argon2";
-import { ChatChannelUserService } from '../chat-channel-user/chat-channel-user.service';
 
 @Injectable()
 export class ChatChannelService {
-	constructor(private prisma: PrismaService, private userService: UserService,
-				private chatChannelUserService: ChatChannelUserService) { }
+	constructor(private prisma: PrismaService, private userService: UserService) { }
 
 	async createChannel(userId: number, dto: ChatChannelCreateDto) {
 		let hash: string = null;
@@ -51,7 +49,7 @@ export class ChatChannelService {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.getChannel(dto.id);
 
-		await this.chatChannelUserService.checkUserIsAuthorizedInChannnel(user, channel);
+		await this.checkUserIsAuthorizedInChannnel(user, channel);
 
 
 		/*
@@ -103,7 +101,7 @@ export class ChatChannelService {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.getChannel(dto.id);
 
-		await this.chatChannelUserService.checkUserIsAuthorizedInChannnel(user, channel);
+		await this.checkUserIsAuthorizedInChannnel(user, channel);
 
 		await this.prisma.chatChannel.delete({
 			where: {
@@ -133,6 +131,31 @@ export class ChatChannelService {
 		}
 
 		return channel;
+	}
+
+	async checkUserIsAuthorizedInChannnel(user, channel) {
+		if (channel.ownerUserId == user.id)
+			return true;
+
+		const channelUser = await this.getChannelUser(channel.id, user.id);
+		if (channelUser.isAdmin)
+			return true;
+
+		ThrowHttpException(new UnauthorizedException, 'You must be channel owner or admin to do this action');
+	}
+
+	async getChannelUser(channel_id: number, user_id: number) {
+		const channelUser = await this.prisma.chatChannelUser.findFirst({
+			where: {
+				channelId: channel_id,
+				userId: user_id,
+			}
+		});
+
+		if (channelUser == null)
+			ThrowHttpException(new NotFoundException, 'User not in channel');
+
+		return channelUser;
 	}
 
 }

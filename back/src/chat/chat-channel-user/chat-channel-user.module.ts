@@ -6,6 +6,6 @@ import { ChatChannelService } from '../chat-channel/chat-channel.service';
 
 @Module({
   controllers: [ChatChannelUserController],
-  providers: [ChatChannelUserService, UserService, ChatChannelService]
+  providers: [ChatChannelUserService, UserService, ChatChannelService ]
 })
 export class ChatChannelUserModule { }
