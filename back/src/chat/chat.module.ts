@@ -10,7 +10,6 @@ import { WebSocketService } from '../auth/websocket/websocket.service';
 @Module({
   controllers: [ChatController],
   providers: [ChatService, ChatGateway, UserService, WebSocketService],
-  imports: [ChatChannelModule, ChatChannelUserModule
-  ],
+  imports: [ChatChannelModule, ChatChannelUserModule],
 })
 export class ChatModule { }

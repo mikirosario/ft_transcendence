@@ -64,9 +64,9 @@ export class ChatChannelUserService {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.chatChannelService.getChannel(dto.id);
 
-		this.checkUserIsAuthorizedInChannnel(user, channel);
+		await this.chatChannelService.checkUserIsAuthorizedInChannnel(user, channel);
 
-		const channelUser = await this.getChannelUser(channel.id, user.id);
+		const channelUser = await this.chatChannelService.getChannelUser(channel.id, user.id);
 
 		delete dto.id;
 		delete dto.user_id;
@@ -94,7 +94,7 @@ export class ChatChannelUserService {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.chatChannelService.getChannel(dto.id);
 
-		this.checkUserIsAuthorizedInChannnel(user, channel);
+		await this.chatChannelService.checkUserIsAuthorizedInChannnel(user, channel);
 
 		const channelUser = await this.prisma.chatChannelUser.findFirst({
 			where: {
@@ -122,6 +122,7 @@ export class ChatChannelUserService {
 		}
 	}
 
+
 	/*
 	 * Private methods
 	*/
@@ -134,28 +135,5 @@ export class ChatChannelUserService {
 			ThrowHttpException(new BadRequestException, 'You must provide a correct password');
 	}
 
-	private async getChannelUser(channel_id: number, user_id: number) {
-		const channelUser = await this.prisma.chatChannelUser.findFirst({
-			where: {
-				channelId: channel_id,
-				userId: user_id,
-			}
-		});
-
-		if (channelUser == null)
-			ThrowHttpException(new NotFoundException, 'User not in channel');
-
-		return channelUser;
-	}
-
-	async checkUserIsAuthorizedInChannnel(user, channel) {
-		if (channel.ownerUserId == user.id)
-			return true;
-
-		const channelUser = await this.getChannelUser(channel.id, user.id);
-		if (channelUser.isAdmin)
-			return true;
-
-		ThrowHttpException(new UnauthorizedException, 'You must be channel owner or admin to do this action');
-	}
+	
 }
