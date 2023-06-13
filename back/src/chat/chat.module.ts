@@ -6,10 +6,11 @@ import { ChatChannelUserModule } from './chat-channel-user/chat-channel-user.mod
 import { ChatGateway } from './chat.gateway';
 import { UserService } from "../user/user.service";
 import { WebSocketService } from '../auth/websocket/websocket.service';
+import { ChatChannelMessageModule } from '../chat/chat-channel-message/chat-channel-message.module';
 
 @Module({
   controllers: [ChatController],
   providers: [ChatService, ChatGateway, UserService, WebSocketService],
-  imports: [ChatChannelModule, ChatChannelUserModule],
+  imports: [ChatChannelModule, ChatChannelUserModule, ChatChannelMessageModule],
 })
 export class ChatModule { }
