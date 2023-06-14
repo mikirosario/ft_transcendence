@@ -41,15 +41,7 @@ export class ChatChannelUserService {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.chatChannelService.getChannel(dto.id);
 		
-		const channelUser = await this.prisma.chatChannelUser.findFirst({
-			where: {
-				channelId: channel.id,
-				userId: user.id,
-			}
-		});
-
-		if (channelUser == null)
-			ThrowHttpException(new NotFoundException, 'You are not on this channel');
+		const channelUser = await this.chatChannelService.getChannelUser(channel.id, user.id);
 
 		await this.prisma.chatChannelUser.delete({
 			where: {
@@ -96,15 +88,7 @@ export class ChatChannelUserService {
 
 		await this.chatChannelService.checkUserIsAuthorizedInChannnel(user, channel);
 
-		const channelUser = await this.prisma.chatChannelUser.findFirst({
-			where: {
-				channelId: channel.id,
-				userId: dto.user_id,
-			}
-		});
-
-		if (channelUser == null)
-			ThrowHttpException(new NotFoundException, 'User not in channel');
+		const channelUser = await this.chatChannelService.getChannelUser(channel.id, user.id);
 
 		try {
 			const channelUserUpdated = await this.prisma.chatChannelUser.delete({
