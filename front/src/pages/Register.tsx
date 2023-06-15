@@ -1,7 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import UserSettingsButtons from "../components/settings/UserSettingsButtons";
+import { useSearchParams } from 'react-router-dom';
 
 function Register() {
+    const [ready, setReady] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
+    
+    useEffect(() => {
+        if (searchParams.has("token")) {
+            const token = searchParams.get("token");
+            if (token) {
+                localStorage.setItem('token', token);
+                searchParams.delete("token");
+                setSearchParams(searchParams);
+                setReady(true);
+            }
+        }
+        setReady(true);
+    }, []);
 
     const NicknamePositionStyle: React.CSSProperties = {
         height: '320px',

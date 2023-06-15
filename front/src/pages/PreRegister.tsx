@@ -1,7 +1,8 @@
 import React from "react";
+import PlayButton from "../components/home/StartButton";
+import axios from 'axios';
+import Logo from '../assets/images/Logo.png';
 import { useNavigate } from 'react-router-dom';
-import PlayButton from "../components/home/RoundStartButton";
-import Logo from '../assets/images/Logo.png'
 
 function PreRegister() {
     const navigate = useNavigate();
@@ -32,9 +33,15 @@ function PreRegister() {
         transform: 'translate(-50%, -50%)',
       };
 
-    const AuthLoginLink = () => {
-        // window.location.href = 'xxxx'; // Auth URL
-        navigate('/register');
+    const AuthLoginLink = async () => {
+        try{
+            const response = await axios.get('http://localhost:3000/oauth/generateAuthURL');
+            const authUrl = response.data.url;
+            console.log(authUrl);
+            window.location.href = authUrl;
+        } catch (error){
+            console.log('Failed to retrieve OAuth URL: ', error);
+        }
     };
 
 

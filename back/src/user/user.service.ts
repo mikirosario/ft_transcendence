@@ -18,9 +18,11 @@ export class UserService {
 				id: userId,
 			}
 		});
+
 		if (user === null) {
 			ThrowHttpException(new NotFoundException, 'User not found');
 		}
+
 		delete user.hash;
 		return user;
 	}
@@ -31,9 +33,11 @@ export class UserService {
 				nick: nick,
 			}
 		});
+
 		if (user === null) {
 			ThrowHttpException(new NotFoundException, 'User not found');
 		}
+
 		delete user.hash;
 		return user;
 	}
@@ -48,6 +52,7 @@ export class UserService {
 					...dto,
 				},
 			});
+
 			delete user.hash;
 			return user;
 		}
@@ -73,6 +78,7 @@ export class UserService {
 			});
 			
 			this.removeAvatar(user.avatarUri);
+			
 			delete user.hash;
 			return user;
 		}
@@ -222,6 +228,7 @@ export class UserService {
 					isOnline: isOnline
 				},
 			});
+			
 			delete user.hash;
 			return user;
 		}
@@ -243,6 +250,7 @@ export class UserService {
 					isInGame: isInGame
 				},
 			});
+			
 			delete user.hash;
 			return user;
 		}
@@ -264,4 +272,18 @@ export class UserService {
 		
 		return true;
 	}
+
+	async getUserByLogin(login: string): Promise<any> {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				login: login,
+			}
+		});
+
+		if (user != null)
+			delete user.hash;
+
+		return user;
+	}
 }
+

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { getUserProfile, updateUserProfile, deleteAvatarProfile } from '../../requests/User.Service';
 
 interface Args {
 	btnTxt: string
@@ -9,7 +10,6 @@ interface Args {
 const UserSettingsButtons: React.FC<Args> = (args) => {
 	const [username, setUsername] = useState('');
 	const [image, setImage] = useState<File | null>(null);
-	const [name, setName] = useState('');
 	const [userImage, setUserImage] = useState<string>();
 	const navigate = useNavigate();
 
@@ -51,118 +51,39 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 		setTrashIconStyle({ ...TrashIconStyle, opacity: 1 });
 	};
 
-
+	// ---------------------- INTERACTIONS -------------------------------
 
 	const handleSubmit = async (event: React.FormEvent) => {
 		event.preventDefault();
-
-		const formData = new FormData();
-		formData.append('nick', username);
-		if (image) {
-			formData.append('file', image);
+	  
+		const success = await updateUserProfile(username, image);
+	  
+		if (success) {
+		  navigate('/homepage');
 		}
-
-		try {
-			const response = await fetch('http://localhost:3000/users/profile', {
-				method: 'PUT',
-				headers: {
-					Authorization: 'Bearer ' + localStorage.getItem('token'),
-				},
-				body: formData,
-			});
-
-			if (response.ok) {
-				console.log('Changes applied successfully');
-				navigate('/homepage');							// TEST
-			} else {
-				console.log('Failed to apply changes');
-			}
-		} catch (error) {
-			console.log('Error:', error);
-		}
-	};
+	  };
 
 	const resetAvatar = async (event: React.FormEvent) => {
 		event.preventDefault();
 
-		try {
-			const response = await fetch('http://localhost:3000/users/profile', {
-				method: 'DELETE',
-				headers: {
-					Authorization: 'Bearer ' + localStorage.getItem('token'),
-				},
-			});
-
-
-			if (response.ok) {
-				console.log('Avatar deleted successfully');
-			} else {
-				console.log('Failed to delete avatar');
-			}
-			const data = await response.json();
-			const fetchedImage = data.avatarUri;
-			const imageResponse = await fetch('http://localhost:3000/uploads/avatars/' + fetchedImage, {
-				method: 'GET',
-				headers: {
-					Authorization: 'Bearer ' + localStorage.getItem('token'),
-				},
-			});
-			if (!imageResponse.ok) {
-				throw new Error('Request failed with status ' + imageResponse.status);
-			}
-			const imageBlob = await imageResponse.blob();
-
-			const imageURL = URL.createObjectURL(imageBlob);
-			setUserImage(imageURL);
-		} catch (error) {
-			console.log('Error:', error);
-		}
-	};
-
-
-	const getUserRequest = async () => {
-		try {
-			const response = await fetch('http://localhost:3000/users/profile', {
-				method: 'GET',
-				headers: {
-					Authorization: 'Bearer ' + localStorage.getItem('token'),
-				},
-			});
-			if (!response.ok) {
-				throw new Error('Request failed with status ' + response.status);
-			}
-			const data = await response.json();
-			const fetchedName = data.nick;
-			const fetchedImage = data.avatarUri;
-
-			if (!name) {
-				setName(fetchedName);
-				setUsername(fetchedName);
-			}
-
-			const imageResponse = await fetch('http://localhost:3000/uploads/avatars/' + fetchedImage, {
-				method: 'GET',
-				headers: {
-					Authorization: 'Bearer ' + localStorage.getItem('token'),
-				},
-			});
-			if (!imageResponse.ok) {
-				throw new Error('Request failed with status ' + imageResponse.status);
-			}
-			const imageBlob = await imageResponse.blob();
-
-			const imageURL = URL.createObjectURL(imageBlob);
-			setUserImage(imageURL);
-		} catch (error) {
-			console.log('Error:', error);
+		const imageURL = await deleteAvatarProfile();
+  
+		if (imageURL) {
+		  setUserImage(imageURL);
 		}
 	};
 
 	useEffect(() => {
-		getUserRequest();
+		const fetchUserProfile = async () => {
+			const userProfile = await getUserProfile();
+			setUsername(userProfile.username);
+			setUserImage(userProfile.userImage);
+		  };
+		  
+		  fetchUserProfile();
 	}, []);
 
-	// -------------------------- STYLES -----------------------------------
+	// -------------------------- STYLES ---------------------------------
 
 	const UsernameStyle: React.CSSProperties = {
 		color: '#ffffff',
@@ -299,7 +220,7 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 						<input
 							type="file"
 							id="image"
-							accept=".jpg,.png"
+							accept=".jpg,.png,.jpeg"
 							onChange={handleImageChange}
 							style={ButtonStyle}
 						/>
