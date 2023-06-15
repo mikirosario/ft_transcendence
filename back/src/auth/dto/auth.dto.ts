@@ -16,4 +16,9 @@ export class AuthDto {
 	@IsString()
 	@IsNotEmpty()
 	nick: string
+
+	@ApiProperty()
+	@IsString()
+	@IsNotEmpty()
+	otpCode: string
 }

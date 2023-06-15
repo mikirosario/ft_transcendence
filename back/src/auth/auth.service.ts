@@ -7,6 +7,7 @@ import { AuthDto } from "./dto";
 import * as argon from "argon2"
 import { ThrowHttpException } from "../utils/error-handler";
 import { SignupResponseDto } from "./dto/signup-response.dto";
+import { speakeasy } from "speakeasy";
 
 @Injectable()
 export class AuthService {
@@ -29,6 +30,20 @@ export class AuthService {
 		const pwMatches = await argon.verify(user.hash, dto.password);
 		//if password does not match, throw exception
 		if (!pwMatches) ThrowHttpException(new ForbiddenException, 'Credentials incorrect');
+
+		if(user.secondFactorSecret) {
+			const otpCode = dto.otpCode;
+			const isOtpValid = speakeasy.totp.verify({
+				secret: user.secondFactorSecret,
+				encoding: 'base32',
+				token: otpCode,
+			});
+
+			if(!isOtpValid){
+				ThrowHttpException(new ForbiddenException, '2AF failed');
+			}
+		}
+
 		//send back the user
 		return this.signToken(user.id, user.email);
 	}
