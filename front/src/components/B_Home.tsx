@@ -19,13 +19,7 @@ function B_Home() {
     };
 
     return (
-        <img
-            src={Logo}
-            alt="Logo for Homepage"
-            className="HomeButton"
-            style={HomeButton}
-            onClick={GoHomepage}
-        >
+        <img src={Logo} alt="Logo for Homepage" className="HomeButton" style={HomeButton} onClick={GoHomepage}>
         </img>
     );
 }

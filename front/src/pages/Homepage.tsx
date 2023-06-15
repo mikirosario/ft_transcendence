@@ -7,6 +7,19 @@ import GameButton from "../components/B_General";
 function Home() {
     const navigate = useNavigate();
 
+    const Window: React.CSSProperties = {
+        height: '100%',
+        display: 'flex',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+    }
+    
+    const WindowSocial: React.CSSProperties = {
+        width: '400px',
+        height: '100%',
+        backgroundColor: '#1C2C4A',
+    }
+
     const PlayFriendsButtonStyle: React.CSSProperties = {
         position: 'absolute',
         top: '250px',
@@ -43,22 +56,19 @@ function Home() {
     };
 
     return (
-        <div>
-            <section className="B_Home">
+        <div style={Window}>
+            <div>
                 <HomeButton></HomeButton>
-            </section>
-
-            <section className="B_PFriends" style={PlayFriendsButtonStyle} onClick={GoGamePong}>
-                <GameButton name="Play with friends" width={435} height={155} fsize={22}></GameButton>
-            </section>
-
-            <section className="B_Play" style={PlayButtonStyle} onClick={GoGameSelector}>
-                <GameButton name="Play" width={435} height={155} fsize={48}></GameButton>
-            </section>
-
-            <section className="B_Settings"style={SettingsStyle}>
-                <SettingsButton></SettingsButton>
-            </section>
+                <section className="B_PFriends" style={PlayFriendsButtonStyle} onClick={GoGamePong}>
+                    <GameButton name="Play with friends" width={435} height={155} fsize={22}></GameButton>
+                </section>
+                <section className="B_Play" style={PlayButtonStyle} onClick={GoGameSelector}>
+                    <GameButton name="Play" width={435} height={155} fsize={48}></GameButton>
+                </section>
+            </div>
+            <div style={WindowSocial}>
+                    {/* SOCIAL WINDOW */}
+            </div>
         </div>
     );
 }

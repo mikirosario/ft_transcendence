@@ -12,10 +12,10 @@ const B_Game: React.FC<Args> = (args) => {
 
     const buttonStyle = {
         background: isHovered
-            ? 'linear-gradient(0deg, rgba(76,89,112,1) 0%, rgba(255,255,255,0.5) 0%, rgba(102,204,102,1) 100%)'
+            ? 'linear-gradient(0deg, rgba(76,89,112,0.8) 0%, rgba(102,204,102,0.8) 100%)'
             : 'linear-gradient(0deg, rgba(76,89,112,1) 0%, rgba(102,204,102,1) 100%)',
         color: 'white',
-        borderRadius: '20px',
+        borderRadius: '30px',
         width: args.width,
         height: args.height,
         fontFamily: "'Press Start 2P'",
@@ -26,7 +26,7 @@ const B_Game: React.FC<Args> = (args) => {
         alignItems: 'center',
         cursor: 'pointer',
         border: isHovered
-            ? '2px solid white'
+            ? '3px solid rgba(255,255,255,0.7)'
             : 'none',
         textShadow: '2px 2px 0px rgba(0, 0, 0, 0.4)'
     }
