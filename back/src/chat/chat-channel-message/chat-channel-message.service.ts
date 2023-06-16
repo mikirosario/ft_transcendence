@@ -16,11 +16,14 @@ export class ChatChannelMessageService {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.chatChannelService.getChannel(dto.channel_id);
 
-		const channelUser = await this.chatChannelService.getChannelUser(channel.id, user.id);
+		await this.chatChannelService.getChannelUser(channel.id, user.id);
 
-		/*
-		TODO: Check if user blocked or muted
-		*/
+		if (await this.chatChannelService.isUserBlocked(channel.id, user.id))
+			ThrowHttpException(new UnauthorizedException, 'Not authorized to send message, you are blocked from channel.');
+
+		if (await this.chatChannelService.isUserMuted(channel.id, user.id))
+			ThrowHttpException(new UnauthorizedException, 'Not authorized to send message, you are muted on channel.');
+
 
 		try {
 			const newMessage = await this.prisma.chatChannelMessage.create({
