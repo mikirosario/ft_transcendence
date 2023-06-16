@@ -160,4 +160,47 @@ export class ChatChannelService {
 		}
 	}
 
+	async getBannedUser(channelId: number, userId: number)
+	{
+		let channelBannedUser = await this.prisma.chatChannelBannedUser.findFirst({
+			where: {
+				channelId: channelId,
+				userId: userId,
+			}
+		});
+
+		if (channelBannedUser)
+			return channelBannedUser;
+			
+		try {
+			channelBannedUser = await this.prisma.chatChannelBannedUser.create({
+				data: {
+					channelId: channelId,
+					userId: userId
+				}
+			});
+			return channelBannedUser;
+
+		} catch (error) {
+			return null;
+		}
+	}
+
+	async isUserBlocked(channelId: number, userId: number) {
+		const channelBannedUser = await this.getBannedUser(channelId, userId);
+
+		return channelBannedUser.isBanned;
+	}
+
+	async isUserMuted(channelId: number, userId: number) {
+		const channelBannedUser = await this.getBannedUser(channelId, userId);
+
+		let currentTime = new Date().getTime();
+		let mutedUntil = new Date(channelBannedUser.isMutedUntil).getTime();
+
+		if (mutedUntil > currentTime)
+			return true;
+		return false;
+	}
+
 }
