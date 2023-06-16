@@ -15,10 +15,10 @@ export class ChatChannelUserDto {
 	@ApiProperty()
 	@IsBoolean()
 	@IsOptional()
-	isAdmin?: boolean
+	isOwner?: boolean
 
 	@ApiProperty()
 	@IsBoolean()
 	@IsOptional()
-	isBanned?: boolean
+	isAdmin?: boolean
 }
