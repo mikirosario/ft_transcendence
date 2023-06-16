@@ -5,6 +5,7 @@ import { UserService } from '../../user/user.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as argon from "argon2";
+import { ChatChannelJoinDto } from '../chat-channel-user/dto'
 
 @Injectable()
 export class ChatChannelService {
@@ -25,12 +26,13 @@ export class ChatChannelService {
 		try {
 			const newChannel = await this.prisma.chatChannel.create({
 				data: {
-					ownerUserId: user.id,
 					name: dto.name,
 					isPrivate: isPrivate,
 					hash: hash
 				}
 			});
+			
+			this.joinChannelOwner(newChannel.id, user.id);
 
 			delete newChannel.hash;
 			return newChannel;
@@ -104,7 +106,6 @@ export class ChatChannelService {
 					id: dto.id
 				},
 				data: {
-					ownerUserId: user.id,
 					name: dto.name,
 					isPrivate: isPrivate,
 					hash: hash
@@ -158,11 +159,9 @@ export class ChatChannelService {
 	}
 
 	async checkUserIsAuthorizedInChannnel(user, channel) {
-		if (channel.ownerUserId == user.id)
-			return true;
 
 		const channelUser = await this.getChannelUser(channel.id, user.id);
-		if (channelUser.isAdmin)
+		if (channelUser.isOwner || channelUser.isAdmin)
 			return true;
 
 		ThrowHttpException(new UnauthorizedException, 'You must be channel owner or admin to do this action');
@@ -180,6 +179,22 @@ export class ChatChannelService {
 			ThrowHttpException(new NotFoundException, 'User not in channel');
 
 		return channelUser;
+	}
+
+	async joinChannelOwner(channelId: number, userId: number) {
+		try {
+			await this.prisma.chatChannelUser.create({
+				data: {
+					channelId: channelId,
+					userId: userId,
+					isOwner: true
+				}
+			});
+		} catch (error) {
+			if (error instanceof PrismaClientKnownRequestError) {
+				ThrowHttpException(error, 'You are already on this channel');
+			}
+		}
 	}
 
 }
