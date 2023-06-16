@@ -58,7 +58,7 @@ export class ChatChannelUserService {
 
 		await this.chatChannelService.checkUserIsAuthorizedInChannnel(user.id, channel.id);
 
-		const channelUser = await this.chatChannelService.getChannelUser(channel.id, user.id);
+		const channelUser = await this.chatChannelService.getChannelUser(channel.id, dto.user_id);
 
 		delete dto.id;
 		delete dto.user_id;
@@ -88,7 +88,7 @@ export class ChatChannelUserService {
 
 		await this.chatChannelService.checkUserIsAuthorizedInChannnel(user.id, channel.id);
 
-		const channelUser = await this.chatChannelService.getChannelUser(channel.id, user.id);
+		const channelUser = await this.chatChannelService.getChannelUser(channel.id, dto.user_id);
 
 		try {
 			const channelUserUpdated = await this.prisma.chatChannelUser.delete({
