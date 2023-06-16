@@ -56,7 +56,7 @@ export class ChatChannelUserService {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.chatChannelService.getChannel(dto.id);
 
-		await this.chatChannelService.checkUserIsAuthorizedInChannnel(user, channel);
+		await this.chatChannelService.checkUserIsAuthorizedInChannnel(user.id, channel.id);
 
 		const channelUser = await this.chatChannelService.getChannelUser(channel.id, user.id);
 
@@ -86,7 +86,7 @@ export class ChatChannelUserService {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.chatChannelService.getChannel(dto.id);
 
-		await this.chatChannelService.checkUserIsAuthorizedInChannnel(user, channel);
+		await this.chatChannelService.checkUserIsAuthorizedInChannnel(user.id, channel.id);
 
 		const channelUser = await this.chatChannelService.getChannelUser(channel.id, user.id);
 

@@ -5,7 +5,6 @@ import { UserService } from '../../user/user.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as argon from "argon2";
-import { ChatChannelJoinDto } from '../chat-channel-user/dto'
 
 @Injectable()
 export class ChatChannelService {
@@ -32,7 +31,7 @@ export class ChatChannelService {
 				}
 			});
 			
-			this.joinChannelOwner(newChannel.id, user.id);
+			await this.joinChannelOwner(newChannel.id, user.id);
 
 			delete newChannel.hash;
 			return newChannel;
@@ -51,7 +50,7 @@ export class ChatChannelService {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.getChannel(dto.id);
 
-		await this.checkUserIsAuthorizedInChannnel(user, channel);
+		await this.checkUserIsAuthorizedInChannnel(user.id, channel.id);
 
 
 		/*
@@ -126,7 +125,7 @@ export class ChatChannelService {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.getChannel(dto.id);
 
-		await this.checkUserIsAuthorizedInChannnel(user, channel);
+		await this.checkUserIsAuthorizedInChannnel(user.id, channel.id);
 
 		await this.prisma.chatChannel.delete({
 			where: {
@@ -158,12 +157,17 @@ export class ChatChannelService {
 		return channel;
 	}
 
-	async checkUserIsAuthorizedInChannnel(user, channel) {
+	async checkUserIsAuthorizedInChannnel(userId: number, channelId: number) {
 
-		const channelUser = await this.getChannelUser(channel.id, user.id);
-		if (channelUser.isOwner || channelUser.isAdmin)
-			return true;
+		try {
+			const channelUser = await this.getChannelUser(channelId, userId);
 
+			if (channelUser.isOwner || channelUser.isAdmin)
+				return true;
+		} catch (error) {
+			ThrowHttpException(new UnauthorizedException, 'You must be channel owner or admin to do this action');
+		}
+		
 		ThrowHttpException(new UnauthorizedException, 'You must be channel owner or admin to do this action');
 	}
 
@@ -181,7 +185,7 @@ export class ChatChannelService {
 		return channelUser;
 	}
 
-	async joinChannelOwner(channelId: number, userId: number) {
+	private async joinChannelOwner(channelId: number, userId: number) {
 		try {
 			await this.prisma.chatChannelUser.create({
 				data: {
