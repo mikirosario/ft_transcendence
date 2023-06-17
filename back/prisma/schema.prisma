@@ -24,16 +24,16 @@ model User {
   isOnline  Boolean @default(false)
   isInGame  Boolean @default(false)
 
-  friendsUser                Friend[]                @relation("FriendsUser")
-  friendsUserFriends         Friend[]                @relation("FriendsUserFriend")
-  chatChannelUser            ChatChannelUser[]       @relation("ChatChannelUserUser")
-  chatChannelMessage         ChatChannelMessage[]    @relation("ChatChannelMessageUser")
-  chatDirectBlockedUser      ChatDirectBlockedUser[] @relation("ChatBlockedUser")
-  chatDirectBlockedUserOther ChatDirectBlockedUser[] @relation("ChatBlockedOtherUser")
-  chatDirectUser1            ChatDirect[]            @relation("ChatDirectUser1")
-  chatDirectUser2            ChatDirect[]            @relation("ChatDirectUser2")
-  chatDirectMessageUser      ChatDirectMessage[]     @relation("ChatDirectMessageUser")
-  chatChannelBannedUser      ChatChannelBannedUser[] @relation("ChatChannelBannedUserUser")
+  friendsUser           Friend[]                @relation("FriendsUser")
+  friendsUserFriends    Friend[]                @relation("FriendsUserFriend")
+  chatChannelUser       ChatChannelUser[]       @relation("ChatChannelUserUser")
+  chatChannelMessage    ChatChannelMessage[]    @relation("ChatChannelMessageUser")
+  chatBlockedUser       ChatBlockedUser[]       @relation("ChatBlockedUser")
+  chatBlockedUserOther  ChatBlockedUser[]       @relation("ChatBlockedOtherUser")
+  chatDirectUser1       ChatDirect[]            @relation("ChatDirectUser1")
+  chatDirectUser2       ChatDirect[]            @relation("ChatDirectUser2")
+  chatDirectMessageUser ChatDirectMessage[]     @relation("ChatDirectMessageUser")
+  chatChannelBannedUser ChatChannelBannedUser[] @relation("ChatChannelBannedUserUser")
 
   score       Int @default(0)
   gamesWon    Int @default(0)
@@ -135,7 +135,7 @@ model ChatDirectMessage {
   @@map("chatdirectmessages")
 }
 
-model ChatDirectBlockedUser {
+model ChatBlockedUser {
   id          Int  @id @default(autoincrement())
   userId      Int
   user        User @relation(name: "ChatBlockedUser", fields: [userId], references: [id], onDelete: Cascade)
