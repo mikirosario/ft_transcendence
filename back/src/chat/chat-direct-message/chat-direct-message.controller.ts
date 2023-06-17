@@ -7,7 +7,7 @@ import { ChatDirectMessageDto } from './dto'
 
 
 @UseGuards(JwtGuard)
-@Controller('chat/direct')
+@Controller('chat/directs')
 @ApiBearerAuth()
 export class ChatDirectMessageController {
 	

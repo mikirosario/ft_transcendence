@@ -55,6 +55,16 @@ export class ChatDirectMessageService {
 
 		if (directChat)
 			return directChat;
+
+		directChat = await this.prisma.chatDirect.findFirst({
+				where: {
+					userId1: userId2,
+					userId2: userId1,
+				}
+			});
+	
+			if (directChat)
+				return directChat;
 			
 		try {
 			directChat = await this.prisma.chatDirect.create({
