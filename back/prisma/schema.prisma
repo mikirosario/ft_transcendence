@@ -41,8 +41,6 @@ model User {
   gamesPlayed Int @default(0)
   rank        Int @default(0) //We'll need a function here that defaults to total-database-users
 
-  bookmarks Bookmark[]
-
   @@map("users")
 }
 
@@ -146,20 +144,4 @@ model ChatDirectBlockedUser {
 
   @@unique([userId, otherUserId])
   @@map("chatblockedusers")
-}
-
-model Bookmark {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  title String
-  link  String
-
-  description String?
-
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("bookmarks")
 }
