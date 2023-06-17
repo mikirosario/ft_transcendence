@@ -9,10 +9,12 @@ import { WebSocketService } from '../auth/websocket/websocket.service';
 import { ChatChannelMessageModule } from '../chat/chat-channel-message/chat-channel-message.module';
 import { ChatChannelBannedUserModule } from '../chat/chat-channel-banned-user/chat-channel-banned-user.module';
 import { ChatDirectMessageModule } from '../chat/chat-direct-message/chat-direct-message.module';
+import { ChatBlockedUserModule } from '../chat/chat-blocked-user/chat-blocked-user.module';
 
 @Module({
   controllers: [ChatController],
   providers: [ChatService, ChatGateway, UserService, WebSocketService],
-  imports: [ChatChannelModule, ChatChannelUserModule, ChatChannelMessageModule, ChatChannelBannedUserModule, ChatDirectMessageModule],
+  imports: [ChatChannelModule, ChatChannelUserModule, ChatChannelMessageModule,
+            ChatChannelBannedUserModule, ChatDirectMessageModule, ChatBlockedUserModule],
 })
 export class ChatModule { }
