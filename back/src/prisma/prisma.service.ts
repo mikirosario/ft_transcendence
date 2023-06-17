@@ -23,7 +23,7 @@ export class PrismaService extends PrismaClient {
 			this.chatChannelBannedUser.deleteMany(),
 			this.chatDirect.deleteMany(),
 			this.chatDirectMessage.deleteMany(),
-			this.chatDirectBlockedUser.deleteMany(),
+			this.chatBlockedUser.deleteMany(),
 		]);
 	}
 }
