@@ -8,10 +8,11 @@ import { UserService } from "../user/user.service";
 import { WebSocketService } from '../auth/websocket/websocket.service';
 import { ChatChannelMessageModule } from '../chat/chat-channel-message/chat-channel-message.module';
 import { ChatChannelBannedUserModule } from '../chat/chat-channel-banned-user/chat-channel-banned-user.module';
+import { ChatDirectMessageModule } from '../chat/chat-direct-message/chat-direct-message.module';
 
 @Module({
   controllers: [ChatController],
   providers: [ChatService, ChatGateway, UserService, WebSocketService],
-  imports: [ChatChannelModule, ChatChannelUserModule, ChatChannelMessageModule, ChatChannelBannedUserModule],
+  imports: [ChatChannelModule, ChatChannelUserModule, ChatChannelMessageModule, ChatChannelBannedUserModule, ChatDirectMessageModule],
 })
 export class ChatModule { }
