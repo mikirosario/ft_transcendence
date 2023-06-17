@@ -8,12 +8,13 @@ import { ServeImageModule } from './utils/serve-image/serve-image.module';
 import { OAuthModule } from './oauth/oauth.module';
 import { FriendModule } from './friend/friend.module';
 import { PongModule } from './pong/pong.module';
+import { SecondAuthFactorModule } from './auth/second-auth-factor/second-auth-factor.module'
 
 @Module({
 	imports: [AuthModule, UserModule, BookmarkModule, PrismaModule, ServeImageModule,
 		FriendModule, PongModule,
 		ConfigModule.forRoot({ isGlobal: true }),
-		OAuthModule,
+		OAuthModule, SecondAuthFactorModule,
 	]
 })
 export class AppModule { }

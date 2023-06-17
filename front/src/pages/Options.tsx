@@ -1,8 +1,36 @@
 import React, { useState } from "react";
 import UserSettingsButtons from "../components/settings/UserSettingsButtons";
 import GoToHomepage from "../components/home/Home";
+import axios from 'axios';
 
 function Options() {
+    const [is2FAActivated, setIs2FAActivated] = useState(false);
+
+
+    const activate2FA = async () => {
+        setIs2FAActivated(true);
+        /*
+        try {
+          const response = await axios.post("http://localhost:3000/auth/second-auth-factor/enable");
+    
+          if (response.status === 200) {
+            const { secretKey, otpAuthUrl } = response.data;
+            // Here, you can handle the secret key and OTP auth URL as needed
+            // You can display the QR code or provide instructions for the user to set up 2FA
+            setIs2FAActivated(true);
+          } else {
+            // Handle the error response from the server
+            console.error("Failed to enable 2FA");
+          }
+        } catch (error) {
+          // Handle any network or other errors
+          console.error("An error occurred while enabling 2FA", error);
+        }*/
+      };
+
+    const remove2FA = () => {
+        setIs2FAActivated(false);
+    }
 
     const NicknamePositionStyle: React.CSSProperties = {
         height: '320px',
@@ -51,6 +79,8 @@ function Options() {
                             Edit Profile
                         </div>
                         <section className="OptionsMenu">
+                        {!is2FAActivated && ( <button onClick={activate2FA}>Activate 2FA</button> )}
+                        {is2FAActivated && ( <button onClick={remove2FA}>Remove 2FA</button> )}
                             <UserSettingsButtons btnTxt="Apply Changes"></UserSettingsButtons>
                         </section>
                     </div>

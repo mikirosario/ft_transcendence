@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { speakeasy } from 'speakeasy';
 
@@ -9,15 +9,19 @@ export class SecondAuthFactorService {
   async enable2fa(userId: number): Promise<{ secretKey: string; otpAuthUrl: string }> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { email: true },
+      select: { email: true , id: true},
     });
 
+    if (!user)
+    {
+      throw new NotFoundException('User not found');
+    }
     // Generate a new secret key for the user
     const secretKey = speakeasy.generateSecret({ length: 20 }).base32;
 
     // Save the secret key in the database
     await this.prisma.user.update({
-      where: { id: userId },
+      where: { id: user.id },
       data: { secondFactorSecret: secretKey },
     });
 

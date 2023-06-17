@@ -3,7 +3,7 @@ import { SecondAuthFactorService } from './second-auth-factor.service';
 import { Enable2faDto, Verify2faDto } from '../dto';
 import { JwtGuard } from '../guard/jwt.guard';
 
-@Controller('second-auth-factor')
+@Controller('auth/second-auth-factor')
 @UseGuards(JwtGuard)
 export class SecondAuthFactorController {
   constructor(private readonly secondAuthFactorService: SecondAuthFactorService) {}
