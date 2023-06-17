@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ThrowHttpException } from '../utils/error-handler';
 import { FriendDto } from "./dto";
 import { UserService } from '../user/user.service';
+import { use } from 'passport';
 
 
 @Injectable()
@@ -16,8 +17,15 @@ export class FriendService {
 
 		if (user.id == friend.id)
 			ThrowHttpException(new BadRequestException, 'You are already your friend! :)');
-		
-		await this.createFriendship(user.id, friend.id, false);
+
+		try {
+			const otherFriendship = await this.getFriendship(friend.id, user.id);
+			await this.updateFriendship(otherFriendship.id, {accepted: true});
+			await this.createFriendship(user.id, friend.id, true);
+		} catch (error) {
+			// Friendship doesnt exist
+			await this.createFriendship(user.id, friend.id, false);
+		}
 
 		const friends = this.getFriendsFiltered(userId, true);
 		return friends;
