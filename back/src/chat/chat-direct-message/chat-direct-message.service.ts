@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UserService } from '../../user/user.service';
-import { ChatChannelService } from '../chat-channel/chat-channel.service';
+import { ChatBlockedUserService } from '../chat-blocked-user/chat-blocked-user.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ChatDirectMessageDto } from './dto'
@@ -10,7 +10,7 @@ import { ChatDirectMessageDto } from './dto'
 export class ChatDirectMessageService {
 
 	constructor(private prisma: PrismaService, private userService: UserService,
-				private chatChannelService: ChatChannelService) { }
+				private chatBlockedUserService: ChatBlockedUserService) { }
 
 	async sendDirectMessage(userId: number, dto: ChatDirectMessageDto) {
 		const user1 = await this.userService.getUserById(userId);
@@ -20,7 +20,11 @@ export class ChatDirectMessageService {
 		if (!directChat)
 			ThrowHttpException(new BadRequestException, 'Some error occurred creating direct chat.');
 
-		// TODO: Dont send if user2 has user 1 blocked or user1 has user2 blocked
+		if (await this.chatBlockedUserService.isUserBlocked(user1.id, user2.id))
+			ThrowHttpException(new BadRequestException, 'You cant send a message to blocked users.');
+
+		if (await this.chatBlockedUserService.isUserBlocked(user2.id, user1.id))
+			ThrowHttpException(new BadRequestException, 'You cant send a message, you are blocked by the other user.');
 		
 		try {
 			const newMessage = await this.prisma.chatDirectMessage.create({
