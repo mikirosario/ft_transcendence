@@ -11,6 +11,7 @@ import { ConfigService } from "@nestjs/config";
 import { UserService } from "../user/user.service";
 import { WebSocketService } from '../auth/websocket/websocket.service';
 
+
 @WebSocketGateway(8083, {
 	cors: {
 		origin: ['http://localhost:3001']
@@ -20,6 +21,8 @@ import { WebSocketService } from '../auth/websocket/websocket.service';
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
 	@WebSocketServer() server: Server;
+
+	private connectedUsers: { [key: string]: Socket } = {};
 	
 	constructor(private config: ConfigService, private userService: UserService, private webSocketService: WebSocketService) { }
 
@@ -40,6 +43,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			return;
 		}
 
+		this.connectedUsers[user.id] = client;
+
+		this.sendSocketMessage(user.id, "ID_A", "hey");
+
 		console.log('Hola! ' + user.nick + ' está en el chat 💬✅');
 	}
 	
@@ -57,6 +64,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			client.disconnect();
 			return;
 		}
+
+		delete this.connectedUsers[user.id];
 		
 		console.log(user.nick + ' está se ha ido del chat 💬❌');
 	}
@@ -82,4 +91,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		client.leave(`room_${room}`);
 	}
 	*/
+
+	async sendSocketMessage(userId: number, eventName: string, data: any) {
+		const userSocket = this.connectedUsers[userId];
+
+		if (userSocket) {
+			userSocket.emit(eventName, data);
+		}
+	}
 }
