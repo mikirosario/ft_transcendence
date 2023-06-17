@@ -1,46 +1,74 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
-import PlayButton from "../components/home/StartButton";
 import SettingsButton from "../components/home/SettingsButton";
-import GoToHomepage from "../components/home/Home";
-import SocialMenu from "../components/chat-friend-menu/SocialMenu";
+import HomeButton from "../components/B_Home";
+import GameButton from "../components/B_General";
 
 function Home() {
     const navigate = useNavigate();
 
-    const PlayButtonStyle: React.CSSProperties = {
-        transform: 'scale(1.3)',
+    const Window: React.CSSProperties = {
+        height: '100%',
+        display: 'flex',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+    }
+    
+    const WindowSocial: React.CSSProperties = {
+        width: '400px',
+        height: '100%',
+        backgroundColor: '#1C2C4A',
+    }
+
+    const PlayFriendsButtonStyle: React.CSSProperties = {
         position: 'absolute',
-        top: '30%',
-        left: '42%',
+        top: '250px',
+        left: '600px',
+        display: 'flex',
+        alignItems: 'flex-end',
+    };
+
+    const PlayButtonStyle: React.CSSProperties = {
+        position: 'absolute',
+        bottom: '250px',
+        left: '600px',
+        display: 'flex',
+        alignItems: 'flex-end',
     };
 
 
     const SettingsStyle: React.CSSProperties = {
-        position: 'absolute',
-        top: '45%',
-        left: '45%',
-        scale: '1.2'
+        position: 'fixed',
+        top: '30px',
+        right: '30px',
+        display: 'flex',
+        alignItems: 'flex-end',
+        scale: '1.5'
     };
 
-    const gameSelectorLink = () => {
+
+    const GoGamePong = () => {
         navigate('/pong');
     };
 
+    const GoGameSelector = () => {
+        navigate('/gameSelector');
+    };
+
     return (
-        <div >
-            <section className="Homepage">
-                <GoToHomepage></GoToHomepage>
-            </section>
-            <section className="SetingsButton" style={SettingsStyle}>
-                <SettingsButton></SettingsButton>
-            </section>
-            <section className='PlayButton' style={PlayButtonStyle} onClick={gameSelectorLink}>
-                <PlayButton name="Play now" />
-            </section>
-            <section>
-                <SocialMenu></SocialMenu>
-            </section>
+        <div style={Window}>
+            <div>
+                <HomeButton></HomeButton>
+                <section className="B_PFriends" style={PlayFriendsButtonStyle} onClick={GoGamePong}>
+                    <GameButton name="Play with friends" width={435} height={155} fsize={22}></GameButton>
+                </section>
+                <section className="B_Play" style={PlayButtonStyle} onClick={GoGameSelector}>
+                    <GameButton name="Play" width={435} height={155} fsize={48}></GameButton>
+                </section>
+            </div>
+            <div style={WindowSocial}>
+                    {/* SOCIAL WINDOW */}
+            </div>
         </div>
     );
 }

@@ -17,7 +17,7 @@ const SettingsButton: React.FC = () => {
 
   return (
     <button style={buttonStyle} onClick={handleClick}>
-      <FaCog size={24} color="#000" />
+      <FaCog size={24} color="#ffff" />
     </button>
   );
 };
