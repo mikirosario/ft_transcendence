@@ -112,6 +112,7 @@ describe('App e2e', () => {
 					.withBody(dto1)
 					.expectStatus(201);
 			});
+			
 			it('should sign up', () => {
 				return pactum
 					.spec()
@@ -180,6 +181,14 @@ describe('App e2e', () => {
 					.withBody(dto1)
 					.expectStatus(200)
 					.stores('userAt1', 'access_token');
+			});
+			it('should sign in', () => {
+				return pactum
+					.spec()
+					.post('/auth/signin')
+					.withBody(dto2)
+					.expectStatus(200)
+					.stores('userAt2', 'access_token');
 			});
 			it('should sign in', () => {
 				return pactum
@@ -693,19 +702,6 @@ describe('App e2e', () => {
 						.spec()
 						.put('/users/friends')
 						.withHeaders({
-							Authorization: 'Bearer $S{userAt}',
-						})
-						.withBody({
-							...dto1
-						})
-						.expectStatus(200)
-						.expectBodyContains(dto1.nick)
-				});
-				it('friend 1 should also have the other user as friend', () => {
-					return pactum
-						.spec()
-						.get('/users/friends')
-						.withHeaders({
 							Authorization: 'Bearer $S{userAt1}',
 						})
 						.withBody({
@@ -714,29 +710,48 @@ describe('App e2e', () => {
 						.expectStatus(200)
 						.expectBodyContains(dto.nick)
 				});
+				it('friend 1 should also have the other user as friend', () => {
+					return pactum
+						.spec()
+						.get('/users/friends')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							...dto
+						})
+						.expectStatus(200)
+						.expectBodyContains(dto1.nick)
+				});
 				it('should accept friend 2', () => {
 					return pactum
 						.spec()
 						.put('/users/friends')
 						.withHeaders({
-							Authorization: 'Bearer $S{userAt}',
+							Authorization: 'Bearer $S{userAt2}',
 						})
 						.withBody({
-							...dto2
+							...dto
 						})
 						.expectStatus(200)
-						.expectBodyContains(dto1.nick)
-						.expectBodyContains(dto2.nick)
+						.expectBodyContains(dto.nick)
 				});
 				it('should not have reamining friend requests', () => {
 					return pactum
 						.spec()
 						.get('/users/friends/requests')
 						.withHeaders({
-							Authorization: 'Bearer $S{userAt}',
+							Authorization: 'Bearer $S{userAt1}',
 						})
-						.withBody({
-							...dto1
+						.expectStatus(200)
+						.expectBodyContains("[]")
+				});
+				it('should not have reamining friend requests', () => {
+					return pactum
+						.spec()
+						.get('/users/friends/requests')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt2}',
 						})
 						.expectStatus(200)
 						.expectBodyContains("[]")
