@@ -1386,21 +1386,4 @@ describe('App e2e', () => {
 		
 	});
 	
-	describe('Bookmarks', () => {
-		describe('CreateBookmark', () => {
-
-		});
-		describe('GetBookmarks', () => {
-
-		});
-		describe('GetBookmarkById', () => {
-
-		});
-		describe('EditBookmarkById', () => {
-
-		});
-		describe('DeleteBookmarkById', () => {
-
-		});
-	});
 });
