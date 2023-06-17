@@ -66,21 +66,17 @@ function Register() {
     };
 
     return (
-        <div className="NicknamePositionWrapper" style={NicknamePositionStyle}>
-            <div className="NicknameTapeWrapper" style={NicknameTapeStyle}>
-                <div className="NicknameTitle" style={TitleStyle}>
-                    CHOOSE A NICKNAME
-                </div>
-                <div className="NicknameSubtitle" style={SubtitleStyle}>
-                    Nick rules
-                </div>
-                <div className="NicknameInputWrapper" style={NicknameInputStyle}>
-                    <section className="OptionsMenu">
-                        {ready && <UserSettingsButtons btnTxt="Confirm"></UserSettingsButtons>}
-                    </section>
+            <div style={NicknamePositionStyle}>
+                <div style={NicknameTapeStyle}>
+                    <div style={TitleStyle}>CHOOSE A NICKNAME</div>
+                    <div style={SubtitleStyle}>Nick rules</div>
+                    <div style={NicknameInputStyle}>
+                        <section>
+                            <UserSettingsButtons btnTxt="Register"></UserSettingsButtons>
+                        </section>
+                    </div>
                 </div>
             </div>
-        </div>
     );
 }
 

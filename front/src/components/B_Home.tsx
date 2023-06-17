@@ -1,11 +1,11 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
-import Logo from '../../assets/images/Logo.png'
+import Logo from '../assets/images/Logo.png'
 
-function Home() {
+function B_Home() {
     const navigate = useNavigate();
 
-    const LogoImg: React.CSSProperties = {
+    const HomeButton: React.CSSProperties = {
         position: 'absolute',
         width: '110px',
         height: '100px',
@@ -14,16 +14,14 @@ function Home() {
         cursor: 'pointer',
     };
 
-    const AuthLoginLink = () => {
-        // window.location.href = 'xxxx'; // Auth URL
+    const GoHomepage = () => {
         navigate('/homepage');
     };
 
     return (
-        <div>
-            {/* <img src={Logo} alt="Logo of 42Pong" style={LogoImg} /> */}
-        </div>
+        <img src={Logo} alt="Logo for Homepage" className="HomeButton" style={HomeButton} onClick={GoHomepage}>
+        </img>
     );
 }
 
-export default Home;
+export default B_Home;
