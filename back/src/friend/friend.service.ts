@@ -27,10 +27,10 @@ export class FriendService {
 		const user = await this.userService.getUserById(userId);
 		const friend = await this.userService.getUserByNick(dto.nick);
 
-		const friendship = await this.getFriendship(user.id, friend.id);
+		const friendship = await this.getFriendship(friend.id, user.id);
 		await this.updateFriendship(friendship.id, {accepted: true});
 
-		await this.createFriendship(friend.id, user.id, true);
+		await this.createFriendship(user.id, friend.id, true);
 
 		const friends = this.getFriendsFiltered(userId, true);
 		return friends;
