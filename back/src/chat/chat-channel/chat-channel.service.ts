@@ -189,11 +189,17 @@ export class ChatChannelService {
 	async isUserBlocked(channelId: number, userId: number) {
 		const channelBannedUser = await this.getBannedUser(channelId, userId);
 
+		if (!channelBannedUser)
+			return false;
+
 		return channelBannedUser.isBanned;
 	}
 
 	async isUserMuted(channelId: number, userId: number) {
 		const channelBannedUser = await this.getBannedUser(channelId, userId);
+
+		if (!channelBannedUser)
+			return false;
 
 		let currentTime = new Date().getTime();
 		let mutedUntil = new Date(channelBannedUser.isMutedUntil).getTime();
