@@ -635,6 +635,9 @@ describe('App e2e', () => {
 				});
 			});
 			describe('getFriendRequests', () => {
+				const dto = {
+					nick: "kar-is_tii"
+				}
 				const dto1 = {
 					nick: "testuser3"
 				};
@@ -646,11 +649,20 @@ describe('App e2e', () => {
 						.spec()
 						.get('/users/friends/requests')
 						.withHeaders({
-							Authorization: 'Bearer $S{userAt}',
+							Authorization: 'Bearer $S{userAt1}',
 						})
 						.expectStatus(200)
-						.expectBodyContains(dto1.nick)
-						.expectBodyContains(dto2.nick)
+						.expectBodyContains(dto.nick)
+				});
+				it('should get friends requests', () => {
+					return pactum
+						.spec()
+						.get('/users/friends/requests')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt2}',
+						})
+						.expectStatus(200)
+						.expectBodyContains(dto.nick)
 				});
 				it('should throw 404 if user not found', () => {
 					return pactum
