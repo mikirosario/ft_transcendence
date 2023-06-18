@@ -5,6 +5,7 @@ import { ChatBlockedUserService } from '../chat-blocked-user/chat-blocked-user.s
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ChatDirectMessageDto } from './dto'
+import { ChatDirectMessage } from '@prisma/client';
 
 @Injectable()
 export class ChatDirectMessageService {
@@ -82,6 +83,53 @@ export class ChatDirectMessageService {
 		} catch (error) {
 			return null;
 		}
+	}
+
+	async getMyDirectChatsAndMessages(userId: number) {
+		const user = await this.prisma.user.findUnique({
+			where: { id: userId, },
+			include: {
+				chatDirectUser1: {
+					include: {
+						user1: true,
+						user2: true,
+						chatDirectMessageDirect: {
+							include: {
+								user: true,
+							}
+						},
+					},
+				}
+			},
+		});
+
+		if (user === null) {
+			ThrowHttpException(new NotFoundException, 'User not found');
+		}
+
+		const directChats = user.chatDirectUser1;
+
+
+		// iterate through all direct chats
+		const directChatsList: { user1: string, user2: string, messages: { sentAt: string, user: string, message: string }[] }[] = directChats.map((directChat) => ({
+			user1: directChat.user1.nick,
+			user2: directChat.user2.nick,
+			createdAt: directChat.createdAt,
+			messages: this.formatDirectMessages(directChat.chatDirectMessageDirect)
+		}));
+		
+
+		return directChatsList;
+	}
+
+	private formatDirectMessages(messages: any) {
+		const directMessages: { sentAt: string, user: string, message: string }[] = messages.map((msg) => ({
+			sentAt: msg.sentAt,
+			user: msg.user.nick,
+			message: msg.message
+		}));
+
+		return directMessages;
 	}
 
 	
