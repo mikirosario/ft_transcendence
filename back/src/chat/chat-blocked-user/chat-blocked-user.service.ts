@@ -65,4 +65,30 @@ export class ChatBlockedUserService {
 			return false;
 		return true;
 	}
+
+	async getBlockedUsersList(userId: number) {
+		const user = await this.prisma.user.findUnique({
+			where: { id: userId, },
+			include: {
+				chatBlockedUser: {
+					include: {
+						otherUser: true
+					},
+				} 
+			},
+		});
+
+		if (user === null) {
+			ThrowHttpException(new NotFoundException, 'User not found');
+		}
+
+		const blockedUsers = user.chatBlockedUser;
+
+		const blockedUsersList: { nick: string, avatarUri: string, }[] = blockedUsers.map((blockedUser) => ({
+			nick: blockedUser.otherUser.nick,
+			avatarUri: blockedUser.otherUser.avatarUri,
+		}));
+
+		return blockedUsersList;
+	}
 }
