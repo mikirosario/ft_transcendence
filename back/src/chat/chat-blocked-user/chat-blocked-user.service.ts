@@ -66,7 +66,7 @@ export class ChatBlockedUserService {
 		return true;
 	}
 
-	async getBlockedUsersList(userId: number) {
+	async getMyBlockedUsersList(userId: number) {
 		const user = await this.prisma.user.findUnique({
 			where: { id: userId, },
 			include: {
