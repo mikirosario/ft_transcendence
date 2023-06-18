@@ -12,11 +12,13 @@ import { ChatDirectMessageModule } from '../chat/chat-direct-message/chat-direct
 import { ChatDirectMessageService } from '../chat/chat-direct-message/chat-direct-message.service';
 import { ChatBlockedUserModule } from '../chat/chat-blocked-user/chat-blocked-user.module';
 import { ChatBlockedUserService } from './chat-blocked-user/chat-blocked-user.service';
+import { ChatChannelService } from '../chat/chat-channel/chat-channel.service';
 
 @Module({
   controllers: [ChatController],
   providers: [ChatService, ChatGateway, UserService, WebSocketService,
-              ChatBlockedUserService, ChatDirectMessageService],
+              ChatBlockedUserService, ChatDirectMessageService,
+              ChatChannelService],
   imports: [ChatChannelModule, ChatChannelUserModule, ChatChannelMessageModule,
             ChatChannelBannedUserModule, ChatDirectMessageModule, ChatBlockedUserModule],
 })
