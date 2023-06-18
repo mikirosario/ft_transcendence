@@ -15,8 +15,15 @@ export class PrismaService extends PrismaClient {
 	}
 	async cleanDb() {
 		return this.$transaction([
-			this.bookmark.deleteMany(),
-			this.user.deleteMany()
+			this.user.deleteMany(),
+			this.friend.deleteMany(),
+			this.chatChannel.deleteMany(),
+			this.chatChannelUser.deleteMany(),
+			this.chatChannelMessage.deleteMany(),
+			this.chatChannelBannedUser.deleteMany(),
+			this.chatDirect.deleteMany(),
+			this.chatDirectMessage.deleteMany(),
+			this.chatBlockedUser.deleteMany(),
 		]);
 	}
 }
