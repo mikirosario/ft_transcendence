@@ -137,7 +137,7 @@ export class FriendService {
 
 		const friends = user.friendsUserFriends;
 
-		const friendList: { nick: string; avatarUri: string; isOnline: boolean, isInGame: boolean }[] = friends.map((friend) => ({
+		const friendList: { nick: string, avatarUri: string, isOnline: boolean, isInGame: boolean }[] = friends.map((friend) => ({
 			nick: friend.user.nick,
 			avatarUri: friend.user.avatarUri,
 			isOnline: friend.user.isOnline,
