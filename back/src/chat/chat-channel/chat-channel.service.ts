@@ -250,4 +250,122 @@ export class ChatChannelService {
 		return false;
 	}
 
+
+	async getMyChannelsAndPublicChannels(userId: number) {
+		const myChannels = await this.getMyChannels(userId);
+
+		const myChannelsList = myChannels.map(channel => channel.channel.name);
+
+		const publicChannels = await this.getAllPublicChannels(myChannelsList);
+
+		const myChannelsAndPublicChannelsList = [...myChannels, ...publicChannels];
+
+		const formattedChannelsList = this.formatChannelsList(myChannelsAndPublicChannelsList);
+
+		return formattedChannelsList;
+	}
+
+	private async getMyChannels(userId: number) {
+		const user = await this.prisma.user.findUnique({
+			where: { id: userId, },
+			include: {
+				chatChannelUser: {
+					include: {
+						channel: {
+							include: {
+								chatChannelUser: {
+									include: {
+										user: true
+									}
+								},
+								chatChannelMessage: {
+									include: {
+										user: true
+									}
+								}
+							}
+						}
+					},
+				}
+			},
+		});
+
+		if (user === null) {
+			ThrowHttpException(new NotFoundException, 'User not found');
+		}
+
+		const myChannels = user.chatChannelUser;
+		const myChannelsList = myChannels.map(channel => channel);
+
+
+		return myChannelsList;
+	}
+
+	private async getAllPublicChannels(myChannels: string[]) {
+		return await this.prisma.chatChannel.findMany({
+			where: {
+				NOT: {
+					name: {
+						in: myChannels
+					},
+				},
+				isPrivate: false
+			},
+			include: {
+				chatChannelUser: {
+					include: {
+						user: true
+					}
+				},
+				chatChannelMessage: {
+					include: {
+						user: true
+					}
+				}
+			}
+		});
+	}
+
+	private formatChannelsList(channelsList: any) {
+		const channelsListFormatted: any[] = channelsList.map((channel) => ({
+			id: channel.channel.id,
+			name: channel.channel.name,
+			isPrivate: channel.channel.isPrivate,
+			createdAt: channel.channel.createdAt,
+			joinedAt: channel.joinedAt,
+			isOwner: channel.isOwner,
+			isAdmin: channel.isAdmin,
+			members: this.formatChannelUsers(channel.channel.chatChannelUser),
+			messages: this.formatChannelMessages(channel.channel.chatChannelMessage)
+		}));
+
+		return channelsListFormatted;
+	}
+
+	private formatChannelUsers(userList: any) {
+		const userListFormatted: any[] = userList.map((user) => ({
+			id: user.user.id,
+			nick: user.user.nick,
+			avatarUri: user.user.avatarUri,
+			isOnline: user.user.isOnline,
+			isInGame: user.user.isInGame,
+			joinedAt: user.joinedAt,
+			isOwner: user.isOwner,
+			isAdmin: user.isAdmin
+		}));
+
+		return userListFormatted;
+	}
+
+	private formatChannelMessages(messageList: any) {
+		const messageListFormatted: any[] = messageList.map((msg) => ({
+			id: msg.id,
+			sentAt: msg.sentAt,
+			nick: msg.user.nick,
+			message: msg.message
+		}));
+
+		return messageListFormatted;
+	}
+
 }
