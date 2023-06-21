@@ -52,47 +52,6 @@ export class ChatChannelService {
 
 		await this.checkUserIsAuthorizedInChannnel(user.id, channel.id);
 
-
-		/*
-		TODO: Comprobar si el usuario que lo intenta es administrador en el canal (ChannelUsers)
-		*/
-
-		/*
-		TODO: Comprobar si el usuario que lo intenta es administrador en el canal (ChannelUsers)
-		*/
-
-		/*
-		TODO: Comprobar si el usuario que lo intenta es administrador en el canal (ChannelUsers)
-		*/
-
-		/*
-		TODO: Comprobar si el usuario que lo intenta es administrador en el canal (ChannelUsers)
-		*/
-
-		/*
-		TODO: Comprobar si el usuario que lo intenta es administrador en el canal (ChannelUsers)
-		*/
-
-		/*
-		TODO: Comprobar si el usuario que lo intenta es administrador en el canal (ChannelUsers)
-		*/
-
-		/*
-		TODO: Comprobar si el usuario que lo intenta es administrador en el canal (ChannelUsers)
-		*/
-
-		/*
-		TODO: Comprobar si el usuario que lo intenta es administrador en el canal (ChannelUsers)
-		*/
-
-		/*
-		TODO: Comprobar si el usuario que lo intenta es administrador en el canal (ChannelUsers)
-		*/
-
-		/*
-		TODO: Comprobar si el usuario que lo intenta es administrador en el canal (ChannelUsers)
-		*/
-
 		if (dto.password != null && dto.password.length > 0)
 		{
 			hash = await argon.hash(dto.password);
