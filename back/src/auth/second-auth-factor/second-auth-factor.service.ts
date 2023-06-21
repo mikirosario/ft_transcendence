@@ -3,12 +3,13 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { Response } from 'express';
 import * as qrcode from 'qrcode';
 import * as speakeasy from 'speakeasy';
+import { Verify2faDto } from '../dto';
 
 @Injectable()
 export class SecondAuthFactorService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async enable2fa(userId: number,  res: Response): Promise<{ secretKey: string; otpAuthUrl: string }> {
+  async enable2fa(userId: number,  res: Response) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { email: true , id: true},
@@ -19,7 +20,7 @@ export class SecondAuthFactorService {
       throw new NotFoundException('User not found');
     }
     // Generate a new secret key for the user
-    const secretKey = speakeasy.generateSecret({ length: 20 }).base32;
+    const secretKey = speakeasy.generateSecret({ length: 20 }).ascii;
 
     // Save the secret key in the database
     await this.prisma.user.update({
@@ -32,30 +33,28 @@ export class SecondAuthFactorService {
       secret: secretKey,
       label: user.email,
       algorithm: 'SHA1',
+      issuer: '42 Pong',
     });
 
     const qrCodeImageBuffer = await qrcode.toBuffer(otpAuthUrl);
     res.set("Content-Type", "image/jpeg");
     res.set("Content-Length", qrCodeImageBuffer.length.toString());
     res.send(qrCodeImageBuffer);
-
-    return { secretKey, otpAuthUrl };
   }
 
-  async verify2fa(userId: number, code: number): Promise<boolean> {
+  async verify2fa(userId: number, verify2faDto: Verify2faDto): Promise<{ verificationResult: boolean }> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { secondFactorSecret: true },
     });
-    console.log(code);
-    console.log(user.secondFactorSecret);
+
     // Verify the provided 2FA code against the user's stored secret key
     const verificationResult = speakeasy.totp.verify({
       secret: user.secondFactorSecret,
-      encoding: 'base32',
-      token: code,
+      encoding: 'ascii',
+      token: verify2faDto.code
     });
 
-    return verificationResult;
+    return { verificationResult };
   }
 }

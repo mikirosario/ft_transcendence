@@ -20,5 +20,5 @@ export class AuthDto {
 	@ApiProperty()
 	@IsString()
 	@IsNotEmpty()
-	otpCode: string
+	otpCode?: string
 }
