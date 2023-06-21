@@ -1,12 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { speakeasy } from 'speakeasy';
+import { Response } from 'express';
+import * as qrcode from 'qrcode';
+import * as speakeasy from 'speakeasy';
 
 @Injectable()
 export class SecondAuthFactorService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async enable2fa(userId: number): Promise<{ secretKey: string; otpAuthUrl: string }> {
+  async enable2fa(userId: number,  res: Response): Promise<{ secretKey: string; otpAuthUrl: string }> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { email: true , id: true},
@@ -32,15 +34,21 @@ export class SecondAuthFactorService {
       algorithm: 'SHA1',
     });
 
+    const qrCodeImageBuffer = await qrcode.toBuffer(otpAuthUrl);
+    res.set("Content-Type", "image/jpeg");
+    res.set("Content-Length", qrCodeImageBuffer.length.toString());
+    res.send(qrCodeImageBuffer);
+
     return { secretKey, otpAuthUrl };
   }
 
-  async verify2fa(userId: number, code: string): Promise<boolean> {
+  async verify2fa(userId: number, code: number): Promise<boolean> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { secondFactorSecret: true },
     });
-
+    console.log(code);
+    console.log(user.secondFactorSecret);
     // Verify the provided 2FA code against the user's stored secret key
     const verificationResult = speakeasy.totp.verify({
       secret: user.secondFactorSecret,
