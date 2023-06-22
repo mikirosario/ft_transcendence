@@ -4,11 +4,28 @@ import { useNavigate } from "react-router-dom";
 import { getUserProfile } from '../../requests/User.Service';
 import FriendDisplay from "./FriendDisplay";
 import ChannelDisplay from "./ChannelDisplay"
+import { io, Socket } from 'socket.io-client';
+import { FaAngleRight , FaAngleLeft  } from 'react-icons/fa'; // SOLID ARROW
+//BiChevronLeft 
+
+const socketOptions = {
+  transportOptions: {
+    polling: {
+      extraHeaders: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      }
+    }
+  }
+};
+
+const socket: Socket = io('http://localhost:8083/', socketOptions);
 
 function Menu() {
   const [username, setUsername] = useState('');
   const [userImage, setUserImage] = useState<string>('');
   const [selectedButton, setSelectedButton] = useState('friend');
+  const [isMenuExpanded, setIsMenuExpanded] = useState(true);
+
   const navigate = useNavigate();
 
   const nickProfileLink = () => {
@@ -23,8 +40,12 @@ function Menu() {
     };
 
     fetchUserProfile();
-  }, []);
 
+    socket.on("receiveMessages", (data) => {
+      console.log(data);
+    });
+
+  }, []);
 
 
   const MenuStyle: React.CSSProperties = {
@@ -34,6 +55,8 @@ function Menu() {
     top: '0%',
     left: '80%',
     position: 'absolute',
+    transition: 'width 0.5s ease, left 0.5s ease',
+    overflow: 'hidden',
   };
 
   const ProfileButtonStyle: React.CSSProperties = {
@@ -91,6 +114,27 @@ function Menu() {
     position: 'absolute',
   });
 
+  const toggleButtonStyle: React.CSSProperties = isMenuExpanded
+  ? {
+    position: 'absolute',
+    top: '30px',
+    right: '20vw',
+    backgroundColor: 'transparent',
+    color: 'white',
+    border: 'none',
+    padding: '6px',
+    transition: 'right 0.5s ease',
+  } : {
+    position: 'absolute',
+    top: '30px',
+    right: '0',
+    backgroundColor: 'transparent',
+    color: 'white',
+    border: 'none',
+    padding: '6px',
+    transition: 'right 0.5s ease',
+  };
+
   const handleFriendButtonClick = () => {
     setSelectedButton('friend');
 
@@ -101,24 +145,35 @@ function Menu() {
   };
 
   return (
-    <div style={MenuStyle}>
-      <button style={ProfileButtonStyle} onClick={nickProfileLink}>
-        <UserProfile image={userImage} name={username}></UserProfile>
-      </button>
-      <div>
+    <>
+      <button
+        style={toggleButtonStyle}
+        onClick={() => setIsMenuExpanded(!isMenuExpanded)}
+      >
+            {isMenuExpanded ? <FaAngleRight size={22}/> : <FaAngleLeft size={22}/>}
+        </button>
 
-        <button style={FriendButtonStyle} onClick={handleFriendButtonClick}>
-          Amigos
+      <div style={{
+        ...MenuStyle,
+        width: isMenuExpanded ? '20vw' : '0',
+        left: isMenuExpanded ? '80%' : '100%',
+      }}>
+        <button style={ProfileButtonStyle} onClick={nickProfileLink}>
+          <UserProfile image={userImage} name={username}></UserProfile>
         </button>
-        <button style={ChannelsButtonStyle} onClick={handleChannelsButtonClick}>
-          Canales
-        </button>
-        <div style={SocialDisplay}>
-          {/* {selectedButton === 'friend'? <FriendDisplay/> : <ChannelDisplay/>} */}
+        <div>
+          <button style={FriendButtonStyle} onClick={handleFriendButtonClick}>
+            Amigos
+          </button>
+          <button style={ChannelsButtonStyle} onClick={handleChannelsButtonClick}>
+            Canales
+          </button>
+          <div style={SocialDisplay}>
+            {selectedButton === 'friend' ? <FriendDisplay /> : <ChannelDisplay />}
+          </div>
         </div>
       </div>
-
-    </div>
+    </>
   );
 }
 
