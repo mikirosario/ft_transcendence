@@ -27,11 +27,20 @@ function Home() {
         navigate('/pong');
     };
 
+    // const acceptFriendRequest = async (event: React.FormEvent) =>  {
+    //     event.preventDefault();
+        
+    //     await deleteFriend('kepa');
+    // }
+
     return (
         <div >
             <section className="Homepage">
                 <GoToHomepage></GoToHomepage>
             </section>
+            {/* <button onClick={acceptFriendRequest}>
+                
+            </button> */}
             <section className="SetingsButton" style={SettingsStyle}>
                 <SettingsButton></SettingsButton>
             </section>
