@@ -137,12 +137,21 @@ export class FriendService {
 
 		const friends = user.friendsUserFriends;
 
-		const friendList: { nick: string, avatarUri: string, isOnline: boolean, isInGame: boolean }[] = friends.map((friend) => ({
+		const friendListOnline: { nick: string, avatarUri: string, isOnline: boolean, isInGame: boolean }[] = friends.filter(friend => friend.user.isOnline).map((friend) => ({
 			nick: friend.user.nick,
 			avatarUri: friend.user.avatarUri,
 			isOnline: friend.user.isOnline,
 			isInGame: friend.user.isInGame,
 		}));
+
+		const friendListOffline: { nick: string, avatarUri: string, isOnline: boolean, isInGame: boolean }[] = friends.filter(friend => !friend.user.isOnline).map((friend) => ({
+			nick: friend.user.nick,
+			avatarUri: friend.user.avatarUri,
+			isOnline: friend.user.isOnline,
+			isInGame: friend.user.isInGame,
+		}));
+
+		const friendList = [...friendListOnline, ...friendListOffline];
 
 		return friendList;
 	}
