@@ -147,28 +147,45 @@ const FriendDisplay: React.FC = () => {
         top: '10px',
         width: '42%',
         height: '65px',
-        borderRadius: '8px',
-        background: 'green',
+        // borderRadius: '8px',
+        border: 'none',
+        background: 'transparent',
+        backgroundColor: 'transparent',
         position: 'relative',
         cursor: 'pointer',
         transition: 'transform 0.3s ease-in-out, background-color 0.3s ease',
     }
 
+    const avatarWrapperStyle: React.CSSProperties = {
+        width: '51px',
+        height: '51px',
+        borderRadius: '50%',
+        backgroundColor: 'green',
+        display: 'relative',
+        justifyContent: 'center',
+        alignItems: 'center',
+        top: '5%',
+        position: 'relative',
+        transition: 'transform 0.3s ease-in-out, background-color 0.8s ease',
+    };
+
     const avatarStyle: React.CSSProperties = {
         width: '45px',
         height: '45px',
         borderRadius: '50%',
-        left: '-30%',
-        top: '12%',
+        left: '0%',
+        top: '5%',
         position: 'relative',
     }
 
     const nameStyle: React.CSSProperties = {
         width: '0px',
         height: '0px',
-        left: '42%',
-        bottom: '66%',
-        position: 'relative'
+        left: '45%',
+        bottom: '72%',
+        position: 'relative',
+        fontSize: '15px',
+        color: '#c0c0c0'
     }
 
 
@@ -225,22 +242,26 @@ const FriendDisplay: React.FC = () => {
                             style={{
                                 ...friendContainerStyle,
                                 transform: isFriendHovered === index ? 'scale(1.1)' : 'none',
-                                backgroundColor: isFriendHovered === index ? 'lightgreen' : 'green'
                             }}
                             onMouseEnter={() => setIsFriendHovered(index)}
                             onMouseLeave={() => setIsFriendHovered(-1)}
                         >
-                            <img
-                                className='FriendAvatar'
-                                src={friend.avatarFile}
-                                style={avatarStyle}
-                            />
+                            <div style={{
+                                ...avatarWrapperStyle,
+                                backgroundColor: isFriendHovered === index ? 'lightgreen' : 'green'
+                            }}>
+                                <img
+                                    className='FriendAvatar'
+                                    src={friend.avatarFile}
+                                    style={avatarStyle}
+                                />
+                            </div>
                             <p style={nameStyle}>{friend.nick}</p>
                         </button>
                     ))}
                 </div>
             </div>
-            {/* PETICIONES */ }
+            {/* PETICIONES */}
             <div style={{ ...dropDownContainerStyle, left: '12px', maxHeight: showRequests ? '500px' : '15px' }}>
                 <button onClick={() => setShowRequests(!showRequests)} style={dropDownStyle}>
                     Peticiones
@@ -253,13 +274,18 @@ const FriendDisplay: React.FC = () => {
                             key={index}
                             style={{
                                 ...friendContainerStyle,
-                                transform: isRequestHovered === index ? 'scale(1.1)' : 'none',
-                                backgroundColor: isRequestHovered === index ? 'lightgreen' : 'green'
+                                transform: isFriendHovered === index ? 'scale(1.1)' : 'none',
                             }}
                             onMouseEnter={() => setIsRequestHovered(index)}
                             onMouseLeave={() => setIsRequestHovered(-1)}
                         >
-                            <img className='FriendAvatar' src={request.avatarFile} style={avatarStyle} />
+
+                            <div style={{
+                                ...avatarWrapperStyle,
+                                backgroundColor: isFriendHovered === index ? 'lightgreen' : 'green'
+                            }}>
+                                <img className='FriendAvatar' src={request.avatarFile} style={avatarStyle} />
+                            </div>
                             <p style={nameStyle}>{request.nick}</p>
                         </button>
                     ))}
