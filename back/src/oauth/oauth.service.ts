@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { AxiosResponse } from "axios";
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
@@ -9,6 +9,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ThrowHttpException } from "../utils/error-handler";
 import { UserService } from "../user/user.service";
+import { HttpErrorByCode } from "@nestjs/common/utils/http-error-by-code.util";
 
 @Injectable()
 export class OAuthService{
@@ -38,7 +39,8 @@ export class OAuthService{
   
         return response.data.access_token;
       } catch (error) {
-        throw new Error('Failed to exchange authorization code for access token.');
+        ThrowHttpException(new BadRequestException, 'Failed to exchange authorization code for access token.');
+        //throw new Error('Failed to exchange authorization code for access token.');
       }
     }
 
@@ -52,7 +54,8 @@ export class OAuthService{
         return response.data;
       } catch (error) {
         console.log(error);
-        throw new Error('Failed to fetch user information. ');
+        ThrowHttpException(new BadRequestException, 'Failed to fetch user information.');
+        //throw new Error('Failed to fetch user information. ');
       }
     }
   
