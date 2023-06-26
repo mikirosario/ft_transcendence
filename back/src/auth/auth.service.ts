@@ -4,7 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AuthDto } from "./dto";
-import * as argon from "argon2"
+import * as argon from "argon2";
 import { ThrowHttpException } from "../utils/error-handler";
 import { SignupResponseDto } from "./dto/signup-response.dto";
 import { speakeasy } from "speakeasy";

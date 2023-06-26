@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ThrowHttpException } from '../utils/error-handler';
 import { FriendDto } from "./dto";
 import { UserService } from '../user/user.service';
+import { use } from 'passport';
 
 
 @Injectable()
@@ -16,8 +17,15 @@ export class FriendService {
 
 		if (user.id == friend.id)
 			ThrowHttpException(new BadRequestException, 'You are already your friend! :)');
-		
-		await this.createFriendship(user.id, friend.id, false);
+
+		try {
+			const otherFriendship = await this.getFriendship(friend.id, user.id);
+			await this.updateFriendship(otherFriendship.id, {accepted: true});
+			await this.createFriendship(user.id, friend.id, true);
+		} catch (error) {
+			// Friendship doesnt exist
+			await this.createFriendship(user.id, friend.id, false);
+		}
 
 		const friends = this.getFriendsFiltered(userId, true);
 		return friends;
@@ -27,10 +35,10 @@ export class FriendService {
 		const user = await this.userService.getUserById(userId);
 		const friend = await this.userService.getUserByNick(dto.nick);
 
-		const friendship = await this.getFriendship(user.id, friend.id);
+		const friendship = await this.getFriendship(friend.id, user.id);
 		await this.updateFriendship(friendship.id, {accepted: true});
 
-		await this.createFriendship(friend.id, user.id, true);
+		await this.createFriendship(user.id, friend.id, true);
 
 		const friends = this.getFriendsFiltered(userId, true);
 		return friends;
@@ -112,9 +120,9 @@ export class FriendService {
 		const user = await this.prisma.user.findUnique({
 			where: { id: userId, },
 			include: {
-				friendsUser: {
+				friendsUserFriends: {
 					include: {
-						friend: true
+						user: true
 					},
 					where: {
 						accepted: accepted
@@ -127,13 +135,13 @@ export class FriendService {
 			ThrowHttpException(new NotFoundException, 'User not found');
 		}
 
-		const friends = user.friendsUser;
+		const friends = user.friendsUserFriends;
 
-		const friendList: { nick: string; avatarUri: string; isOnline: boolean, isInGame: boolean }[] = friends.map((friend) => ({
-			nick: friend.friend.nick,
-			avatarUri: friend.friend.avatarUri,
-			isOnline: friend.friend.isOnline,
-			isInGame: friend.friend.isInGame,
+		const friendList: { nick: string, avatarUri: string, isOnline: boolean, isInGame: boolean }[] = friends.map((friend) => ({
+			nick: friend.user.nick,
+			avatarUri: friend.user.avatarUri,
+			isOnline: friend.user.isOnline,
+			isInGame: friend.user.isInGame,
 		}));
 
 		return friendList;

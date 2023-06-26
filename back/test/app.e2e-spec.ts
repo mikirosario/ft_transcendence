@@ -112,6 +112,7 @@ describe('App e2e', () => {
 					.withBody(dto1)
 					.expectStatus(201);
 			});
+			
 			it('should sign up', () => {
 				return pactum
 					.spec()
@@ -180,6 +181,14 @@ describe('App e2e', () => {
 					.withBody(dto1)
 					.expectStatus(200)
 					.stores('userAt1', 'access_token');
+			});
+			it('should sign in', () => {
+				return pactum
+					.spec()
+					.post('/auth/signin')
+					.withBody(dto2)
+					.expectStatus(200)
+					.stores('userAt2', 'access_token');
 			});
 			it('should sign in', () => {
 				return pactum
@@ -626,6 +635,9 @@ describe('App e2e', () => {
 				});
 			});
 			describe('getFriendRequests', () => {
+				const dto = {
+					nick: "kar-is_tii"
+				}
 				const dto1 = {
 					nick: "testuser3"
 				};
@@ -637,11 +649,20 @@ describe('App e2e', () => {
 						.spec()
 						.get('/users/friends/requests')
 						.withHeaders({
-							Authorization: 'Bearer $S{userAt}',
+							Authorization: 'Bearer $S{userAt1}',
 						})
 						.expectStatus(200)
-						.expectBodyContains(dto1.nick)
-						.expectBodyContains(dto2.nick)
+						.expectBodyContains(dto.nick)
+				});
+				it('should get friends requests', () => {
+					return pactum
+						.spec()
+						.get('/users/friends/requests')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt2}',
+						})
+						.expectStatus(200)
+						.expectBodyContains(dto.nick)
 				});
 				it('should throw 404 if user not found', () => {
 					return pactum
@@ -693,19 +714,6 @@ describe('App e2e', () => {
 						.spec()
 						.put('/users/friends')
 						.withHeaders({
-							Authorization: 'Bearer $S{userAt}',
-						})
-						.withBody({
-							...dto1
-						})
-						.expectStatus(200)
-						.expectBodyContains(dto1.nick)
-				});
-				it('friend 1 should also have the other user as friend', () => {
-					return pactum
-						.spec()
-						.get('/users/friends')
-						.withHeaders({
 							Authorization: 'Bearer $S{userAt1}',
 						})
 						.withBody({
@@ -714,29 +722,48 @@ describe('App e2e', () => {
 						.expectStatus(200)
 						.expectBodyContains(dto.nick)
 				});
+				it('friend 1 should also have the other user as friend', () => {
+					return pactum
+						.spec()
+						.get('/users/friends')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							...dto
+						})
+						.expectStatus(200)
+						.expectBodyContains(dto1.nick)
+				});
 				it('should accept friend 2', () => {
 					return pactum
 						.spec()
 						.put('/users/friends')
 						.withHeaders({
-							Authorization: 'Bearer $S{userAt}',
+							Authorization: 'Bearer $S{userAt2}',
 						})
 						.withBody({
-							...dto2
+							...dto
 						})
 						.expectStatus(200)
-						.expectBodyContains(dto1.nick)
-						.expectBodyContains(dto2.nick)
+						.expectBodyContains(dto.nick)
 				});
 				it('should not have reamining friend requests', () => {
 					return pactum
 						.spec()
 						.get('/users/friends/requests')
 						.withHeaders({
-							Authorization: 'Bearer $S{userAt}',
+							Authorization: 'Bearer $S{userAt1}',
 						})
-						.withBody({
-							...dto1
+						.expectStatus(200)
+						.expectBodyContains("[]")
+				});
+				it('should not have reamining friend requests', () => {
+					return pactum
+						.spec()
+						.get('/users/friends/requests')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt2}',
 						})
 						.expectStatus(200)
 						.expectBodyContains("[]")
@@ -1061,22 +1088,329 @@ describe('App e2e', () => {
 			});
 		});
 	});
-	
-	describe('Bookmarks', () => {
-		describe('CreateBookmark', () => {
 
+	describe('Chat', () => {
+		describe('Chat Channel endpoints', () => {
+			describe('POST /chat/channels', () => {
+				it('should create public channel', () => {
+					return pactum
+						.spec()
+						.post('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							name: "42_madrid"
+						})
+						.expectStatus(201)
+						.expectBodyContains("42_madrid")
+						.expectBodyContains("false")
+						.stores('channelId1', 'id');
+				});
+				it('should create public channel', () => {
+					return pactum
+						.spec()
+						.post('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							name: "42_barcelona",
+							password: ""
+						})
+						.expectStatus(201)
+						.expectBodyContains("42_barcelona")
+						.expectBodyContains("false")
+						.stores('channelId2', 'id');
+				});
+				it('should create private channel', () => {
+					return pactum
+						.spec()
+						.post('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							name: "42_urduliz",
+							password: "aasd"
+						})
+						.expectStatus(201)
+						.expectBodyContains("42_urduliz")
+						.expectBodyContains("true")
+						.stores('channelId3', 'id');
+				});
+				it('should throw 400 if duplicate channel name', () => {
+					return pactum
+						.spec()
+						.post('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							name: "42_madrid"
+						})
+						.expectStatus(400)
+				});
+				it('should throw 400 if invalid channel name', () => {
+					return pactum
+						.spec()
+						.post('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							name: "adsd s"
+						})
+						.expectStatus(400)
+				});
+				it('should throw 400 if invalid channel name', () => {
+					return pactum
+						.spec()
+						.post('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							name: "ds"
+						})
+						.expectStatus(400)
+				});
+				it('should throw 400 if invalid channel name', () => {
+					return pactum
+						.spec()
+						.post('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							name: "ddasadsasdadsasdasasdasdadsadsadsadsasds"
+						})
+						.expectStatus(400)
+				});
+				it('should throw 404 if user not found', () => {
+					return pactum
+						.spec()
+						.post('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAtDel}',
+						})
+						.withBody({
+							name: "aaaaa"
+						})
+						.expectStatus(404)
+				});
+				it('should throw 401 if jwt token not provided', () => {
+					return pactum
+						.spec()
+						.post('/chat/channels')
+						.withHeaders({
+							Authorization: '',
+						})
+						.expectStatus(401)
+				});
+			});
+			describe('PUT /chat/channels', () => {
+				it('should change channel name', () => {
+					return pactum
+						.spec()
+						.put('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							id: "$S{channelId1}",
+							name: "42_nomadrid"
+						})
+						.expectStatus(200)
+						.expectBodyContains("42_nomadrid")
+						.expectBodyContains("false")
+				});
+				it('should become channel public', () => {
+					return pactum
+						.spec()
+						.put('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							id: "$S{channelId3}",
+							password: ""
+						})
+						.expectStatus(200)
+						.expectBodyContains("42_urduliz")
+						.expectBodyContains("false")
+				});
+				it('should become channel private', () => {
+					return pactum
+						.spec()
+						.put('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							id: "$S{channelId3}",
+							password: "aasd"
+						})
+						.expectStatus(200)
+						.expectBodyContains("42_urduliz")
+						.expectBodyContains("true")
+				});
+				it('should become channel public', () => {
+					return pactum
+						.spec()
+						.put('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							id: "$S{channelId3}",
+						})
+						.expectStatus(200)
+						.expectBodyContains("42_urduliz")
+						.expectBodyContains("false")
+				});
+				it('should throw 400 if duplicate channel name', () => {
+					return pactum
+						.spec()
+						.put('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							id: "$S{channelId1}",
+							name: "42_urduliz"
+						})
+						.expectStatus(400)
+				});
+				it('should throw 400 if channel id not provided', () => {
+					return pactum
+						.spec()
+						.put('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							name: "asdasdaasd"
+						})
+						.expectStatus(400)
+				});
+				it('should throw 401 if user not channel owner', () => {
+					return pactum
+						.spec()
+						.put('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt1}',
+						})
+						.withBody({
+							id: "$S{channelId1}",
+						})
+						.expectStatus(401)
+				});
+				it('should throw 404 if invalid channel id', () => {
+					return pactum
+						.spec()
+						.put('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							id: 123,
+						})
+						.expectStatus(404)
+				});
+				it('should throw 404 if user not found', () => {
+					return pactum
+						.spec()
+						.put('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAtDel}',
+						})
+						.withBody({
+							id: "$S{channelId1}",
+						})
+						.expectStatus(404)
+				});
+				it('should throw 401 if jwt token not provided', () => {
+					return pactum
+						.spec()
+						.put('/chat/channels')
+						.withHeaders({
+							Authorization: '',
+						})
+						.expectStatus(401)
+				});
+			});
+			describe('DELETE /chat/channels', () => {
+				it('should delete channel', () => {
+					return pactum
+						.spec()
+						.delete('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							id: "$S{channelId1}",
+						})
+						.expectStatus(200)
+						.expectBodyContains("42_nomadrid")
+				});
+				it('should throw 400 if channel id not provided', () => {
+					return pactum
+						.spec()
+						.delete('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.expectStatus(400)
+				});
+				it('should throw 401 if user not channel owner', () => {
+					return pactum
+						.spec()
+						.delete('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt1}',
+						})
+						.withBody({
+							id: "$S{channelId3}",
+						})
+						.expectStatus(401)
+				});
+				it('should throw 404 if invalid channel id', () => {
+					return pactum
+						.spec()
+						.delete('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAt}',
+						})
+						.withBody({
+							id: 1111,
+						})
+						.expectStatus(404)
+				});
+				it('should throw 404 if user not found', () => {
+					return pactum
+						.spec()
+						.delete('/chat/channels')
+						.withHeaders({
+							Authorization: 'Bearer $S{userAtDel}',
+						})
+						.withBody({
+							id: "$S{channelId3}",
+						})
+						.expectStatus(404)
+				});
+				it('should throw 401 if jwt token not provided', () => {
+					return pactum
+						.spec()
+						.delete('/chat/channels')
+						.withHeaders({
+							Authorization: '',
+						})
+						.expectStatus(401)
+				});
+			});
 		});
-		describe('GetBookmarks', () => {
-
-		});
-		describe('GetBookmarkById', () => {
-
-		});
-		describe('EditBookmarkById', () => {
-
-		});
-		describe('DeleteBookmarkById', () => {
-
-		});
+		
 	});
+	
 });
