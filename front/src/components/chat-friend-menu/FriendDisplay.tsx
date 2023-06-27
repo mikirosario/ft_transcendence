@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { addFriend, getFriendList, getFriendRequests } from '../../requests/Friend.Service';
+import { addFriend, deleteFriend, getFriendList, getFriendRequests, updateFriendList } from '../../requests/Friend.Service';
 import { getUserImage } from "../../requests/User.Service";
-import { FaCaretDown, FaCaretUp } from 'react-icons/fa';
-import { MdSend } from 'react-icons/md';
+import { FaCaretDown, FaCaretUp, FaCheck, FaTimes } from 'react-icons/fa';
+import { MdSend} from 'react-icons/md';
 
 interface Friend {
     nick: string;
@@ -18,7 +18,11 @@ const FriendDisplay: React.FC = () => {
     const [isHovered, setIsHovered] = useState(false);
     const [friendName, setFriendName] = useState('');
     const [showFriends, setShowFriends] = useState(false);
+    
     const [showRequests, setShowRequests] = useState(false);
+    const [isAcceptHovered, setIsAcceptHovered] = useState(false);
+    const [isRejectHovered, setIsRejectHovered] = useState(false);
+    
     const [showBlocked, setShowBlocked] = useState(false);
 
     const [isFriendHovered, setIsFriendHovered] = useState(-1);
@@ -67,7 +71,6 @@ const FriendDisplay: React.FC = () => {
         height: '40px',
         display: "flex",
         flexDirection: "row",
-        justifyContent: "center",
         position: "relative",
     };
 
@@ -115,53 +118,58 @@ const FriendDisplay: React.FC = () => {
         position: 'relative',
         top: '30px',
         width: '100%',
-        paddingBottom: '15px',
+        paddingBottom: '6px',
         transition: 'max-height 1s ease-in-out',
         overflow: 'hidden',
         maxHeight: showFriends ? '500px' : '15px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        backgroundColor: 'transparent',
+        marginTop: '10px'
     }
 
     const dropDownStyle: React.CSSProperties = {
         color: 'white',
-        right: '30%',
-        width: '100%',
+        left: '15%',
+        width: '25%',
         background: 'transparent',
         border: 'none',
         scale: '1.4',
         cursor: 'pointer',
-        position: 'relative'
+        position: 'relative',
+        display: 'flex',
+        justifyContent: 'flex-start'
     }
 
     // Friends Display
     const friendsListStyle: React.CSSProperties = {
         display: 'flex',
         flexWrap: 'wrap',
-        justifyContent: 'flex-start',
-        gap: '5%',
-        marginTop: '1%',
-        marginLeft: '11%',
-    }
-
+        justifyContent: 'space-between',
+        marginTop: '2.5%',
+        marginLeft: '14%', 
+        width: '60%',
+    };
+    
     const friendContainerStyle: React.CSSProperties = {
-        marginBottom: '16px',
-        top: '10px',
-        width: '42%',
-        height: '65px',
-        // borderRadius: '8px',
+        marginBottom: '1%',
+        borderRadius: '8px',
         border: 'none',
         background: 'transparent',
-        backgroundColor: 'transparent',
         position: 'relative',
         cursor: 'pointer',
         transition: 'transform 0.3s ease-in-out, background-color 0.3s ease',
-    }
+        maxHeight: '52px',
+        maxWidth: '62px'
+    };
 
     const avatarWrapperStyle: React.CSSProperties = {
-        width: '51px',
-        height: '51px',
+        width: '50px',
+        height: '50px',
         borderRadius: '50%',
         backgroundColor: 'green',
-        display: 'relative',
+        display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         top: '5%',
@@ -173,27 +181,65 @@ const FriendDisplay: React.FC = () => {
         width: '45px',
         height: '45px',
         borderRadius: '50%',
-        left: '0%',
-        top: '5%',
+        margin: 'auto', // Add 'auto' to center the avatar within its container
         position: 'relative',
-    }
+    };
 
     const nameStyle: React.CSSProperties = {
-        width: '0px',
-        height: '0px',
-        left: '45%',
-        bottom: '72%',
+        width: '66px',
+        height: '45px',
+        left: '45px',
+        bottom: '62px',
         position: 'relative',
+        justifyContent: 'center',
         fontSize: '15px',
-        color: '#c0c0c0'
+        color: '#c0c0c0',
+        display: 'flex',
+        alignItems: 'center',
     }
 
+    const buttonContainerStyle: React.CSSProperties = {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        height: '72.2%',
+        width: '100%'
+    };
+
+    const iconContainerStyle: React.CSSProperties = {
+        position: 'absolute',
+        left: '100px',
+        top: '0px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',
+        width: '25px',
+        height: '50%',
+        opacity: 0.5,
+        transition: 'opacity 2.3s ease-in-out',
+    };
+
+    const iconStyle: React.CSSProperties = {
+        margin: '5px',
+    };
+
+    const getIconStyle = (isHovered: boolean, color: string): React.CSSProperties => ({
+        ...iconStyle,
+        color: isHovered ? color : 'pink',
+        opacity: isHovered ? 1 : 0.70,
+        transition: 'color 0.2s ease-in-out, opacity 0.2s ease-in-out',
+    });
+
+    const handleRequestsClick = () => {
+        setShowRequests(!showRequests);
+    };
 
     const handleClick = () => {
         setShowFriends(!showFriends);
     };
 
-    const handleFriendSumbitRequest = async (event: React.FormEvent) => {
+    const handleFriendSumbit = async (event: React.FormEvent) => {
         event.preventDefault();
 
         await addFriend(friendName);
@@ -220,163 +266,108 @@ const FriendDisplay: React.FC = () => {
                             maxLength={10} />
                         <button
                             style={{ backgroundColor: 'transparent', border: 'none' }}
-                            onClick={handleFriendSumbitRequest}
+                            onClick={handleFriendSumbit}
                         >
                             <MdSend style={addFriendInputTextSendStyle} size={20} />
                         </button>
                     </div>
                 )}
+
             </div>
+            <div style={buttonContainerStyle}>
+                <div style={dropDownContainerStyle}>
+                    <button onClick={handleClick} style={dropDownStyle}>
+                        Amigos
+                        {showFriends ? <FaCaretUp /> : <FaCaretDown />}
+                    </button>
 
-            {/* AMIGOS */}
-            <div style={dropDownContainerStyle}>
-                <button onClick={handleClick} style={dropDownStyle}>
-                    Amigos
-                    {showFriends ? <FaCaretUp /> : <FaCaretDown />}
-                </button>
-
-                <div style={friendsListStyle}>
-                    {friendList.map((friend, index) => (
-                        <button
-                            key={index}
-                            style={{
-                                ...friendContainerStyle,
-                                transform: isFriendHovered === index ? 'scale(1.1)' : 'none',
-                            }}
-                            onMouseEnter={() => setIsFriendHovered(index)}
-                            onMouseLeave={() => setIsFriendHovered(-1)}
-                        >
-                            <div style={{
-                                ...avatarWrapperStyle,
-                                backgroundColor: isFriendHovered === index ? 'lightgreen' : 'green'
-                            }}>
-                                <img
-                                    className='FriendAvatar'
-                                    src={friend.avatarFile}
-                                    style={avatarStyle}
-                                />
-                            </div>
-                            <p style={nameStyle}>{friend.nick}</p>
-                        </button>
-                    ))}
+                    <div style={friendsListStyle}>
+                        {friendList.map((friend, index) => (
+                            <button
+                                key={index}
+                                style={friendContainerStyle}
+                                onMouseEnter={() => setIsFriendHovered(index)}
+                                onMouseLeave={() => setIsFriendHovered(-1)}
+                            >
+                                <div style={{
+                                    transform: isFriendHovered === index ? 'scale(1.1)' : 'none',
+                                    transition: 'transform 0.3s ease-in-out',
+                                }}>
+                                    <div style={{
+                                        ...avatarWrapperStyle,
+                                        backgroundColor: isFriendHovered === index ? 'lightgreen' : 'green'
+                                    }}>
+                                        <img
+                                            className='FriendAvatar'
+                                            src={friend.avatarFile}
+                                            style={avatarStyle}
+                                        />
+                                    </div>
+                                    <p style={nameStyle}>{friend.nick}</p>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
                 </div>
-            </div>
-            {/* PETICIONES */}
-            <div style={{ ...dropDownContainerStyle, left: '12px', maxHeight: showRequests ? '500px' : '15px' }}>
-                <button onClick={() => setShowRequests(!showRequests)} style={dropDownStyle}>
-                    Peticiones
-                    {showRequests ? <FaCaretUp /> : <FaCaretDown />}
-                </button>
 
-                <div style={friendsListStyle}>
-                    {friendPetitionList.map((request, index) => (
-                        <button
-                            key={index}
-                            style={{
-                                ...friendContainerStyle,
-                                transform: isFriendHovered === index ? 'scale(1.1)' : 'none',
-                            }}
-                            onMouseEnter={() => setIsRequestHovered(index)}
-                            onMouseLeave={() => setIsRequestHovered(-1)}
-                        >
+                {/* PETICIONES */}
+                <div style={{ ...dropDownContainerStyle, maxHeight: showRequests ? '500px' : '15px' }}>
+                    <button onClick={handleRequestsClick} style={dropDownStyle}>
+                        Peticiones
+                        {showRequests ? <FaCaretUp /> : <FaCaretDown />}
+                    </button>
 
-                            <div style={{
-                                ...avatarWrapperStyle,
-                                backgroundColor: isFriendHovered === index ? 'lightgreen' : 'green'
-                            }}>
-                                <img className='FriendAvatar' src={request.avatarFile} style={avatarStyle} />
-                            </div>
-                            <p style={nameStyle}>{request.nick}</p>
-                        </button>
-                    ))}
+                    <div style={friendsListStyle}>
+                        {friendPetitionList.map((request, index) => (
+                            <button
+                                key={index}
+                                style={friendContainerStyle}
+                                onMouseEnter={() => setIsRequestHovered(index)}
+                                onMouseLeave={() => setIsRequestHovered(-1)}
+                            >
+                                <div style={{
+                                    transform: isRequestHovered === index ? 'scale(1.1)' : 'none',
+                                    transition: 'transform 0.3s ease-in-out',
+                                }}>
+                                    <div style={{
+                                        ...avatarWrapperStyle,
+                                        backgroundColor: isRequestHovered === index ? 'lightgreen' : 'green'
+                                    }}>
+                                        <img
+                                            className='FriendAvatar'
+                                            src={request.avatarFile}
+                                            style={avatarStyle}
+                                        />
+                                    </div>
+                                    <p style={nameStyle}>{request.nick}</p>
+                                    {isRequestHovered === index && (
+                                        <div style={iconContainerStyle}>
+                                            <FaCheck
+                                                onMouseEnter={() => setIsAcceptHovered(true)}
+                                                onMouseLeave={() => setIsAcceptHovered(false)}
+                                                style={getIconStyle(isAcceptHovered, 'green')}
+                                                size={15}
+                                                onClick={async () => await updateFriendList(request.nick)}
+                                            />
+
+                                            <FaTimes
+                                                onMouseEnter={() => setIsRejectHovered(true)}
+                                                onMouseLeave={() => setIsRejectHovered(false)}
+                                                style={getIconStyle(isRejectHovered, 'red')}
+                                                size={16}
+                                                onClick={async () => await deleteFriend(request.nick)}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            </button>
+                        ))}
+                    </div>
                 </div>
-            </div>
-
-            {/*BLOQUEADOS 
-            <div style={{ ...dropDownContainerStyle, maxHeight: showBlocked ? '500px' : '0' }}>
-                <button onClick={() => setShowBlocked(!showBlocked)} style={dropDownStyle}>
-                    Bloqueados
-                    {showBlocked ? <FaCaretUp /> : <FaCaretDown />}
-                </button>
-
-                <div style={friendsListStyle}>
-                    {blockedList.map((blocked, index) => (
-                        <button
-                            key={index}
-                            style={{
-                                ...friendContainerStyle,
-                                transform: isBlockedHovered === index ? 'scale(1.1)' : 'none',
-                                backgroundColor: isBlockedHovered === index ? 'lightgreen' : 'green'
-                            }}
-                            onMouseEnter={() => setIsBlockedHovered(index)}
-                            onMouseLeave={() => setIsBlockedHovered(-1)}
-                        >
-                            <img className='FriendAvatar' src={blocked.avatarFile} style={avatarStyle} />
-                            <p style={nameStyle}>{blocked.nick}</p>
-                        </button>
-                    ))}
-                </div>
-            </div> */}
-        </div >
+            </div >
+        </div>
     );
 
 }
 
 export default FriendDisplay;
-
-
-
-// const friendButtonWrapperStyle: React.CSSProperties = {
-//     display: 'flex',
-//     justifyContent: 'space-around',
-//     position: 'absolute',
-//     width: '100%',
-//     bottom: '-20px',
-//     left: '0',
-//     transition: 'opacity 0.3s ease-in-out',
-//     opacity: '0',
-//     pointerEvents: 'none',
-// };
-
-// const friendButtonStyle: React.CSSProperties = {
-//     backgroundColor: 'blue',
-//     color: 'white',
-//     border: 'none',
-//     borderRadius: '5px',
-//     padding: '5px',
-// };
-
-// const [showFriendButtons, setShowFriendButtons] = useState(Array(friendList.length).fill(false));
-
-// <div style={friendsListStyle}>
-// {friendList.map((friend, index) => (
-//     <div
-//         style={{
-//             ...friendContainerStyle,
-//             transform: isFriendHovered === index ? 'scale(1.1)' : 'none',
-//             backgroundColor: isFriendHovered === index ? 'lightgreen' : 'green',
-//             position: 'relative',
-//         }}
-//         onMouseEnter={() => {
-//             const newShowFriendButtons = [...showFriendButtons];
-//             newShowFriendButtons[index] = true;
-//             setShowFriendButtons(newShowFriendButtons);
-//             setIsFriendHovered(index);
-//         }}
-//         onMouseLeave={() => {
-//             const newShowFriendButtons = [...showFriendButtons];
-//             newShowFriendButtons[index] = false;
-//             setShowFriendButtons(newShowFriendButtons);
-//             setIsFriendHovered(-1);
-//         }}
-//     >
-//         <img className='FriendAvatar' src={friend.avatarFile} style={avatarStyle} />
-//         <p style={nameStyle}>{friend.nick}</p>
-//         <div style={{ ...friendButtonWrapperStyle, opacity: showFriendButtons[index] ? '1' : '0', pointerEvents: showFriendButtons[index] ? 'all' : 'none' }}>
-//             <button style={friendButtonStyle}>Perfil</button>
-//             <button style={friendButtonStyle}>Chat</button>
-//             <button style={friendButtonStyle}>Eliminar</button>
-//         </div>
-//     </div>
-// ))}
-// </div>
