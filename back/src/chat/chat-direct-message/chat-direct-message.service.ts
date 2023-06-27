@@ -5,7 +5,6 @@ import { ChatBlockedUserService } from '../chat-blocked-user/chat-blocked-user.s
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ChatDirectMessageDto } from './dto'
-import { ChatDirectMessage } from '@prisma/client';
 
 @Injectable()
 export class ChatDirectMessageService {

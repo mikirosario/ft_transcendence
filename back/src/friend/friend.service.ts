@@ -4,7 +4,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ThrowHttpException } from '../utils/error-handler';
 import { FriendDto } from "./dto";
 import { UserService } from '../user/user.service';
-import { use } from 'passport';
 
 
 @Injectable()
@@ -156,7 +155,7 @@ export class FriendService {
 		return friendList;
 	}
 
-	private async deleteFriendship(userId1: number, userId2: number) {
+	async deleteFriendship(userId1: number, userId2: number) {
 		const friendship = await this.prisma.friend.findFirst({
 			where: { userId: userId1, friend_userId: userId2 },
 		});

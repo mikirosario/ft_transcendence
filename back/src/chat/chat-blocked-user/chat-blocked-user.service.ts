@@ -4,11 +4,12 @@ import { UserService } from '../../user/user.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ChatBlockedDto } from './dto'
+import { FriendService } from 'src/friend/friend.service';
 
 @Injectable()
 export class ChatBlockedUserService {
 
-	constructor(private prisma: PrismaService, private userService: UserService) { }
+	constructor(private prisma: PrismaService, private userService: UserService, private friendService: FriendService) { }
 
 	async chatBlockUser(userId: number, dto: ChatBlockedDto) {
 		const me = await this.userService.getUserById(userId);
@@ -21,6 +22,10 @@ export class ChatBlockedUserService {
 					otherUserId: otherUser.id
 				}
 			});
+
+			await this.friendService.deleteFriendship(me.id, otherUser.id);
+			await this.friendService.deleteFriendship(otherUser.id, me.id);
+
 			return blockedUser;
 
 		} catch (error) {
