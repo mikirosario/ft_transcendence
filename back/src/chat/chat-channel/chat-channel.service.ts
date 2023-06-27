@@ -5,12 +5,16 @@ import { UserService } from '../../user/user.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as argon from "argon2";
+import { ChatGateway } from '../chat-socket/chat.gateway';
 
 @Injectable()
 export class ChatChannelService {
-	constructor(private prisma: PrismaService, private userService: UserService) { }
+	constructor(private prisma: PrismaService, private userService: UserService, private ws: ChatGateway) { }
 
 	async createChannel(userId: number, dto: ChatChannelCreateDto) {
+
+		this.ws.sendSocketMessage(userId, "ID_A", "Nuevo canal bobo!");
+
 		let hash: string = null;
 		let isPrivate: boolean = false;
 

@@ -8,8 +8,8 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ConfigService } from "@nestjs/config";
-import { UserService } from "../user/user.service";
-import { WebSocketService } from '../auth/websocket/websocket.service';
+import { UserService } from "../../user/user.service";
+import { WebSocketService } from '../../auth/websocket/websocket.service';
 
 
 @WebSocketGateway(8083, {
