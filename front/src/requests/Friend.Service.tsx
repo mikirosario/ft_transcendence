@@ -114,3 +114,23 @@ export async function updateFriendList(friendName: string) {
         return false;
     }
 }
+
+// --------------------- Canales/Directos/Bloqueados --------------------------
+
+export async function getBlockedUsers() {
+    try {
+        const response = await axios.get('chats', {
+            responseType: 'json',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            },
+        });
+
+        const { blocked_users } = response.data;
+        return blocked_users;
+
+    } catch (error) {
+        console.log('Error: Could not remove that friend', error);
+        return  [];
+    }
+}

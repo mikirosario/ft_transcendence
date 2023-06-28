@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { addFriend, deleteFriend, getFriendList, getFriendRequests, updateFriendList } from '../../requests/Friend.Service';
+import { addFriend, deleteFriend, getBlockedUsers, getFriendList, getFriendRequests, updateFriendList } from '../../requests/Friend.Service';
 import { getUserImage } from "../../requests/User.Service";
 import { FaCaretDown, FaCaretUp, FaCheck, FaTimes } from 'react-icons/fa';
-import { MdSend} from 'react-icons/md';
+import { MdSend } from 'react-icons/md';
 
 interface Friend {
     nick: string;
@@ -15,14 +15,15 @@ interface Friend {
 const FriendDisplay: React.FC = () => {
     const [friendList, setFriendList] = useState<Friend[]>([]);
     const [friendPetitionList, setFriendLPetitionList] = useState<Friend[]>([]);
+    const [blockedUsersList, setBlockedUsersList] = useState<Friend[]>([]);
     const [isHovered, setIsHovered] = useState(false);
     const [friendName, setFriendName] = useState('');
     const [showFriends, setShowFriends] = useState(false);
-    
+
     const [showRequests, setShowRequests] = useState(false);
     const [isAcceptHovered, setIsAcceptHovered] = useState(false);
     const [isRejectHovered, setIsRejectHovered] = useState(false);
-    
+
     const [showBlocked, setShowBlocked] = useState(false);
 
     const [isFriendHovered, setIsFriendHovered] = useState(-1);
@@ -48,17 +49,30 @@ const FriendDisplay: React.FC = () => {
             setFriendLPetitionList(friendsWithImages);
         };
 
+        const fetchBlockedUsers = async () => {
+            const blockedUsersRequest = await getBlockedUsers();
+            const blockedUsersWithImages = await Promise.all(blockedUsersRequest.map(async (blockedUser: { avatarUri: string; nick: string }) => {
+                const imageUrl = await getUserImage(blockedUser.avatarUri);
+                return { 
+                    nick: blockedUser.nick,
+                    avatarFile: imageUrl,
+                    isOnline: false,
+                    isInGame: false,
+                };
+            }));
+            setBlockedUsersList(blockedUsersWithImages);
+        };
+
         fetchFriends();
         fetchFriendPetition();
+        fetchBlockedUsers();
     }, []);
-
 
     // ------------------ STYLES ----------------------------
 
     const FriendWrapper: React.CSSProperties = {
         height: '100vh',
         width: '20vw',
-        // backgroundColor: 'pink',
         top: '0%',
         left: '80%',
         position: 'absolute',
@@ -70,7 +84,6 @@ const FriendDisplay: React.FC = () => {
         width: '60%',
         height: '40px',
         display: "flex",
-        flexDirection: "row",
         position: "relative",
     };
 
@@ -119,20 +132,20 @@ const FriendDisplay: React.FC = () => {
         top: '30px',
         width: '100%',
         paddingBottom: '6px',
-        transition: 'max-height 1s ease-in-out',
         overflow: 'hidden',
         maxHeight: showFriends ? '500px' : '15px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-start',
         backgroundColor: 'transparent',
-        marginTop: '10px'
+        marginTop: '10px',
+        transition: 'max-height 0.8s ease-in-out',
     }
 
     const dropDownStyle: React.CSSProperties = {
         color: 'white',
-        left: '15%',
-        width: '25%',
+        left: '12%',
+        width: '28%',
         background: 'transparent',
         border: 'none',
         scale: '1.4',
@@ -148,12 +161,14 @@ const FriendDisplay: React.FC = () => {
         flexWrap: 'wrap',
         justifyContent: 'space-between',
         marginTop: '2.5%',
-        marginLeft: '14%', 
-        width: '60%',
+        marginLeft: '9%',
+        width: '66%',
+        // overflowY: 'scroll',
     };
-    
+
     const friendContainerStyle: React.CSSProperties = {
-        marginBottom: '1%',
+        width: '35%',
+        marginBottom: '3%',
         borderRadius: '8px',
         border: 'none',
         background: 'transparent',
@@ -161,14 +176,13 @@ const FriendDisplay: React.FC = () => {
         cursor: 'pointer',
         transition: 'transform 0.3s ease-in-out, background-color 0.3s ease',
         maxHeight: '52px',
-        maxWidth: '62px'
     };
 
     const avatarWrapperStyle: React.CSSProperties = {
         width: '50px',
         height: '50px',
         borderRadius: '50%',
-        backgroundColor: 'green',
+        backgroundColor: 'blue', // if offline gris
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -176,26 +190,28 @@ const FriendDisplay: React.FC = () => {
         position: 'relative',
         transition: 'transform 0.3s ease-in-out, background-color 0.8s ease',
     };
-
+    
     const avatarStyle: React.CSSProperties = {
         width: '45px',
         height: '45px',
         borderRadius: '50%',
-        margin: 'auto', // Add 'auto' to center the avatar within its container
-        position: 'relative',
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
     };
-
     const nameStyle: React.CSSProperties = {
-        width: '66px',
-        height: '45px',
+        width: '85px',
+        height: '38px',
         left: '45px',
-        bottom: '62px',
+        bottom: '56px',
         position: 'relative',
-        justifyContent: 'center',
-        fontSize: '15px',
+        justifyContent: 'flex-start',
+        fontSize: '14px',
         color: '#c0c0c0',
         display: 'flex',
         alignItems: 'center',
+        paddingLeft: '10px'
     }
 
     const buttonContainerStyle: React.CSSProperties = {
@@ -217,7 +233,7 @@ const FriendDisplay: React.FC = () => {
         width: '25px',
         height: '50%',
         opacity: 0.5,
-        transition: 'opacity 2.3s ease-in-out',
+        transition: 'opacity 1.5s ease-in-out',
     };
 
     const iconStyle: React.CSSProperties = {
@@ -239,10 +255,19 @@ const FriendDisplay: React.FC = () => {
         setShowFriends(!showFriends);
     };
 
+    const handleBlockedClick = () => {
+        setShowBlocked(!showBlocked);
+    };
+
     const handleFriendSumbit = async (event: React.FormEvent) => {
         event.preventDefault();
 
         await addFriend(friendName);
+    }
+
+    const openFriendChat = async (friendName: string) => {
+        // create chat window
+        // await createFriendChat(friendName);
     }
 
     return (
@@ -288,6 +313,7 @@ const FriendDisplay: React.FC = () => {
                                 style={friendContainerStyle}
                                 onMouseEnter={() => setIsFriendHovered(index)}
                                 onMouseLeave={() => setIsFriendHovered(-1)}
+                                onClick={() => openFriendChat(friend.nick)}
                             >
                                 <div style={{
                                     transform: isFriendHovered === index ? 'scale(1.1)' : 'none',
@@ -302,6 +328,7 @@ const FriendDisplay: React.FC = () => {
                                             src={friend.avatarFile}
                                             style={avatarStyle}
                                         />
+                                        
                                     </div>
                                     <p style={nameStyle}>{friend.nick}</p>
                                 </div>
@@ -355,7 +382,7 @@ const FriendDisplay: React.FC = () => {
                                                 onMouseLeave={() => setIsRejectHovered(false)}
                                                 style={getIconStyle(isRejectHovered, 'red')}
                                                 size={16}
-                                                onClick={async () => await deleteFriend(request.nick)}
+                                                onClick={async () => await deleteFriend(request.nick)} // No se borra
                                             />
                                         </div>
                                     )}
@@ -364,10 +391,44 @@ const FriendDisplay: React.FC = () => {
                         ))}
                     </div>
                 </div>
+                <div style={{ ...dropDownContainerStyle, maxHeight: showBlocked ? '500px' : '15px' }}>
+                    <button onClick={handleBlockedClick} style={dropDownStyle}>
+                        Bloqueados
+                        {showBlocked ? <FaCaretUp /> : <FaCaretDown />}
+                    </button>
+
+                    <div style={friendsListStyle}>
+                        {blockedUsersList.map((blockedUser, index) => (
+                            <button
+                                key={index}
+                                style={friendContainerStyle}
+                                onMouseEnter={() => setIsBlockedHovered(index)}
+                                onMouseLeave={() => setIsBlockedHovered(-1)}
+                                // onClick={async () => await unblockFriend(blockedUser.nick)}
+                            >
+                                <div style={{
+                                    transform: isBlockedHovered === index ? 'scale(1.1)' : 'none',
+                                    transition: 'transform 0.3s ease-in-out',
+                                }}>
+                                    <div style={{
+                                        ...avatarWrapperStyle,
+                                        backgroundColor: isBlockedHovered === index ? 'lightgray' : 'gray'
+                                    }}>
+                                        <img
+                                            className='FriendAvatar'
+                                            src={blockedUser.avatarFile}
+                                            style={avatarStyle}
+                                        />
+                                    </div>
+                                    <p style={nameStyle}>{blockedUser.nick}</p>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
             </div >
         </div>
     );
-
 }
 
 export default FriendDisplay;
