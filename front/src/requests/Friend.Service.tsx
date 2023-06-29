@@ -1,5 +1,4 @@
 import axios from "axios";
-import { getUserImage } from "./User.Service";
 
 axios.defaults.baseURL = 'http://localhost:3000';
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
@@ -113,5 +112,25 @@ export async function updateFriendList(friendName: string) {
     } catch (error) {
         console.log('Error: Could not remove that friend', error);
         return false;
+    }
+}
+
+// --------------------- Canales/Directos/Bloqueados --------------------------
+
+export async function getBlockedUsers() {
+    try {
+        const response = await axios.get('chats', {
+            responseType: 'json',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            },
+        });
+
+        const { blocked_users } = response.data;
+        return blocked_users;
+
+    } catch (error) {
+        console.log('Error: Could not remove that friend', error);
+        return  [];
     }
 }
