@@ -10,6 +10,7 @@ import GameSelector from './pages/GameSelector';
 import PongPage from './pages/Pong';
 import Register from './pages/Register';
 import PreRegister from './pages/PreRegister';
+import Profile from './pages/Profile';
 import { io, Socket } from 'socket.io-client';
 
 
@@ -46,6 +47,7 @@ root.render(
           <Route path="homepage" element={<Home />} />
           <Route path="settings" element={<Options />} />
           <Route path="pong" element={<PongPage />} />
+          <Route path="profile" element={<Profile />} />
           <Route path="gameSelector" element={<GameSelector />} />
         </Route>
       </Routes>

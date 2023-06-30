@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import HomeButton from "../components/B_Home";
 import OriginalMenu from "../components/gameSelector/M_OriginalGame";
 import CustomMenu from "../components/gameSelector/M_CustomGame";
+import SocialMenu from "../components/chat-friend-menu/SocialMenu";
 
 function GameSelector() {
     const navigate = useNavigate();
@@ -12,11 +13,6 @@ function GameSelector() {
     const BodyStyle: React.CSSProperties = {
         display: 'flex',
         height: '100vh',
-    }
-
-    const SocialMenu: React.CSSProperties = {
-        width: '400px',
-        backgroundColor: '#1C2C4A',
     }
 
     const Content: React.CSSProperties = {
@@ -119,9 +115,7 @@ function GameSelector() {
                     </div>
                 </div>
             </div>
-            <div style={SocialMenu} className='SocialWindow'>
-                    {/* SOCIAL WINDOW */}
-            </div>
+            <SocialMenu></SocialMenu>
         </body>
     );
 }
