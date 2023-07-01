@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SettingsButton from "../components/home/SettingsButton";
 import HomeButton from "../components/B_Home";
 import GameButton from "../components/B_General";
+import SocialMenu from "../components/chat-friend-menu/SocialMenu";
 
 function Home() {
     const navigate = useNavigate();
@@ -51,6 +52,12 @@ function Home() {
         navigate('/pong');
     };
 
+    // const acceptFriendRequest = async (event: React.FormEvent) =>  {
+    //     event.preventDefault();
+        
+    //     await deleteFriend('kepa');
+    // }
+
     const GoGameSelector = () => {
         navigate('/gameSelector');
     };
@@ -65,9 +72,9 @@ function Home() {
                 <section className="B_Play" style={PlayButtonStyle} onClick={GoGameSelector}>
                     <GameButton name="Play" width={435} height={155} fsize={48}></GameButton>
                 </section>
-            </div>
-            <div style={WindowSocial}>
-                    {/* SOCIAL WINDOW */}
+                <section>
+                    <SocialMenu></SocialMenu>
+                </section>
             </div>
         </div>
     );
