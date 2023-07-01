@@ -11,6 +11,7 @@ import PongPage from './pages/Pong';
 import Register from './pages/Register';
 import PreRegister from './pages/PreRegister';
 import { io, Socket } from 'socket.io-client';
+import Verification2af from './pages/Verification2AF';
 
 
 const socketOptions = {
@@ -47,6 +48,7 @@ root.render(
           <Route path="settings" element={<Options />} />
           <Route path="pong" element={<PongPage />} />
           <Route path="gameSelector" element={<GameSelector />} />
+          <Route path="verification" element={<Verification2af />} />
         </Route>
       </Routes>
     </div>

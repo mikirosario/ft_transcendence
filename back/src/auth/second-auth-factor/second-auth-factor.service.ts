@@ -36,7 +36,7 @@ export class SecondAuthFactorService {
       issuer: '42 Pong',
     });
 
-    const qrCodeImageBuffer = await qrcode.toBuffer(otpAuthUrl);
+    const qrCodeImageBuffer = await qrcode.toDataURL(otpAuthUrl);
     res.set("Content-Type", "image/jpeg");
     res.set("Content-Length", qrCodeImageBuffer.length.toString());
     res.send(qrCodeImageBuffer);
@@ -47,7 +47,9 @@ export class SecondAuthFactorService {
       where: { id: userId },
       select: { secondFactorSecret: true },
     });
-
+    console.log(userId);
+    console.log(user);
+    console.log(verify2faDto);
     // Verify the provided 2FA code against the user's stored secret key
     const verificationResult = speakeasy.totp.verify({
       secret: user.secondFactorSecret,
@@ -55,6 +57,7 @@ export class SecondAuthFactorService {
       token: verify2faDto.code
     });
 
+    console.log(verificationResult);
     return { verificationResult };
   }
 }
