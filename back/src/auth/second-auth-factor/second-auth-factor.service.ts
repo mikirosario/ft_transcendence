@@ -42,6 +42,25 @@ export class SecondAuthFactorService {
     res.send(qrCodeImageBuffer);
   }
 
+  async disable2fa(userId: number): Promise<void> {
+    await this.prisma.user.update({
+      where: {id: userId},
+      data: {secondFactorSecret: null},
+    });
+  }
+
+  async check2fa(userId: number): Promise<{checkresult: boolean}> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId},
+      select: {secondFactorSecret: true},
+    });
+    if (user.secondFactorSecret == null)
+    {
+      return {checkresult: false};
+    }
+    return {checkresult: true};
+  }
+
   async verify2fa(userId: number, verify2faDto: Verify2faDto): Promise<{ verificationResult: boolean }> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },

@@ -9,6 +9,8 @@ interface VerificationResponse {
   verificationResult: boolean;
 }
 
+axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
+
 const VerificationInput: React.FC<VerificationInputProps> = ({ onVerificationResult }) => {
   const [verificationCode, setVerificationCode] = useState<string>('');
   const [verificationResult, setVerificationResult] = useState<boolean | null>(null);
@@ -17,6 +19,9 @@ const VerificationInput: React.FC<VerificationInputProps> = ({ onVerificationRes
     try {
       const response = await axios.post<VerificationResponse>('http://localhost:3000/auth/second-auth-factor/verify', {
         code: verificationCode,
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('token'),
+        }
       });
       console.log(response.data);
       setVerificationResult(response.data.verificationResult);

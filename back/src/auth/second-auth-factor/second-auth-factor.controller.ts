@@ -18,6 +18,16 @@ export class SecondAuthFactorController {
     return this.secondAuthFactorService.enable2fa(userId, res);
   }
 
+  @Get('disable')
+  async disable2fa(@GetJwt('sub') userId: number) {
+    return this.secondAuthFactorService.disable2fa(userId);
+  }
+
+  @Get('check')
+  async check2fa(@GetJwt('sub') userId: number) {
+    return this.secondAuthFactorService.check2fa(userId);
+  }
+
   @Post('verify')
   async verify2fa(@GetJwt('sub') userId: number, @Body() verify2faDto: Verify2faDto) {
     console.log(userId);
