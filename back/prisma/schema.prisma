@@ -19,6 +19,7 @@ model User {
   nick  String  @unique
   login String  @unique
   hash  String?
+  secondFactorSecret String?
 
   avatarUri String  @default("default.jpg")
   isOnline  Boolean @default(false)

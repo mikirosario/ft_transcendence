@@ -1,9 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import UserSettingsButtons from "../components/settings/UserSettingsButtons";
 import GoToHomepage from "../components/home/Home";
+import QRCodeDisplay from "../components/2AF/QRCodeDisplay";
+import axios from 'axios';
+
+axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
 
 function Options() {
+    const [is2AFActive, setIs2AFACtive] = useState(false);
+    
+    useEffect(() => {
+        const check2AFOnLoad = async () => {
+          try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get<{ checkresult: boolean }>('http://localhost:3000/auth/second-auth-factor/check', {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            setIs2AFACtive(response.data.checkresult);
+          } catch (error) {
+            console.error('Error checking 2FA status:', error);
+          }
+        };
+    
+        check2AFOnLoad();
+      }, []);
 
+      const handleToggle2AF = async () =>{
+        if (is2AFActive)
+        {
+            try {
+              const token = localStorage.getItem('token');
+              await axios.put<string>('http://localhost:3000/auth/second-auth-factor/disable', {
+                headers: { 'Authorization': `Bearer ${token}` }
+              });
+              console.log("2AF disabled");
+            } catch (error) {
+              console.error('Error disabling 2FA:', error);
+            }
+        }
+        setIs2AFACtive(!is2AFActive);
+    };
+  
     const NicknamePositionStyle: React.CSSProperties = {
         height: '320px',
         width: '100%',
@@ -51,6 +88,10 @@ function Options() {
                             Edit Profile
                         </div>
                         <section className="OptionsMenu">
+                            {is2AFActive && <QRCodeDisplay/>}
+                            <button onClick={handleToggle2AF}>
+                                {is2AFActive ? "Deactivate 2AF" : "Activate 2AF"}
+                            </button>
                             <UserSettingsButtons btnTxt="Apply Changes"></UserSettingsButtons>
                         </section>
                     </div>
