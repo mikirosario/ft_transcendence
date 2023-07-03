@@ -14,12 +14,6 @@ function Home() {
         justifyContent: 'flex-end',
         alignItems: 'center',
     }
-    
-    const WindowSocial: React.CSSProperties = {
-        width: '400px',
-        height: '100%',
-        backgroundColor: '#1C2C4A',
-    }
 
     const PlayFriendsButtonStyle: React.CSSProperties = {
         position: 'absolute',
@@ -52,12 +46,7 @@ function Home() {
         navigate('/pong');
     };
 
-    // const acceptFriendRequest = async (event: React.FormEvent) =>  {
-    //     event.preventDefault();
-        
-    //     await deleteFriend('kepa');
-    // }
-
+    
     const GoGameSelector = () => {
         navigate('/gameSelector');
     };

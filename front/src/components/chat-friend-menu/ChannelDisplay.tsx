@@ -8,7 +8,7 @@ interface Channel {
   isPrivate: boolean
 }
 
-const ChannelDisplay: React.FC = () => {
+function ChannelDisplay({ openChat }: { openChat: (friendName: string) => void }) {
   const [channelList, setChannelList] = useState<Channel[]>([]);
 
   const [createChannelName, setCreateChannelName] = useState('');
