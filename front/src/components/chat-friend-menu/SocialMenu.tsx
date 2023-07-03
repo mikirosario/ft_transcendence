@@ -5,7 +5,8 @@ import { getUserProfile } from '../../requests/User.Service';
 import FriendDisplay from "./FriendDisplay";
 import ChannelDisplay from "./ChannelDisplay"
 import { io, Socket } from 'socket.io-client';
-import { FaAngleRight , FaAngleLeft  } from 'react-icons/fa'; // SOLID ARROW
+import { FaAngleRight, FaAngleLeft } from 'react-icons/fa'; // SOLID ARROW
+import ChatDisplay from "./ChatDisplay";
 //BiChevronLeft 
 
 const socketOptions = {
@@ -25,6 +26,8 @@ function Menu() {
   const [userImage, setUserImage] = useState<string>('');
   const [selectedButton, setSelectedButton] = useState('friend');
   const [isMenuExpanded, setIsMenuExpanded] = useState(true);
+
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
@@ -105,35 +108,35 @@ function Menu() {
     textShadow: selectedButton === 'channels' ? '0.6px 0 0 black' : 'none',
   };
 
-  const [SocialDisplay, setSocialDisplay] = useState<React.CSSProperties>({
+  const SocialDisplay: React.CSSProperties = {
     width: '0%',
     height: '77%',
     backgroundColor: 'grey',
     top: '23.09%',
     left: '0%',
     position: 'absolute',
-  });
+  };
 
   const toggleButtonStyle: React.CSSProperties = isMenuExpanded
-  ? {
-    position: 'absolute',
-    top: '30px',
-    right: '20vw',
-    backgroundColor: 'transparent',
-    color: 'white',
-    border: 'none',
-    padding: '6px',
-    transition: 'right 0.5s ease',
-  } : {
-    position: 'absolute',
-    top: '30px',
-    right: '0',
-    backgroundColor: 'transparent',
-    color: 'white',
-    border: 'none',
-    padding: '6px',
-    transition: 'right 0.5s ease',
-  };
+    ? {
+      position: 'absolute',
+      top: '30px',
+      right: '20vw',
+      backgroundColor: 'transparent',
+      color: 'white',
+      border: 'none',
+      padding: '6px',
+      transition: 'right 0.5s ease',
+    } : {
+      position: 'absolute',
+      top: '30px',
+      right: '0',
+      backgroundColor: 'transparent',
+      color: 'white',
+      border: 'none',
+      padding: '6px',
+      transition: 'right 0.5s ease',
+    };
 
   const handleFriendButtonClick = () => {
     setSelectedButton('friend');
@@ -144,14 +147,21 @@ function Menu() {
     setSelectedButton('channels');
   };
 
+  const openChat = async (chat: string) => {
+    // create chat window
+    // await createFriendChat(friendName);
+    setSelectedChat(chat);  // Actualiza el estado chatSelected (puede ser un canal o un amigo)
+  }
+
+
   return (
     <>
       <button
         style={toggleButtonStyle}
         onClick={() => setIsMenuExpanded(!isMenuExpanded)}
       >
-            {isMenuExpanded ? <FaAngleRight size={22}/> : <FaAngleLeft size={22}/>}
-        </button>
+        {isMenuExpanded ? <FaAngleRight size={22} /> : <FaAngleLeft size={22} />}
+      </button>
 
       <div style={{
         ...MenuStyle,
@@ -169,7 +179,11 @@ function Menu() {
             Canales
           </button>
           <div style={SocialDisplay}>
-            {selectedButton === 'friend' ? <FriendDisplay /> : <ChannelDisplay />}
+            {selectedChat ? (
+              <ChatDisplay selectedChat={selectedChat} setSelectedChat={setSelectedChat} />
+            ) : (
+              selectedButton === 'friend' ? <FriendDisplay openChat={openChat} /> : <ChannelDisplay openChat={openChat} />
+            )}
           </div>
         </div>
       </div>

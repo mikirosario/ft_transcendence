@@ -12,7 +12,7 @@ interface Friend {
     avatarFile?: string;
 }
 
-const FriendDisplay: React.FC = () => {
+function FriendDisplay({ openChat }: { openChat: (friendName: string) => void }) {
     const [friendList, setFriendList] = useState<Friend[]>([]);
     const [friendPetitionList, setFriendLPetitionList] = useState<Friend[]>([]);
     const [blockedUsersList, setBlockedUsersList] = useState<Friend[]>([]);
@@ -265,10 +265,10 @@ const FriendDisplay: React.FC = () => {
         await addFriend(friendName);
     }
 
-    const openFriendChat = async (friendName: string) => {
-        // create chat window
-        // await createFriendChat(friendName);
-    }
+    // const openFriendChat = async (friendName: string) => {
+    //     // create chat window
+    //     // await createFriendChat(friendName);
+    // }
 
     return (
         <div style={FriendWrapper}>
@@ -299,6 +299,7 @@ const FriendDisplay: React.FC = () => {
                 )}
 
             </div>
+            {/* AMIGOS */}
             <div style={buttonContainerStyle}>
                 <div style={dropDownContainerStyle}>
                     <button onClick={handleClick} style={dropDownStyle}>
@@ -313,7 +314,7 @@ const FriendDisplay: React.FC = () => {
                                 style={friendContainerStyle}
                                 onMouseEnter={() => setIsFriendHovered(index)}
                                 onMouseLeave={() => setIsFriendHovered(-1)}
-                                onClick={() => openFriendChat(friend.nick)}
+                                onClick={() => openChat(friend.nick)}
                             >
                                 <div style={{
                                     transform: isFriendHovered === index ? 'scale(1.1)' : 'none',
@@ -325,6 +326,7 @@ const FriendDisplay: React.FC = () => {
                                     }}>
                                         <img
                                             className='FriendAvatar'
+                                            alt={'Avatar de' + friend.nick}
                                             src={friend.avatarFile}
                                             style={avatarStyle}
                                         />
@@ -362,6 +364,7 @@ const FriendDisplay: React.FC = () => {
                                     }}>
                                         <img
                                             className='FriendAvatar'
+                                            alt={'Avatar de' + request.nick}
                                             src={request.avatarFile}
                                             style={avatarStyle}
                                         />
@@ -391,6 +394,7 @@ const FriendDisplay: React.FC = () => {
                         ))}
                     </div>
                 </div>
+                 {/* BLOQUEADOS */}
                 <div style={{ ...dropDownContainerStyle, maxHeight: showBlocked ? '500px' : '15px' }}>
                     <button onClick={handleBlockedClick} style={dropDownStyle}>
                         Bloqueados
@@ -416,6 +420,7 @@ const FriendDisplay: React.FC = () => {
                                     }}>
                                         <img
                                             className='FriendAvatar'
+                                            alt={'Avatar de' + blockedUser.nick}
                                             src={blockedUser.avatarFile}
                                             style={avatarStyle}
                                         />
