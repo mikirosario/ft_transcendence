@@ -1,0 +1,40 @@
+all:
+	@cd ./srcs/ && docker-compose up --build
+
+resume:
+	@echo "STARTING CONTAINERS...\n"
+	@cd ./srcs/ && docker-compose up -d
+
+stop:
+	@cd ./srcs/ && docker-compose down
+	@echo "CONTAINERS STOPPED!\n"
+
+clean:
+	@echo "System cleaned!"
+
+fclean: clean
+	@echo "System deeply cleaned!"
+
+front:
+	@echo "STARTING FRONT...\n"
+	@cd ./srcs/front && npm start
+
+front-stop:
+
+back:
+	@echo "STARTING BACK...\n"
+	@cd ./srcs/front && npm run start:dev
+
+back-stop:
+
+database:
+	@cd ./srcs/front && npm run db:dev:remove
+	@echo "Database created succesfully..."
+
+database-stop:
+
+prune:
+	@echo "System pruned!"
+	docker system prune -f
+
+.PHONY: all resume stop clean fclean front back database prune

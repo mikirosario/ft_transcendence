@@ -1,0 +1,41 @@
+version: '3.4'
+
+networks:
+  transcendence:
+
+volumes:
+  data:
+
+services:
+
+  # DATABASE #
+  db:
+    image: postgres:15-alpine
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: nest
+    volumes:
+      - data:/var/lib/postgresql/data
+    networks:
+      - transcendence
+
+  # BACK #
+  back:
+    build:
+      context: ./back
+      dockerfile: ./Dockerfile
+    image: node:lts-alpine
+    networks:
+      - transcendence
+
+# FRONT #
+  front:
+    build:
+      context: ./front
+      dockerfile: ./Dockerfile
+    image: node:lts-alpine
+    networks:
+      - transcendence
