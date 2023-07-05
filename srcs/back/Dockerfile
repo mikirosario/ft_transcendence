@@ -2,7 +2,6 @@ FROM node:lts-alpine
 
 COPY package*.json ./
 RUN npm install
-COPY . .
-EXPOSE 5000
+COPY . ./back
 
 CMD ["npm", "run", "start"]

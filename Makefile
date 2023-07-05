@@ -11,6 +11,8 @@ stop:
 
 clean:
 	@echo "System cleaned!"
+	-docker-compose -f ./srcs/docker-compose.yml --env-file srcs/.env down -v --rmi  all
+	-docker system prune -af
 
 fclean: clean
 	@echo "System deeply cleaned!"

@@ -1,4 +1,4 @@
-version: '3.4'
+version: '3.8'
 
 networks:
   transcendence:
@@ -10,6 +10,7 @@ services:
 
   # DATABASE #
   db:
+    container_name: postgresql
     image: postgres:15-alpine
     ports:
       - "5434:5432"
@@ -24,18 +25,22 @@ services:
 
   # BACK #
   back:
+    container_name: back
     build:
-      context: ./back
-      dockerfile: ./Dockerfile
-    image: node:lts-alpine
+      context: ./back/
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
     networks:
       - transcendence
 
 # FRONT #
   front:
+    container_name : front
     build:
-      context: ./front
-      dockerfile: ./Dockerfile
-    image: node:lts-alpine
+      context: ./front/
+      dockerfile: Dockerfile
+    ports:
+      - 3001:3000
     networks:
       - transcendence
