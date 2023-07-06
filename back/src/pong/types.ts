@@ -1,4 +1,5 @@
 import { Ball } from "./ball";
+import { IPhysicsObject } from "./interfaces";
 import { Paddle } from "./paddle";
 import { Player, PlayerID } from "./player";
 
@@ -40,6 +41,6 @@ export type GameState = {
     referenceHeight: number
   };
 
-  export type InputState = {
+export type InputState = {
     paddleVelocityVectorY: number,
 }

@@ -1,14 +1,13 @@
 import { Circle } from "./circle";
 import { Transform } from "./transform";
-import { IPhysicsObject, IStateSynchronizationObject } from "./interfaces";
-import { BoundingBox, Resolution, Position, RigidBodyOptions, ScaleFactors, GameState } from "./types";
-import { getScaleFactors, isInRange, normalizeRange } from "./utils";
+import { IPhysicsObject } from "./interfaces";
+import { BoundingBox, Resolution, Position, RigidBodyOptions, ScaleFactors } from "./types";
+import { isInRange, normalizeRange } from "./utils";
 
-export class Ball extends Circle implements IPhysicsObject, IStateSynchronizationObject
+export class Ball extends Circle implements IPhysicsObject
 {
     private isColliderActive: boolean;
     private isInPlay: boolean;
-    private speed: number;
     private velocityVectorX: number;
     private velocityVectorY: number;
     private referenceSpeed: number;
@@ -28,23 +27,23 @@ export class Ball extends Circle implements IPhysicsObject, IStateSynchronizatio
     }
 
     public get Speed(): number {
-        return this.speed;
+        return this.referenceSpeed;
     }
     public set Speed(value: number) {
-        this.speed = value;
+        this.referenceSpeed = value;
     }
 
     public get VelocityVectorX() : number {
         return this.velocityVectorX;
     }
-    public set VelocityVectorX(value: number) {
+    private set VelocityVectorX(value: number) {
         this.velocityVectorX = value;
     }
 
     public get VelocityVectorY() : number {
         return this.velocityVectorY;
     }
-    public set VelocityVectorY(value: number) {
+    private set VelocityVectorY(value: number) {
         this.velocityVectorY = value;
     }
 
@@ -84,7 +83,6 @@ export class Ball extends Circle implements IPhysicsObject, IStateSynchronizatio
     constructor(transform: Transform, color: string, speed: number, radius: number, options: RigidBodyOptions = {} )
     {
         super(transform, color, radius, { SetActive: options.SetActive });
-        this.speed = speed;
         this.velocityVectorX = -1;
         this.velocityVectorY = 1;
         this.isColliderActive = options.SetCollider === undefined ? false : options.SetCollider;
@@ -94,6 +92,7 @@ export class Ball extends Circle implements IPhysicsObject, IStateSynchronizatio
 
     public bounceY()
     {
+        console.log("bounced");
         this.VelocityVectorY *= -1;
     }
 
@@ -111,6 +110,7 @@ export class Ball extends Circle implements IPhysicsObject, IStateSynchronizatio
         const bounceAngleInRadians = collisionPointY * QUARTER_CIRCLE_IN_RADIANS;
         const newVelocityVectorX = Math.cos(bounceAngleInRadians);
 
+        console
         if (isSideCollision) // Side collisions invert the X direction of motion
             this.VelocityVectorX = newVelocityVectorX * -referenceDirectionX;
         else                 // Top or bottom collisions continue the X direction of motion
@@ -119,7 +119,7 @@ export class Ball extends Circle implements IPhysicsObject, IStateSynchronizatio
         this.VelocityVectorY = Math.sin(bounceAngleInRadians);
     }
     
-    public willCollideCanvas(canvas: HTMLCanvasElement): boolean
+    public willCollideCanvas(canvas: Resolution): boolean
     {
         let willCollide: boolean = false;
         if (this.IsColliderActive)
@@ -150,13 +150,13 @@ export class Ball extends Circle implements IPhysicsObject, IStateSynchronizatio
             return willCollide;
         }
         
-        public resetBall(canvas: HTMLCanvasElement)
+        public resetBall(currentResolution: Resolution)
         {
             this.Transform.position = {
-                x: Math.round(canvas.width * 0.5),
-            y: Math.round(canvas.height * 0.5)
+                x: Math.round(currentResolution.width * 0.5),
+            y: Math.round(currentResolution.height * 0.5)
         }
-        //this.VelocityVectorX = -this.VelocityVectorX;
+        this.VelocityVectorX = -this.VelocityVectorX;
     }
     
     /**
@@ -202,52 +202,19 @@ export class Ball extends Circle implements IPhysicsObject, IStateSynchronizatio
         this.ReferenceSpeed = newSpeed;
         this.rescaleSpeed(scaleFactors);
     }
-
-    public onResizeCanvas(scaleFactors: ScaleFactors, currentCanvasResolution: Resolution, prevCanvasResolution: Resolution): void
-    {
-        super.onResizeCanvas(scaleFactors, currentCanvasResolution, prevCanvasResolution);
-        this.rescaleSpeed(scaleFactors);
-    }
     
-    public move(canvas: HTMLCanvasElement, physObjects: IPhysicsObject[] = [])
-    {
-        // if (this.IsActive)
-        // {
-        //     if (this.willCollideCanvas(canvas))
-        //         this.bounceY();
-        //     physObjects.forEach((physObject) => {
-        //         if (this.willCollide(physObject))
-        //             this.bounceBack(physObject);
-        //     })
-        //     this.Transform.position.x += this.VelocityVectorX * this.Speed;
-        //     this.Transform.position.y += this.VelocityVectorY * this.Speed;
-        // }
-        this.Transform.position.x += this.VelocityVectorX * this.Speed;
-        this.Transform.position.y += this.VelocityVectorY * this.Speed;
-    }
-
-    synchronizeState(gameState: GameState, currentResolution: Resolution): void
-    {
-        let referenceResolution: Resolution = {
-            width: gameState.referenceWidth,
-            height: gameState.referenceHeight
-        }
-        let scaleFactors: ScaleFactors = getScaleFactors(currentResolution, referenceResolution);
-        super.onResizeCanvas(scaleFactors, currentResolution, referenceResolution);
-        // this.updateSpeed(scaleFactors, gameState.ball.ReferenceSpeed);
-        // this.VelocityVectorX = gameState.ball.VelocityVectorX;
-        // this.VelocityVectorY = gameState.ball.VelocityVectorY;
-    }
-
-    public draw(ctx: CanvasRenderingContext2D): void
+    public move(referenceResolution: Resolution, physObjects: IPhysicsObject[] = [])
     {
         if (this.IsActive)
         {
-            ctx.fillStyle = this.Color;
-            ctx.beginPath();
-            ctx.arc(this.Transform.position.x, this.Transform.position.y, this.HalfWidth, 0, Math.PI * 2, false);
-            ctx.closePath();
-            ctx.fill();
+            if (this.willCollideCanvas(referenceResolution))
+                this.bounceY();
+            physObjects.forEach((physObject) => {
+                if (this.willCollide(physObject))
+                    this.bounceBack(physObject);
+            })
+            this.Transform.position.x += this.VelocityVectorX * this.ReferenceSpeed;
+            this.Transform.position.y += this.VelocityVectorY * this.ReferenceSpeed;
         }
     }
 }

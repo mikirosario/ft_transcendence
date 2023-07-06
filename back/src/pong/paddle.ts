@@ -1,14 +1,12 @@
 import { Rectangle } from "./rectangle";
 import { Transform } from "./transform";
-import { IPhysicsObject, IStateSynchronizationObject } from "./interfaces";
-import { PlayerInputs, BoundingBox, Position, RigidBodyOptions, Resolution, ScaleFactors, GameState } from "./types";
-import { getScaleFactors } from "./utils";
+import { IPhysicsObject } from "./interfaces";
+import { PlayerInputs, BoundingBox, Position, RigidBodyOptions, Resolution, ScaleFactors } from "./types";
 
-export class Paddle extends Rectangle implements IPhysicsObject, IStateSynchronizationObject
+export class Paddle extends Rectangle implements IPhysicsObject
 {
     private isColliderActive: boolean;
     private playerInputs: PlayerInputs;
-    private speed: number;
     private velocityVectorX: number;
     private velocityVectorY: number;
     private referenceSpeed: number;
@@ -25,10 +23,10 @@ export class Paddle extends Rectangle implements IPhysicsObject, IStateSynchroni
     }
 
     public get Speed() : number {
-        return this.speed;
+        return this.referenceSpeed;
     }
     public set Speed(value: number) {
-        this.speed = value;
+        this.referenceSpeed = value;
     }
 
     public get VelocityVectorX() : number {
@@ -47,9 +45,6 @@ export class Paddle extends Rectangle implements IPhysicsObject, IStateSynchroni
 
     public get ReferenceSpeed(): number {
         return this.referenceSpeed;
-    }
-    private set ReferenceSpeed(value: number) {
-        this.referenceSpeed = value;
     }
 
     public get NextPosition(): Position {
@@ -81,7 +76,6 @@ export class Paddle extends Rectangle implements IPhysicsObject, IStateSynchroni
     constructor(transform: Transform, color: string, width: number, height: number, speed: number, referenceResolution: Resolution, options: RigidBodyOptions = {})
     {
         super(transform, color, width, height, referenceResolution, { SetActive: options.SetActive });
-        this.speed = speed;
         this.isColliderActive = options.SetCollider === undefined ? false : options.SetCollider;
         this.velocityVectorX = 0;
         this.velocityVectorY = 0;
@@ -89,7 +83,7 @@ export class Paddle extends Rectangle implements IPhysicsObject, IStateSynchroni
         this.referenceSpeed = speed;
     }
 
-    public willCollideCanvas(canvas: HTMLCanvasElement): boolean
+    public willCollideCanvas(canvas: Resolution): boolean
     {
         let willCollide: boolean = false;
         if (this.IsColliderActive)
@@ -121,44 +115,12 @@ export class Paddle extends Rectangle implements IPhysicsObject, IStateSynchroni
         return willCollide;
     }
 
-    private rescaleSpeed(scaleFactors: ScaleFactors)
+    public move(referenceResolution: Resolution, collidables: IPhysicsObject[] = [])
     {
-        const scale = Math.min(scaleFactors.scaleX, scaleFactors.scaleY);
-        this.Speed = this.ReferenceSpeed * scale;
-    }
-
-    public updateSpeed(scaleFactors: ScaleFactors, newSpeed: number): void
-    {
-        this.ReferenceSpeed = newSpeed;
-        this.rescaleSpeed(scaleFactors);
-    }
-
-    public onResizeCanvas(scaleFactors: ScaleFactors, currentCanvasResolution: Resolution, prevCanvasResolution: Resolution): void
-    {
-        super.onResizeCanvas(scaleFactors, currentCanvasResolution, prevCanvasResolution);
-        this.rescaleSpeed(scaleFactors);
-    }
-
-    public move(canvas: HTMLCanvasElement, collidables: IPhysicsObject[] = [])
-    {
-        if (this.IsActive && !this.willCollideCanvas(canvas))
+        if (this.IsActive && !this.willCollideCanvas(referenceResolution))
         {
-            this.Transform.position.x += this.VelocityVectorX * this.Speed;
-            this.Transform.position.y += this.VelocityVectorY * this.Speed;
+            this.Transform.position.x += this.VelocityVectorX * this.ReferenceSpeed;
+            this.Transform.position.y += this.VelocityVectorY * this.ReferenceSpeed;
         }
-    }
-
-    synchronizeState(gameState: GameState, currentResolution: Resolution): void
-    {
-        let referenceResolution: Resolution = {
-            width: gameState.referenceWidth,
-            height: gameState.referenceHeight
-        }
-        let scaleFactors: ScaleFactors = getScaleFactors(currentResolution, referenceResolution);
-        super.onResizeCanvas(scaleFactors, currentResolution, referenceResolution);
-        //this.updateSpeed(scaleFactors, gameState.ball.ReferenceSpeed);
-        // this.VelocityVectorX = gameState.ball.VelocityVectorX;
-        // this.VelocityVectorY = gameState.ball.VelocityVectorY;
-
     }
 }

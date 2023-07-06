@@ -1,10 +1,9 @@
-import { Position, BoundingBox, Resolution, ScaleFactors, GameState } from "./types";
+import { Position, BoundingBox, Resolution, ScaleFactors } from "./types";
 import { Alignment } from "./alignment";
 import { Transform } from "./transform";
 
 export interface IDrawable
 {
-    Transform: Transform;
     IsActive: boolean;
     Height: number;
     Width: number;
@@ -21,20 +20,15 @@ export interface IPhysicsObject
     VelocityVectorX: number;
     VelocityVectorY: number;
     NextPosition: Position;
-    move(canvas: HTMLCanvasElement, collidables: IPhysicsObject[]): void;
+    move(canvas: Resolution, collidables: IPhysicsObject[]): void;
     IsColliderActive: boolean;
     BoundingBoxNextPosition: BoundingBox;
     BoundingBoxPosition: BoundingBox;
-    willCollideCanvas(canvas: HTMLCanvasElement): boolean;
+    willCollideCanvas(canvas: Resolution): boolean;
     willCollide(collidable: IPhysicsObject): boolean;
 }
 
 export interface IUIObject
 {
     Alignment: Alignment;
-}
-
-export interface IStateSynchronizationObject
-{
-    synchronizeState(gameState: GameState, currentResolution: Resolution): void;
 }

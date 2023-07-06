@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import * as Pong from "./pong/pong";
 import { io, Socket } from 'socket.io-client';
 
@@ -7,24 +7,25 @@ const socketOptions = {
   transportOptions: {
       polling: {
           extraHeaders: {
-              Authorization: 'Bearer ' + localStorage.getItem("token"),
+              Authorization: localStorage.getItem("token"),
+              userID: '1234'
           }
       }
-  }
+  },
+  autoConnect: false
 };
 
 
 function PongPage() {
 
-    useEffect(() => {
-        // Set socket conexion (isInGame)
-        const socket: Socket = io('http://localhost:8082/', socketOptions);
-        Pong.main();
+    var font = new FontFace('press_start_2p', 'url(/fonts/PressStart2P-Regular.ttf) format(\'truetype\')', {style: 'normal', weight: 'normal'});
 
-        return () => {
-            socket.close();
-          };
-      }, []);
+    font.load().then(function (loadedFont) {
+        document.fonts.add(loadedFont);
+        document.body.style.fontFamily = 'press_start_2p, monospace, sans-serif';
+    }).catch(function (error) {
+        console.log('Failed to load font: ' + error);
+    });
 
     const ErrorMessage: React.CSSProperties = {
         display: 'none',
@@ -39,7 +40,7 @@ function PongPage() {
     };
 
     const CanvasContainer: React.CSSProperties = {
-        backgroundColor: "blue", // "#66CC66"
+        backgroundColor: "blue",
         display: 'inline-block',
         position: 'relative',
     };
@@ -58,7 +59,14 @@ function PongPage() {
         overflow: 'hidden'
     };
 
-    var font: FontFace = new FontFace('press_start_2p', './fonts/PressStart2P-Regular.ttf format(\'truetype\')', {style: 'normal', weight: 'normal'});
+    useEffect(() => {
+        const socket: Socket = io('http://localhost:8082/', socketOptions);
+        Pong.main(socket);
+    
+        return () => {
+            socket.close();
+        };
+    });
 
     return (
         <div className="Pong" style={PageStyle}>

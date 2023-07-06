@@ -27,7 +27,7 @@ export class Text implements IDrawable, IUIObject
         this.isActive = value;
     }
 
-    public get Transform(): Transform {
+    private get Transform(): Transform {
         return this.transform;
     }
 
