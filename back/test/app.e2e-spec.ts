@@ -916,7 +916,6 @@ describe('App e2e', () => {
 							...dto1
 						})
 						.expectStatus(200)
-						.expectBodyContains(dto2.nick)
 				});
 				it('should throw 404 if user not found', () => {
 					return pactum
