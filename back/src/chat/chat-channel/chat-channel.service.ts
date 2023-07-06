@@ -41,6 +41,8 @@ export class ChatChannelService {
 			
 			await this.joinChannel(newChannel.id, user.id, true);
 
+			this.ws.sendSocketMessageToAll('UPDATE_CHANNELS_LIST', await this.getMyChannelsAndPublicChannels(userId));
+
 			delete newChannel.hash;
 			return newChannel;
 
@@ -78,6 +80,8 @@ export class ChatChannelService {
 				}
 			});
 
+			this.ws.sendSocketMessageToAll('UPDATE_CHANNELS_LIST', await this.getMyChannelsAndPublicChannels(userId));
+
 			delete channel.hash;
 			return channel;
 
@@ -100,6 +104,8 @@ export class ChatChannelService {
 			}
 		});
 
+		this.ws.sendSocketMessageToAll('UPDATE_CHANNELS_LIST', await this.getMyChannelsAndPublicChannels(userId));
+		
 		delete channel.hash;
 		return channel;
 	}

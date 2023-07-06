@@ -25,6 +25,10 @@ export class FriendService {
 		} catch (error) {
 			// Friendship doesnt exist
 			await this.createFriendship(user.id, friend.id, false);
+
+			this.ws.sendSocketMessageToUser(friend.id, 'FRIEND_REQUEST_NEW', {
+				friend_requests: await this.getFriendsFiltered(friend.id, false),
+			});
 		}
 
 		const friends = this.getFriendsFiltered(userId, true);
@@ -38,6 +42,16 @@ export class FriendService {
 		const friendship = await this.getFriendship(friend.id, user.id);
 		await this.updateFriendship(friendship.id, {accepted: true});
 		await this.createFriendship(user.id, friend.id, true);
+
+		this.ws.sendSocketMessageToUser(user.id, 'FRIEND_REQUEST_ACCEPTED', {
+			friends: await this.getFriendsFiltered(user.id, true),
+			friend_requests: await this.getFriendsFiltered(user.id, false),
+		});
+
+		this.ws.sendSocketMessageToUser(friend.id, 'FRIEND_REQUEST_ACCEPTED', {
+			friends: await this.getFriendsFiltered(friend.id, true),
+			friend_requests: await this.getFriendsFiltered(friend.id, false),
+		});
 
 		const friends = this.getFriendsFiltered(userId, true);
 		return friends;
