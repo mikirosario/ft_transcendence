@@ -6,14 +6,18 @@ import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as argon from "argon2";
 import { ChatGateway } from '../chat-socket/chat.gateway';
+import { use } from 'passport';
 
 @Injectable()
 export class ChatChannelService {
 	constructor(private prisma: PrismaService, private userService: UserService, private ws: ChatGateway) { }
 
+	async getChannelChat(userId: number, channelId: number) {
+		const channel = await this.getChannelChatInfo(userId, channelId);
+		return this.formatChannel(channel);
+	}
+	
 	async createChannel(userId: number, dto: ChatChannelCreateDto) {
-
-		this.ws.sendSocketMessage(userId, "ID_A", "Nuevo canal bobo!");
 
 		let hash: string = null;
 		let isPrivate: boolean = false;
@@ -35,7 +39,7 @@ export class ChatChannelService {
 				}
 			});
 			
-			await this.joinChannelOwner(newChannel.id, user.id);
+			await this.joinChannel(newChannel.id, user.id, true);
 
 			delete newChannel.hash;
 			return newChannel;
@@ -95,7 +99,7 @@ export class ChatChannelService {
 				id: channel.id
 			}
 		});
-		
+
 		delete channel.hash;
 		return channel;
 	}
@@ -148,13 +152,13 @@ export class ChatChannelService {
 		return channelUser;
 	}
 
-	private async joinChannelOwner(channelId: number, userId: number) {
+	private async joinChannel(channelId: number, userId: number, isOwner: boolean) {
 		try {
 			await this.prisma.chatChannelUser.create({
 				data: {
 					channelId: channelId,
 					userId: userId,
-					isOwner: true
+					isOwner: isOwner
 				}
 			});
 		} catch (error) {
@@ -217,7 +221,7 @@ export class ChatChannelService {
 	async getMyChannelsAndPublicChannels(userId: number) {
 		const myChannels = await this.getMyChannels(userId);
 
-		const myChannelsList = myChannels.map(channel => channel.channel.name);
+		const myChannelsList = myChannels.map(channel => channel.id);
 
 		const publicChannels = await this.getAllPublicChannels(myChannelsList);
 
@@ -228,26 +232,14 @@ export class ChatChannelService {
 		return formattedChannelsList;
 	}
 
+
 	private async getMyChannels(userId: number) {
 		const user = await this.prisma.user.findUnique({
 			where: { id: userId, },
 			include: {
 				chatChannelUser: {
 					include: {
-						channel: {
-							include: {
-								chatChannelUser: {
-									include: {
-										user: true
-									}
-								},
-								chatChannelMessage: {
-									include: {
-										user: true
-									}
-								}
-							}
-						}
+						channel: true
 					},
 				}
 			},
@@ -258,17 +250,55 @@ export class ChatChannelService {
 		}
 
 		const myChannels = user.chatChannelUser;
-		const myChannelsList = myChannels.map(channel => channel);
-
+		const myChannelsList = myChannels.map(channel => channel.channel);
 
 		return myChannelsList;
 	}
 
-	private async getAllPublicChannels(myChannels: string[]) {
+	private async getChannelChatInfo(userId: number, channelId: number) {
+		let channelChatInfo = await this.prisma.chatChannel.findFirst({
+			where: {
+				id: channelId
+			},
+			include: {
+				chatChannelUser: {
+					include: {
+						user: true,
+					},
+				},
+				chatChannelMessage: {
+					include: {
+						user: true
+					}
+				}
+			}
+		});
+
+		if (!channelChatInfo)
+			return {};
+
+		let userInChannel = false;
+		channelChatInfo.chatChannelUser.forEach((item) => {
+			if (item.userId == userId) {
+				userInChannel = true;
+			}
+		});
+
+		if (userInChannel) {
+			return channelChatInfo;
+		}
+		else {
+			await this.joinChannel(channelId, userId, false);
+			return await this.getChannelChatInfo(userId, channelId);
+		}
+		
+	}
+
+	private async getAllPublicChannels(myChannels: number[]) {
 		return await this.prisma.chatChannel.findMany({
 			where: {
 				NOT: {
-					name: {
+					id: {
 						in: myChannels
 					},
 				},
@@ -289,17 +319,23 @@ export class ChatChannelService {
 		});
 	}
 
+	private formatChannel(channel) {
+		const channelFormatted = {
+			id: channel.id,
+			name: channel.name,
+			isPrivate: channel.isPrivate,
+			createdAt: channel.createdAt,
+			members: this.formatChannelUsers(channel.chatChannelUser),
+			messages: this.formatChannelMessages(channel.chatChannelMessage)
+		};
+
+		return channelFormatted;
+	}
+
 	private formatChannelsList(channelsList: any) {
 		const channelsListFormatted: any[] = channelsList.map((channel) => ({
-			id: channel.channel.id,
-			name: channel.channel.name,
-			isPrivate: channel.channel.isPrivate,
-			createdAt: channel.channel.createdAt,
-			joinedAt: channel.joinedAt,
-			isOwner: channel.isOwner,
-			isAdmin: channel.isAdmin,
-			members: this.formatChannelUsers(channel.channel.chatChannelUser),
-			messages: this.formatChannelMessages(channel.channel.chatChannelMessage)
+			id: channel.id,
+			name: channel.name
 		}));
 
 		return channelsListFormatted;
@@ -322,7 +358,6 @@ export class ChatChannelService {
 
 	private formatChannelMessages(messageList: any) {
 		const messageListFormatted: any[] = messageList.map((msg) => ({
-			id: msg.id,
 			sentAt: msg.sentAt,
 			nick: msg.user.nick,
 			message: msg.message

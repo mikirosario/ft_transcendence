@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Body, Delete, Post, Put, Param } from "@nestjs/common";
+import { Controller, Get, UseGuards, Body, Delete, Post, Put, Query } from "@nestjs/common";
 import { ApiBody, ApiBearerAuth } from "@nestjs/swagger"
 import { JwtGuard } from "../../auth/guard";
 import { GetJwt } from "../../auth/decorator";
@@ -13,6 +13,11 @@ import { ChatChannelCreateDto, ChatChannelUpdateDto } from "./dto";
 export class ChatChannelController {
 	
 	constructor(private chatChannelService: ChatChannelService) { }
+
+	@Get()
+	async getChannelChat(@GetJwt('sub') userId: number, @Query('channelId') channelId: string) {
+		return this.chatChannelService.getChannelChat(userId, Number(channelId));
+	}
 
 	@Post()
 	@ApiBody({ type: ChatChannelCreateDto })

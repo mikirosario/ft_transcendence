@@ -4,7 +4,7 @@ import { UserService } from '../../user/user.service';
 import { ChatBlockedUserService } from '../chat-blocked-user/chat-blocked-user.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { ChatDirectMessageDto } from './dto'
+import { ChatDirectMessageDto } from './dto';
 
 @Injectable()
 export class ChatDirectMessageService {
@@ -47,7 +47,7 @@ export class ChatDirectMessageService {
 	async getDirectChat(userId: number, otherUserId: number) {
 		const directChat = await this.getDirectChatByUserIds(userId, otherUserId);
 
-		return await this.getDirectChatAndMessages(userId, directChat.id);
+		return await this.getDirectChatAndMessages(directChat.id);
 	}
 
 
@@ -91,7 +91,7 @@ export class ChatDirectMessageService {
 		}
 	}
 
-	private async getDirectChatAndMessages(userId: number, chatId: number) {
+	private async getDirectChatAndMessages(chatId: number) {
 		let directChat = await this.prisma.chatDirect.findUnique({
 			where: { id: chatId },
 			include: {
@@ -131,19 +131,13 @@ export class ChatDirectMessageService {
 			}
 		});
 		
-
-		let me = directChat.user1;
-		let other = directChat.user2;
-
-		if (directChat.user2.id == userId) {
-			me = directChat.user2;
-			other = directChat.user1;
-		}
+		let members = [];
+		members.push(directChat.user1);
+		members.push(directChat.user2);
 
 		let chatDirectInfo = {
 			chatId: directChat.id,
-			me: me,
-			other: other,
+			members: members,
 			messages: messages
 		}
 
