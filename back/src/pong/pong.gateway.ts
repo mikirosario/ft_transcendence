@@ -91,7 +91,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			//Get the game state
 			let gameState = pongBackend.getGameState();
 			//Emit game state to all clients in room
-			this.server.to(roomId).emit('gameState', pongBackend.getGameState());
+			this.server.to(roomId).emit('gameState', gameState);
 			//Check if game over
 			if (gameState.gameOver)
 				cleanUp();
