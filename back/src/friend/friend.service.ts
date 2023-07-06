@@ -4,11 +4,12 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ThrowHttpException } from '../utils/error-handler';
 import { FriendDto } from "./dto";
 import { UserService } from '../user/user.service';
+import { ChatGateway } from 'src/chat/chat-socket/chat.gateway';
 
 
 @Injectable()
 export class FriendService {
-	constructor(private prisma: PrismaService, private userService: UserService) { }
+	constructor(private prisma: PrismaService, private userService: UserService, private ws: ChatGateway) { }
 
 	async addFriend(userId: number, dto: FriendDto) {
 		const user = await this.userService.getUserById(userId);
@@ -36,7 +37,6 @@ export class FriendService {
 
 		const friendship = await this.getFriendship(friend.id, user.id);
 		await this.updateFriendship(friendship.id, {accepted: true});
-
 		await this.createFriendship(user.id, friend.id, true);
 
 		const friends = this.getFriendsFiltered(userId, true);
@@ -62,7 +62,7 @@ export class FriendService {
 		await this.deleteFriendship(user.id, friend.id);
 		await this.deleteFriendship(friend.id, user.id);
 
-		const friends = this.getFriendsFiltered(userId, true);
+		const friends = this.getFriendsFiltered(userId, false);
 		return friends;
 	}
 
@@ -136,14 +136,16 @@ export class FriendService {
 
 		const friends = user.friendsUserFriends;
 
-		const friendListOnline: { nick: string, avatarUri: string, isOnline: boolean, isInGame: boolean }[] = friends.filter(friend => friend.user.isOnline).map((friend) => ({
+		const friendListOnline: {userId: number, nick: string, avatarUri: string, isOnline: boolean, isInGame: boolean }[] = friends.filter(friend => friend.user.isOnline).map((friend) => ({
+			userId: friend.user.id,
 			nick: friend.user.nick,
 			avatarUri: friend.user.avatarUri,
 			isOnline: friend.user.isOnline,
 			isInGame: friend.user.isInGame,
 		}));
 
-		const friendListOffline: { nick: string, avatarUri: string, isOnline: boolean, isInGame: boolean }[] = friends.filter(friend => !friend.user.isOnline).map((friend) => ({
+		const friendListOffline: {userId: number, nick: string, avatarUri: string, isOnline: boolean, isInGame: boolean }[] = friends.filter(friend => !friend.user.isOnline).map((friend) => ({
+			userId: friend.user.id,
 			nick: friend.user.nick,
 			avatarUri: friend.user.avatarUri,
 			isOnline: friend.user.isOnline,
