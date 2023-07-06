@@ -1,8 +1,61 @@
 import React, { useEffect, useState } from 'react';
 import { IoMdArrowRoundBack, IoMdSend } from 'react-icons/io';
+import { getChatDirect, sendDirectMessage } from '../../requests/Chat.Service';
+import { getUserImage } from "../../requests/User.Service";
 
-function ChatDisplay({ selectedChat, setSelectedChat }: { selectedChat: string | null, setSelectedChat: (chat: string | null) => void }) {
+interface ChatDisplayProps {
+    selectedChat: number;
+    setSelectedChat: (chat: number | null) => void;
+    isFriendChat: boolean;
+}
+
+interface Message {
+    sender: string,
+    sentAt: string,
+    message: string,
+};
+
+interface User {
+    userId: number;
+    nick: string;
+    avatarUri: string;
+    avatarFile?: string;
+}
+
+
+const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat, isFriendChat }) => {
+    const [messagesList, setMessagesList] = useState<Message[]>([]);
+    const [usersMap, setUsersMap] = useState<{ [id: string]: User }>({});
     const [message, setMessage] = useState('');
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (isFriendChat) {
+                if (selectedChat !== null) {
+                    const result = await getChatDirect(selectedChat);
+                    console.log('getChatDirect result:', result);
+                    if (result && result.me && result.other && result.messages) {
+                        const { me, other, messages } = result;
+                        const usersWithImages = await Promise.all([me, other].map(async (user: User) => {
+                            const imageUrl = await getUserImage(user.avatarUri);
+                            console.log('getUserImage imageUrl:', imageUrl);
+                            return { ...user, avatarFile: imageUrl ?? '' };
+                        }));
+                        setMessagesList(messages);
+                        setUsersMap({
+                            [usersWithImages[0]?.nick]: usersWithImages[0],
+                            [usersWithImages[1]?.nick]: usersWithImages[1],
+                        });
+                    }
+                }
+            }
+            // else {
+
+            // }
+        };
+
+        fetchData();
+    }, [selectedChat]);
 
     const ChatWrapper: React.CSSProperties = {
         height: '80vh',
@@ -10,7 +63,6 @@ function ChatDisplay({ selectedChat, setSelectedChat }: { selectedChat: string |
         top: '0%',
         left: '80%',
         position: 'absolute',
-        // background: 'purple'
     };
 
     const BackArrowStyle: React.CSSProperties = {
@@ -29,7 +81,7 @@ function ChatDisplay({ selectedChat, setSelectedChat }: { selectedChat: string |
         borderRadius: '15px',
         overflow: 'hidden',
     };
-    
+
     const MessageInputStyle: React.CSSProperties = {
         width: '85%',
         padding: '8px',
@@ -55,10 +107,66 @@ function ChatDisplay({ selectedChat, setSelectedChat }: { selectedChat: string |
         cursor: 'pointer'
     }
 
-    const handleSend = () => {
-        console.log(message);
-        // Aquí debes implementar el envío del mensaje
-        setMessage('');
+    // ----------- STYLOS DE MENSAJE ------------
+
+    const MessagesContainerStyle: React.CSSProperties = {
+        marginTop: '10px',
+        display: 'flex',
+        flexDirection: 'column-reverse',
+        height: '60vh',
+        overflowY: 'auto',
+        padding: '10px'
+    };
+
+    const MessageStyle: React.CSSProperties = {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        marginLeft: '5%',
+        width: '90%',
+        position: 'relative',
+        marginTop: '10px',
+    };
+
+    const UserImageStyle: React.CSSProperties = {
+        marginLeft: '10px',
+        marginTop: '5px',
+        borderRadius: '50%',
+        width: '40px',
+        height: '40px',
+        marginRight: '10px',
+        objectFit: 'cover',
+        display: 'flex',
+        alignItems: 'center'
+    };
+
+    const MessageContentStyle: React.CSSProperties = {
+        color: '#A9A9A9',
+        fontSize: '14px',
+        fontWeight: 'bold',
+        wordBreak: 'break-word',
+        overflowWrap: 'break-word',
+    };
+
+    const UserNameStyle: React.CSSProperties = {
+        color: 'white',
+        fontSize: '14px',
+        fontWeight: 'bold',
+        marginRight: '10px',
+        marginTop: '16px',
+    };
+
+    const MessageInfoStyle: React.CSSProperties = {
+        display: 'flex',
+        flexDirection: 'column',
+        maxWidth: '80%'
+    };
+
+    const handleSend = async () => {
+        if (selectedChat !== null) {
+            await sendDirectMessage(selectedChat, message);
+            setMessage('');
+        }
     }
 
     return (
@@ -66,11 +174,27 @@ function ChatDisplay({ selectedChat, setSelectedChat }: { selectedChat: string |
             <button style={BackArrowStyle} onClick={() => setSelectedChat(null)}>
                 <IoMdArrowRoundBack size={26} color='grey' />
             </button>
+            <div style={MessagesContainerStyle}>
+                {[...messagesList].reverse().map((messageItem, index) => {
+                    const user = usersMap[messageItem.sender];
+                    return (
+                        <div key={index} style={MessageStyle}>
+                            <img src={usersMap[user?.nick]?.avatarFile} alt={user?.nick} style={UserImageStyle} />
+                            <div style={MessageInfoStyle}>
+                                <span style={UserNameStyle}>{messageItem.sender}</span>
+                                <p style={MessageContentStyle}>
+                                    {messageItem.message}
+                                </p>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
             <div style={TextAreaWrapperStyle}>
-                <textarea 
-                    style={MessageInputStyle} 
-                    value={message} 
-                    onChange={(e) => setMessage(e.target.value)} 
+                <textarea
+                    style={MessageInputStyle}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
                     placeholder="Escribe un mensaje"
                 />
             </div>
@@ -79,6 +203,6 @@ function ChatDisplay({ selectedChat, setSelectedChat }: { selectedChat: string |
             </button>
         </div>
     );
-}
 
+}
 export default ChatDisplay;

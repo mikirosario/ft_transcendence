@@ -8,7 +8,7 @@ interface Channel {
   isPrivate: boolean
 }
 
-function ChannelDisplay({ openChat }: { openChat: (friendName: string) => void }) {
+function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }) {
   const [channelList, setChannelList] = useState<Channel[]>([]);
 
   const [createChannelName, setCreateChannelName] = useState('');
@@ -274,7 +274,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: string) => void }
               style={friendContainerStyle}
               onMouseEnter={() => setIsChannelHovered(index)}
               onMouseLeave={() => setIsChannelHovered(-1)}
-            // onClick={() =>}
+            // onClick={() => openChat(channel.id)}
             >
               <div style={{
                 transform: isChannelHovered === index ? 'scale(1.1)' : 'none',
