@@ -16,7 +16,7 @@ export class ChatDirectMessageService {
 		const user1 = await this.userService.getUserById(userId);
 		const user2 = await this.userService.getUserById(dto.user_id);
 
-		const directChat = await this.getDirectChat(user1.id, user2.id);
+		const directChat = await this.getDirectChatByUserIds(user1.id, user2.id);
 		if (!directChat)
 			ThrowHttpException(new BadRequestException, 'Some error occurred creating direct chat.');
 
@@ -44,12 +44,19 @@ export class ChatDirectMessageService {
 		}
 	}
 
+	async getDirectChat(userId: number, otherUserId: number) {
+		const directChat = await this.getDirectChatByUserIds(userId, otherUserId);
+
+		return await this.getDirectChatAndMessages(userId, directChat.id);
+	}
+
+
 
 
 	/*
 	 * Private methods
 	*/
-	private async getDirectChat(userId1: number, userId2: number) {
+	private async getDirectChatByUserIds(userId1: number, userId2: number) {
 		let directChat = await this.prisma.chatDirect.findFirst({
 			where: {
 				userId1: userId1,
@@ -80,56 +87,67 @@ export class ChatDirectMessageService {
 			return directChat;
 
 		} catch (error) {
-			return null;
+			ThrowHttpException(new NotFoundException, 'Error creating direct chat.');
 		}
 	}
 
-	async getMyDirectChatsAndMessages(userId: number) {
-		const user = await this.prisma.user.findUnique({
-			where: { id: userId, },
+	private async getDirectChatAndMessages(userId: number, chatId: number) {
+		let directChat = await this.prisma.chatDirect.findUnique({
+			where: { id: chatId },
 			include: {
-				chatDirectUser1: {
-					include: {
-						user1: true,
-						user2: true,
-						chatDirectMessageDirect: {
-							include: {
-								user: true,
-							}
-						},
-					},
+			  chatDirectMessageDirect: {
+				include: {
+				  user: {
+					select: {
+					  nick: true
+					}
+				  },
 				}
-			},
+			  },
+			  user1: {
+				select: {
+					id: true,
+					nick: true,
+					avatarUri: true,
+				}
+			  },
+			  user2: {
+				select: {
+					id: true,
+					nick: true,
+					avatarUri: true,
+				}
+			  }
+			}
+		  });
+
+
+		// Reestructuración de los datos para coincidir con el formato de JSON deseado
+		let messages = directChat.chatDirectMessageDirect.map(message => {
+			return {
+				sender: message.user.nick,
+				sentAt: message.sentAt,
+				message: message.message,
+			}
 		});
-
-		if (user === null) {
-			ThrowHttpException(new NotFoundException, 'User not found');
-		}
-
-		const directChats = user.chatDirectUser1;
-
-
-		// iterate through all direct chats
-		const directChatsList: { user1: string, user2: string, messages: { sentAt: string, user: string, message: string }[] }[] = directChats.map((directChat) => ({
-			user1: directChat.user1.nick,
-			user2: directChat.user2.nick,
-			createdAt: directChat.createdAt,
-			messages: this.formatDirectMessages(directChat.chatDirectMessageDirect)
-		}));
 		
 
-		return directChatsList;
+		let me = directChat.user1;
+		let other = directChat.user2;
+
+		if (directChat.user2.id == userId) {
+			me = directChat.user2;
+			other = directChat.user1;
+		}
+
+		let chatDirectInfo = {
+			chatId: directChat.id,
+			me: me,
+			other: other,
+			messages: messages
+		}
+
+		return chatDirectInfo;
 	}
-
-	private formatDirectMessages(messages: any) {
-		const directMessages: { sentAt: string, user: string, message: string }[] = messages.map((msg) => ({
-			sentAt: msg.sentAt,
-			user: msg.user.nick,
-			message: msg.message
-		}));
-
-		return directMessages;
-	}
-
 	
 }

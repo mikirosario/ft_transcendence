@@ -1,9 +1,9 @@
-import { Controller, UseGuards, Body, Post } from "@nestjs/common";
+import { Controller, UseGuards, Body, Post, Get, Query } from "@nestjs/common";
 import { ApiBody, ApiBearerAuth } from "@nestjs/swagger"
 import { JwtGuard } from "../../auth/guard";
 import { GetJwt } from "../../auth/decorator";
 import { ChatDirectMessageService } from "./chat-direct-message.service";
-import { ChatDirectMessageDto } from './dto'
+import { ChatDirectMessageDto } from './dto';
 
 
 @UseGuards(JwtGuard)
@@ -12,6 +12,11 @@ import { ChatDirectMessageDto } from './dto'
 export class ChatDirectMessageController {
 	
 	constructor(private chatDirectMessageService: ChatDirectMessageService) { }
+
+	@Get()
+	async getDirectChat(@GetJwt('sub') userId: number, @Query('userId') otherUserId: string) {
+		return this.chatDirectMessageService.getDirectChat(userId, Number(otherUserId));
+	}
 
 	@Post('message')
 	@ApiBody({ type: ChatDirectMessageDto })
