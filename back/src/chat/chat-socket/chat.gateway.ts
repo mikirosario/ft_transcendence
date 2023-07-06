@@ -8,8 +8,8 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ConfigService } from "@nestjs/config";
-import { UserService } from "../user/user.service";
-import { WebSocketService } from '../auth/websocket/websocket.service';
+import { UserService } from "../../user/user.service";
+import { WebSocketService } from '../../auth/websocket/websocket.service';
 
 
 @WebSocketGateway(8083, {
@@ -45,7 +45,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 		this.connectedUsers[user.id] = client;
 
-		this.sendSocketMessage(user.id, "ID_A", "hey");
+		this.sendSocketMessageToUser(user.id, "UPDATE_CHANNELS_LIST", "hey");
 
 		console.log('Hola! ' + user.nick + ' está en el chat 💬✅');
 	}
@@ -70,12 +70,18 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		console.log(user.nick + ' está se ha ido del chat 💬❌');
 	}
 
-	/*
 	@SubscribeMessage('event_join')
 	handleJoinRoom(client: Socket, room: string) {
 		client.join(`room_${room}`);
 	}
 	
+	@SubscribeMessage('event_leave')
+	handleRoomLeave(client: Socket, room:string) {
+		console.log(`chao room_${room}`)
+		client.leave(`room_${room}`);
+	}
+
+	/*
 	@SubscribeMessage('event_message') //TODO Backend
 	handleIncommingMessage(client: Socket, payload: { room: string; message: string }) {
 		const { room, message } = payload;
@@ -84,19 +90,21 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 		this.server.to(`room_${room}`).emit('new_message', message);
 	}
-	
-	@SubscribeMessage('event_leave')
-	handleRoomLeave(client: Socket, room:string) {
-		console.log(`chao room_${room}`)
-		client.leave(`room_${room}`);
-	}
 	*/
 
-	async sendSocketMessage(userId: number, eventName: string, data: any) {
+	async sendSocketMessageToUser(userId: number, eventName: string, data: any) {
 		const userSocket = this.connectedUsers[userId];
 
 		if (userSocket) {
 			userSocket.emit(eventName, data);
 		}
+	}
+
+	async sendSocketMessageToRoom(room: string, eventName: string, data: any) {
+		this.server.to(`room_${room}`).emit(eventName, data);
+	}
+
+	async sendSocketMessageToAll(eventName: string, data: any) {
+		this.server.emit(eventName, data);
 	}
 }
