@@ -4,7 +4,7 @@ import { UserService } from '../../user/user.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ChatBlockedDto } from './dto'
-import { FriendService } from 'src/friend/friend.service';
+import { FriendService } from '../../friend/friend.service';
 
 @Injectable()
 export class ChatBlockedUserService {

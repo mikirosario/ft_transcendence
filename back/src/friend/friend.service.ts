@@ -4,7 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ThrowHttpException } from '../utils/error-handler';
 import { FriendDto } from "./dto";
 import { UserService } from '../user/user.service';
-import { ChatGateway } from 'src/chat/chat-socket/chat.gateway';
+import { ChatGateway } from '../chat/chat-socket/chat.gateway';
 
 
 @Injectable()

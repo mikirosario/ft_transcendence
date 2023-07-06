@@ -12,7 +12,7 @@ import { ChatDirectMessageService } from '../chat/chat-direct-message/chat-direc
 import { ChatBlockedUserModule } from '../chat/chat-blocked-user/chat-blocked-user.module';
 import { ChatBlockedUserService } from './chat-blocked-user/chat-blocked-user.service';
 import { ChatChannelService } from '../chat/chat-channel/chat-channel.service';
-import { FriendService } from 'src/friend/friend.service';
+import { FriendService } from '../friend/friend.service';
 import { ChatGateway } from './chat-socket/chat.gateway';
 import { ChatSocketModule } from './chat-socket/chat-socket.module';
 

@@ -4,7 +4,7 @@ import { ChatChannelService } from './chat-channel.service';
 import { UserService } from '../../user/user.service';
 import { ChatGateway } from '../chat-socket/chat.gateway';
 import { ChatSocketModule } from '../chat-socket/chat-socket.module';
-import { WebSocketService } from 'src/auth/websocket/websocket.service';
+import { WebSocketService } from '../../auth/websocket/websocket.service';
 
 @Module({
   controllers: [ChatChannelController],
