@@ -5,6 +5,7 @@ import { FaCaretDown, FaCaretUp, FaCheck, FaTimes } from 'react-icons/fa';
 import { MdSend } from 'react-icons/md';
 
 interface Friend {
+    userId: number;
     nick: string;
     avatarUri: string;
     isOnline: boolean;
@@ -12,7 +13,7 @@ interface Friend {
     avatarFile?: string;
 }
 
-function FriendDisplay({ openChat }: { openChat: (friendName: string) => void }) {
+function FriendDisplay({ openChat }: { openChat: (friendName: number) => void }) {
     const [friendList, setFriendList] = useState<Friend[]>([]);
     const [friendPetitionList, setFriendLPetitionList] = useState<Friend[]>([]);
     const [blockedUsersList, setBlockedUsersList] = useState<Friend[]>([]);
@@ -51,9 +52,10 @@ function FriendDisplay({ openChat }: { openChat: (friendName: string) => void })
 
         const fetchBlockedUsers = async () => {
             const blockedUsersRequest = await getBlockedUsers();
-            const blockedUsersWithImages = await Promise.all(blockedUsersRequest.map(async (blockedUser: { avatarUri: string; nick: string }) => {
+            const blockedUsersWithImages = await Promise.all(blockedUsersRequest.map(async (blockedUser: { avatarUri: string; nick: string; userId: number}) => {
                 const imageUrl = await getUserImage(blockedUser.avatarUri);
-                return { 
+                return {
+                    userId: blockedUser.userId,
                     nick: blockedUser.nick,
                     avatarFile: imageUrl,
                     isOnline: false,
@@ -314,7 +316,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: string) => void })
                                 style={friendContainerStyle}
                                 onMouseEnter={() => setIsFriendHovered(index)}
                                 onMouseLeave={() => setIsFriendHovered(-1)}
-                                onClick={() => openChat(friend.nick)}
+                                onClick={() => openChat(friend.userId)}
                             >
                                 <div style={{
                                     transform: isFriendHovered === index ? 'scale(1.1)' : 'none',
@@ -360,7 +362,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: string) => void })
                                 }}>
                                     <div style={{
                                         ...avatarWrapperStyle,
-                                        backgroundColor: isRequestHovered === index ? 'lightgreen' : 'green'
+                                        backgroundColor: isRequestHovered === index ? 'cyan' : 'darkcyan'
                                     }}>
                                         <img
                                             className='FriendAvatar'

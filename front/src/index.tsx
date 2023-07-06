@@ -26,12 +26,13 @@ const socketOptions = {
 
 const socket: Socket = io('http://localhost:8081/', socketOptions);
 
+// Si no esta logeado no puede acceder a ninguna ruta
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
-);
-root.render(
-  <BrowserRouter>
+  );
+  root.render(
+    <BrowserRouter>
     <div style={{
       backgroundColor: '#0E1625',
       position: 'fixed',

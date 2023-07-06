@@ -26,8 +26,9 @@ function Menu() {
   const [userImage, setUserImage] = useState<string>('');
   const [selectedButton, setSelectedButton] = useState('friend');
   const [isMenuExpanded, setIsMenuExpanded] = useState(true);
+  const [isFriendChat, setIsFriendChat] = useState(false);
 
-  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const [selectedChat, setSelectedChat] = useState<number | null>(null);
 
   const navigate = useNavigate();
 
@@ -147,11 +148,11 @@ function Menu() {
     setSelectedButton('channels');
   };
 
-  const openChat = async (chat: string) => {
-    // create chat window
-    // await createFriendChat(friendName);
-    setSelectedChat(chat);  // Actualiza el estado chatSelected (puede ser un canal o un amigo)
-  }
+  // No puedo obtener la id de los amigos, solo su nombre, los canales solo los puedo buscar por id
+  const openChat = (id: number, isFriend: boolean) => {
+    setSelectedChat(id);
+    setIsFriendChat(isFriend);
+  };
 
 
   return (
@@ -179,10 +180,10 @@ function Menu() {
             Canales
           </button>
           <div style={SocialDisplay}>
-            {selectedChat ? (
-              <ChatDisplay selectedChat={selectedChat} setSelectedChat={setSelectedChat} />
+          {selectedChat ? (
+              <ChatDisplay selectedChat={selectedChat} setSelectedChat={setSelectedChat} isFriendChat={isFriendChat} />
             ) : (
-              selectedButton === 'friend' ? <FriendDisplay openChat={openChat} /> : <ChannelDisplay openChat={openChat} />
+              selectedButton === 'friend' ? <FriendDisplay openChat={(id) => openChat(id, true)} /> : <ChannelDisplay openChat={(id) => openChat(id, false)} />
             )}
           </div>
         </div>
