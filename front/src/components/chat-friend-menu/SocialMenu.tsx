@@ -5,7 +5,8 @@ import { getUserProfile } from '../../requests/User.Service';
 import FriendDisplay from "./FriendDisplay";
 import ChannelDisplay from "./ChannelDisplay"
 import { io, Socket } from 'socket.io-client';
-import { FaAngleRight , FaAngleLeft  } from 'react-icons/fa'; // SOLID ARROW
+import { FaAngleRight, FaAngleLeft } from 'react-icons/fa'; // SOLID ARROW
+import ChatDisplay from "./ChatDisplay";
 //BiChevronLeft 
 
 const socketOptions = {
@@ -21,10 +22,16 @@ const socketOptions = {
 const socket: Socket = io('http://localhost:8083/', socketOptions);
 
 function Menu() {
+  const initialIsMenuExpanded = localStorage.getItem("isMenuExpanded") === "true";
+  const initialSelectedButton = localStorage.getItem("selectedButton") || 'friend';
+  // const initialSelectedChat = localStorage.getItem("selectedChat") ? parseInt(localStorage.getItem("selectedChat")!) : null;
+
   const [username, setUsername] = useState('');
   const [userImage, setUserImage] = useState<string>('');
-  const [selectedButton, setSelectedButton] = useState('friend');
-  const [isMenuExpanded, setIsMenuExpanded] = useState(true);
+  const [selectedButton, setSelectedButton] = useState(initialSelectedButton);
+  const [isMenuExpanded, setIsMenuExpanded] = useState(initialIsMenuExpanded);
+  const [isFriendChat, setIsFriendChat] = useState(false);
+  const [selectedChat, setSelectedChat] = useState<number | null>(null);
 
   const navigate = useNavigate();
 
@@ -105,53 +112,65 @@ function Menu() {
     textShadow: selectedButton === 'channels' ? '0.6px 0 0 black' : 'none',
   };
 
-  const [SocialDisplay, setSocialDisplay] = useState<React.CSSProperties>({
+  const SocialDisplay: React.CSSProperties = {
     width: '0%',
     height: '77%',
     backgroundColor: 'grey',
     top: '23.09%',
     left: '0%',
     position: 'absolute',
-  });
+  };
 
   const toggleButtonStyle: React.CSSProperties = isMenuExpanded
-  ? {
-    position: 'absolute',
-    top: '30px',
-    right: '20vw',
-    backgroundColor: 'transparent',
-    color: 'white',
-    border: 'none',
-    padding: '6px',
-    transition: 'right 0.5s ease',
-  } : {
-    position: 'absolute',
-    top: '30px',
-    right: '0',
-    backgroundColor: 'transparent',
-    color: 'white',
-    border: 'none',
-    padding: '6px',
-    transition: 'right 0.5s ease',
-  };
+    ? {
+      position: 'absolute',
+      top: '30px',
+      right: '20vw',
+      backgroundColor: 'transparent',
+      color: 'white',
+      border: 'none',
+      padding: '6px',
+      transition: 'right 0.5s ease',
+    } : {
+      position: 'absolute',
+      top: '30px',
+      right: '0',
+      backgroundColor: 'transparent',
+      color: 'white',
+      border: 'none',
+      padding: '6px',
+      transition: 'right 0.5s ease',
+    };
 
   const handleFriendButtonClick = () => {
     setSelectedButton('friend');
-
+    localStorage.setItem("selectedButton", 'friend');
   };
 
   const handleChannelsButtonClick = () => {
     setSelectedButton('channels');
+    localStorage.setItem("selectedButton", 'channels');
   };
+
+  const openChat = (id: number, isFriend: boolean) => {
+    setSelectedChat(id);
+    setIsFriendChat(isFriend);
+  };
+
+
+
 
   return (
     <>
       <button
         style={toggleButtonStyle}
-        onClick={() => setIsMenuExpanded(!isMenuExpanded)}
+        onClick={() => {
+          setIsMenuExpanded(!isMenuExpanded);
+          localStorage.setItem("isMenuExpanded", (!isMenuExpanded).toString());
+        }}
       >
-            {isMenuExpanded ? <FaAngleRight size={22}/> : <FaAngleLeft size={22}/>}
-        </button>
+        {isMenuExpanded ? <FaAngleRight size={22} /> : <FaAngleLeft size={22} />}
+      </button>
 
       <div style={{
         ...MenuStyle,
@@ -169,7 +188,11 @@ function Menu() {
             Canales
           </button>
           <div style={SocialDisplay}>
-            {selectedButton === 'friend' ? <FriendDisplay /> : <ChannelDisplay />}
+            {selectedChat ? (
+              <ChatDisplay selectedChat={selectedChat} setSelectedChat={setSelectedChat} isFriendChat={isFriendChat} />
+            ) : (
+              selectedButton === 'friend' ? <FriendDisplay openChat={(id) => openChat(id, true)} /> : <ChannelDisplay openChat={(id) => openChat(id, false)} />
+            )}
           </div>
         </div>
       </div>

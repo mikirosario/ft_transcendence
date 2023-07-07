@@ -17,7 +17,7 @@ function Register() {
             }
         }
         setReady(true);
-    }, []);
+    }, [searchParams, setSearchParams]);
 
     const NicknamePositionStyle: React.CSSProperties = {
         height: '320px',

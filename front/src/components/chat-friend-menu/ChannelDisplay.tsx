@@ -8,7 +8,7 @@ interface Channel {
   isPrivate: boolean
 }
 
-const ChannelDisplay: React.FC = () => {
+function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }) {
   const [channelList, setChannelList] = useState<Channel[]>([]);
 
   const [createChannelName, setCreateChannelName] = useState('');
@@ -274,7 +274,7 @@ const ChannelDisplay: React.FC = () => {
               style={friendContainerStyle}
               onMouseEnter={() => setIsChannelHovered(index)}
               onMouseLeave={() => setIsChannelHovered(-1)}
-            // onClick={() =>}
+            onClick={() => openChat(channel.id)}
             >
               <div style={{
                 transform: isChannelHovered === index ? 'scale(1.1)' : 'none',

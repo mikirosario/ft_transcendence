@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { addFriend, deleteFriend, getBlockedUsers, getFriendList, getFriendRequests, updateFriendList } from '../../requests/Friend.Service';
+import { addFriend, deleteFriend, getBlockedUsers, getFriendList, getFriendRequests, unblockUser, updateFriendList } from '../../requests/Friend.Service';
 import { getUserImage } from "../../requests/User.Service";
 import { FaCaretDown, FaCaretUp, FaCheck, FaTimes } from 'react-icons/fa';
 import { MdSend } from 'react-icons/md';
 
 interface Friend {
+    userId: number;
     nick: string;
     avatarUri: string;
     isOnline: boolean;
@@ -12,22 +13,26 @@ interface Friend {
     avatarFile?: string;
 }
 
-const FriendDisplay: React.FC = () => {
-    const [friendList, setFriendList] = useState<Friend[]>([]);
-    const [friendPetitionList, setFriendLPetitionList] = useState<Friend[]>([]);
-    const [blockedUsersList, setBlockedUsersList] = useState<Friend[]>([]);
+function FriendDisplay({ openChat }: { openChat: (friendName: number) => void }) {
+    const initialFriendsExpanded = localStorage.getItem("showFriends") === "true";
+    const initialPetitionsExpanded = localStorage.getItem("showRequests") === "true";
+    const initialBlocksExpanded = localStorage.getItem("showBlocked") === "true";
+    
     const [isHovered, setIsHovered] = useState(false);
     const [friendName, setFriendName] = useState('');
-    const [showFriends, setShowFriends] = useState(false);
-
-    const [showRequests, setShowRequests] = useState(false);
+    
+    const [friendList, setFriendList] = useState<Friend[]>([]);
+    const [showFriends, setShowFriends] = useState(initialFriendsExpanded);
+    const [isFriendHovered, setIsFriendHovered] = useState(-1);
+    
+    const [friendPetitionList, setFriendLPetitionList] = useState<Friend[]>([]);
+    const [showRequests, setShowRequests] = useState(initialPetitionsExpanded);
+    const [isRequestHovered, setIsRequestHovered] = useState(-1);
     const [isAcceptHovered, setIsAcceptHovered] = useState(false);
     const [isRejectHovered, setIsRejectHovered] = useState(false);
-
-    const [showBlocked, setShowBlocked] = useState(false);
-
-    const [isFriendHovered, setIsFriendHovered] = useState(-1);
-    const [isRequestHovered, setIsRequestHovered] = useState(-1);
+    
+    const [blockedUsersList, setBlockedUsersList] = useState<Friend[]>([]);
+    const [showBlocked, setShowBlocked] = useState(initialBlocksExpanded);
     const [isBlockedHovered, setIsBlockedHovered] = useState(-1);
 
     useEffect(() => {
@@ -51,9 +56,10 @@ const FriendDisplay: React.FC = () => {
 
         const fetchBlockedUsers = async () => {
             const blockedUsersRequest = await getBlockedUsers();
-            const blockedUsersWithImages = await Promise.all(blockedUsersRequest.map(async (blockedUser: { avatarUri: string; nick: string }) => {
+            const blockedUsersWithImages = await Promise.all(blockedUsersRequest.map(async (blockedUser: { avatarUri: string; nick: string; userId: number}) => {
                 const imageUrl = await getUserImage(blockedUser.avatarUri);
-                return { 
+                return {
+                    userId: blockedUser.userId,
                     nick: blockedUser.nick,
                     avatarFile: imageUrl,
                     isOnline: false,
@@ -66,7 +72,20 @@ const FriendDisplay: React.FC = () => {
         fetchFriends();
         fetchFriendPetition();
         fetchBlockedUsers();
+
     }, []);
+
+    useEffect(() => {
+        localStorage.setItem("showFriends", String(showFriends));
+    }, [showFriends]);
+    
+    useEffect(() => {
+        localStorage.setItem("showRequests", String(showRequests));
+    }, [showRequests]);
+    
+    useEffect(() => {
+        localStorage.setItem("showBlocked", String(showBlocked));
+    }, [showBlocked]);
 
     // ------------------ STYLES ----------------------------
 
@@ -247,27 +266,28 @@ const FriendDisplay: React.FC = () => {
         transition: 'color 0.2s ease-in-out, opacity 0.2s ease-in-out',
     });
 
-    const handleRequestsClick = () => {
-        setShowRequests(!showRequests);
-    };
-
     const handleClick = () => {
-        setShowFriends(!showFriends);
-    };
-
-    const handleBlockedClick = () => {
-        setShowBlocked(!showBlocked);
-    };
+        const newState = !showFriends;
+        setShowFriends(newState);
+        localStorage.setItem("showFriends", JSON.stringify(newState));
+      };
+      
+      const handleRequestsClick = () => {
+        const newState = !showRequests;
+        setShowRequests(newState);
+        localStorage.setItem("showRequests", JSON.stringify(newState));
+      };
+      
+      const handleBlockedClick = () => {
+        const newState = !showBlocked;
+        setShowBlocked(newState);
+        localStorage.setItem("showBlocked", JSON.stringify(newState));
+      };
 
     const handleFriendSumbit = async (event: React.FormEvent) => {
         event.preventDefault();
 
         await addFriend(friendName);
-    }
-
-    const openFriendChat = async (friendName: string) => {
-        // create chat window
-        // await createFriendChat(friendName);
     }
 
     return (
@@ -299,6 +319,7 @@ const FriendDisplay: React.FC = () => {
                 )}
 
             </div>
+            {/* AMIGOS */}
             <div style={buttonContainerStyle}>
                 <div style={dropDownContainerStyle}>
                     <button onClick={handleClick} style={dropDownStyle}>
@@ -313,7 +334,7 @@ const FriendDisplay: React.FC = () => {
                                 style={friendContainerStyle}
                                 onMouseEnter={() => setIsFriendHovered(index)}
                                 onMouseLeave={() => setIsFriendHovered(-1)}
-                                onClick={() => openFriendChat(friend.nick)}
+                                onClick={() => openChat(friend.userId)}
                             >
                                 <div style={{
                                     transform: isFriendHovered === index ? 'scale(1.1)' : 'none',
@@ -325,6 +346,7 @@ const FriendDisplay: React.FC = () => {
                                     }}>
                                         <img
                                             className='FriendAvatar'
+                                            alt={'Avatar de' + friend.nick}
                                             src={friend.avatarFile}
                                             style={avatarStyle}
                                         />
@@ -358,10 +380,11 @@ const FriendDisplay: React.FC = () => {
                                 }}>
                                     <div style={{
                                         ...avatarWrapperStyle,
-                                        backgroundColor: isRequestHovered === index ? 'lightgreen' : 'green'
+                                        backgroundColor: isRequestHovered === index ? 'cyan' : 'darkcyan'
                                     }}>
                                         <img
                                             className='FriendAvatar'
+                                            alt={'Avatar de' + request.nick}
                                             src={request.avatarFile}
                                             style={avatarStyle}
                                         />
@@ -382,7 +405,7 @@ const FriendDisplay: React.FC = () => {
                                                 onMouseLeave={() => setIsRejectHovered(false)}
                                                 style={getIconStyle(isRejectHovered, 'red')}
                                                 size={16}
-                                                onClick={async () => await deleteFriend(request.nick)} // No se borra
+                                                onClick={async () => await deleteFriend(request.nick)} // No se borra??
                                             />
                                         </div>
                                     )}
@@ -391,6 +414,7 @@ const FriendDisplay: React.FC = () => {
                         ))}
                     </div>
                 </div>
+                 {/* BLOQUEADOS */}
                 <div style={{ ...dropDownContainerStyle, maxHeight: showBlocked ? '500px' : '15px' }}>
                     <button onClick={handleBlockedClick} style={dropDownStyle}>
                         Bloqueados
@@ -404,7 +428,7 @@ const FriendDisplay: React.FC = () => {
                                 style={friendContainerStyle}
                                 onMouseEnter={() => setIsBlockedHovered(index)}
                                 onMouseLeave={() => setIsBlockedHovered(-1)}
-                                // onClick={async () => await unblockFriend(blockedUser.nick)}
+                                onClick={async () => await unblockUser(blockedUser.nick)}
                             >
                                 <div style={{
                                     transform: isBlockedHovered === index ? 'scale(1.1)' : 'none',
@@ -416,6 +440,7 @@ const FriendDisplay: React.FC = () => {
                                     }}>
                                         <img
                                             className='FriendAvatar'
+                                            alt={'Avatar de' + blockedUser.nick}
                                             src={blockedUser.avatarFile}
                                             style={avatarStyle}
                                         />
