@@ -364,8 +364,8 @@ export class ChatChannelService {
 
 	private formatChannelMessages(messageList: any) {
 		const messageListFormatted: any[] = messageList.map((msg) => ({
+			sender: msg.user.nick,
 			sentAt: msg.sentAt,
-			nick: msg.user.nick,
 			message: msg.message
 		}));
 
