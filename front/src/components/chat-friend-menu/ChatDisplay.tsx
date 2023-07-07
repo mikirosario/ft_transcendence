@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { IoMdArrowRoundBack, IoMdSend } from 'react-icons/io';
-import { getChatDirect, sendDirectMessage } from '../../requests/Chat.Service';
+import { getChatDirect, sendDirectMessage, getChatChannel, sendChannelMessage } from '../../requests/Chat.Service';
 import { getUserImage } from "../../requests/User.Service";
 
 interface ChatDisplayProps {
@@ -30,28 +30,29 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
 
     useEffect(() => {
         const fetchData = async () => {
-            if (isFriendChat) {
-                if (selectedChat !== null) {
-                    const result = await getChatDirect(selectedChat);
-                    console.log('getChatDirect result:', result);
-                    if (result && result.me && result.other && result.messages) {
-                        const { me, other, messages } = result;
-                        const usersWithImages = await Promise.all([me, other].map(async (user: User) => {
-                            const imageUrl = await getUserImage(user.avatarUri);
-                            console.log('getUserImage imageUrl:', imageUrl);
-                            return { ...user, avatarFile: imageUrl ?? '' };
-                        }));
-                        setMessagesList(messages);
-                        setUsersMap({
-                            [usersWithImages[0]?.nick]: usersWithImages[0],
-                            [usersWithImages[1]?.nick]: usersWithImages[1],
-                        });
-                    }
+            if (selectedChat !== null) {
+                let result;
+                if (isFriendChat)
+                    result = await getChatDirect(selectedChat);
+                else
+                    result = await getChatChannel(selectedChat);
+                if (result && result.members && result.messages) {
+                    const { members, messages } = result;
+                    const usersWithImages = await Promise.all(members.map(async (user: User) => {
+                        const imageUrl = await getUserImage(user.avatarUri);
+                        console.log('getUserImage imageUrl:', imageUrl);
+                        return { ...user, avatarFile: imageUrl ?? '' };
+                    }));
+                    setMessagesList(messages);
+                    const usersMap = usersWithImages.reduce((acc, currUser) => {
+                        acc[currUser.nick] = currUser;
+                        return acc;
+                    }, {} as { [key: string]: User });
+                    setUsersMap(usersMap);
                 }
             }
-            // else {
 
-            // }
+
         };
 
         fetchData();
@@ -129,7 +130,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
     };
 
     const UserImageStyle: React.CSSProperties = {
-        marginLeft: '10px',
+        marginLeft: '5px',
         marginTop: '5px',
         borderRadius: '50%',
         width: '40px',
@@ -164,7 +165,10 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
 
     const handleSend = async () => {
         if (selectedChat !== null) {
-            await sendDirectMessage(selectedChat, message);
+            if (isFriendChat)
+                await sendDirectMessage(selectedChat, message);
+            else 
+                await sendChannelMessage(selectedChat, message);
             setMessage('');
         }
     }

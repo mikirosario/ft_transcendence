@@ -274,7 +274,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
               style={friendContainerStyle}
               onMouseEnter={() => setIsChannelHovered(index)}
               onMouseLeave={() => setIsChannelHovered(-1)}
-            // onClick={() => openChat(channel.id)}
+            onClick={() => openChat(channel.id)}
             >
               <div style={{
                 transform: isChannelHovered === index ? 'scale(1.1)' : 'none',

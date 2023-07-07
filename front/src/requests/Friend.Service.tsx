@@ -134,3 +134,26 @@ export async function getBlockedUsers() {
         return  [];
     }
 }
+
+export async function unblockUser(friendName: string) {
+    try {
+        const response = await axios.delete('chat/blocks', {
+            data: { nick: friendName },
+            responseType: 'json',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            },
+        });
+
+        if (response.status !== 200 && response.status !== 201) {
+            throw new Error('Request failed with status ' + response.status);
+        }
+
+        return true;
+
+    } catch (error) {
+        console.log('Error: Could not remove that user', error);
+        return false;
+    }
+}
+

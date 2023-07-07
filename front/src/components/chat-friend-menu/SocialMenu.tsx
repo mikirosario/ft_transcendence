@@ -22,12 +22,15 @@ const socketOptions = {
 const socket: Socket = io('http://localhost:8083/', socketOptions);
 
 function Menu() {
+  const initialIsMenuExpanded = localStorage.getItem("isMenuExpanded") === "true";
+  const initialSelectedButton = localStorage.getItem("selectedButton") || 'friend';
+  // const initialSelectedChat = localStorage.getItem("selectedChat") ? parseInt(localStorage.getItem("selectedChat")!) : null;
+
   const [username, setUsername] = useState('');
   const [userImage, setUserImage] = useState<string>('');
-  const [selectedButton, setSelectedButton] = useState('friend');
-  const [isMenuExpanded, setIsMenuExpanded] = useState(true);
+  const [selectedButton, setSelectedButton] = useState(initialSelectedButton);
+  const [isMenuExpanded, setIsMenuExpanded] = useState(initialIsMenuExpanded);
   const [isFriendChat, setIsFriendChat] = useState(false);
-
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
 
   const navigate = useNavigate();
@@ -141,25 +144,30 @@ function Menu() {
 
   const handleFriendButtonClick = () => {
     setSelectedButton('friend');
-
+    localStorage.setItem("selectedButton", 'friend');
   };
 
   const handleChannelsButtonClick = () => {
     setSelectedButton('channels');
+    localStorage.setItem("selectedButton", 'channels');
   };
 
-  // No puedo obtener la id de los amigos, solo su nombre, los canales solo los puedo buscar por id
   const openChat = (id: number, isFriend: boolean) => {
     setSelectedChat(id);
     setIsFriendChat(isFriend);
   };
 
 
+
+
   return (
     <>
       <button
         style={toggleButtonStyle}
-        onClick={() => setIsMenuExpanded(!isMenuExpanded)}
+        onClick={() => {
+          setIsMenuExpanded(!isMenuExpanded);
+          localStorage.setItem("isMenuExpanded", (!isMenuExpanded).toString());
+        }}
       >
         {isMenuExpanded ? <FaAngleRight size={22} /> : <FaAngleLeft size={22} />}
       </button>
@@ -180,7 +188,7 @@ function Menu() {
             Canales
           </button>
           <div style={SocialDisplay}>
-          {selectedChat ? (
+            {selectedChat ? (
               <ChatDisplay selectedChat={selectedChat} setSelectedChat={setSelectedChat} isFriendChat={isFriendChat} />
             ) : (
               selectedButton === 'friend' ? <FriendDisplay openChat={(id) => openChat(id, true)} /> : <ChannelDisplay openChat={(id) => openChat(id, false)} />
