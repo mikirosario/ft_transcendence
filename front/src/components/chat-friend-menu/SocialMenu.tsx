@@ -20,6 +20,7 @@ const socketOptions = {
 };
 
 const socket: Socket = io('http://localhost:8083/', socketOptions);
+console.log("aaaaaaaaaaaaaaaaaaaaaa");
 
 function Menu() {
   const initialIsMenuExpanded = localStorage.getItem("isMenuExpanded") === "true";
@@ -48,7 +49,7 @@ function Menu() {
 
     fetchUserProfile();
 
-    socket.on("receiveMessages", (data) => {
+    socket.on("UPDATE_CHANNELS_LIST", (data) => {
       console.log(data);
     });
 

@@ -5,7 +5,7 @@ import { ChatChannelService } from '../chat-channel/chat-channel.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as argon from "argon2";
-import { ChatChannelJoinDto, ChatChannelLeaveDto, ChatChannelUserDto } from './dto'
+import { ChatChannelJoinDto, ChatChannelLeaveDto, ChatChannelUserDto } from './dto';
 
 @Injectable()
 export class ChatChannelUserService {

@@ -14,7 +14,7 @@ import { ChatModule } from './chat/chat.module';
 	imports: [AuthModule, UserModule, PrismaModule, ServeImageModule,
 		FriendModule, PongModule, ChatModule,
 		ConfigModule.forRoot({ isGlobal: true }),
-		OAuthModule, SecondAuthFactorModule,
+		OAuthModule, SecondAuthFactorModule
 	]
 })
 export class AppModule { }

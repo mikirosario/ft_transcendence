@@ -14,14 +14,13 @@ import { ChatBlockedUserService } from './chat-blocked-user/chat-blocked-user.se
 import { ChatChannelService } from '../chat/chat-channel/chat-channel.service';
 import { FriendService } from '../friend/friend.service';
 import { ChatGateway } from './chat-socket/chat.gateway';
-import { ChatSocketModule } from './chat-socket/chat-socket.module';
 
 @Module({
   controllers: [ChatController],
-  providers: [ChatService, ChatGateway, UserService, WebSocketService,
+  providers: [ChatService, UserService, WebSocketService,
               ChatBlockedUserService, ChatDirectMessageService,
               ChatChannelService, FriendService, ChatGateway],
   imports: [ChatChannelModule, ChatChannelUserModule, ChatChannelMessageModule,
-            ChatChannelBannedUserModule, ChatDirectMessageModule, ChatBlockedUserModule, ChatSocketModule],
+            ChatChannelBannedUserModule, ChatDirectMessageModule, ChatBlockedUserModule],
 })
 export class ChatModule { }

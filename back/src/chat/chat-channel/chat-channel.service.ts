@@ -5,12 +5,10 @@ import { UserService } from '../../user/user.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as argon from "argon2";
-import { ChatGateway } from '../chat-socket/chat.gateway';
-import { use } from 'passport';
 
 @Injectable()
 export class ChatChannelService {
-	constructor(private prisma: PrismaService, private userService: UserService, private ws: ChatGateway) { }
+	constructor(private prisma: PrismaService, private userService: UserService) { }
 
 	async getChannelChat(userId: number, channelId: number) {
 		const channel = await this.getChannelChatInfo(userId, channelId);
@@ -40,8 +38,8 @@ export class ChatChannelService {
 			});
 			
 			await this.joinChannel(newChannel.id, user.id, true);
-
-			this.ws.sendSocketMessageToAll('UPDATE_CHANNELS_LIST', await this.getMyChannelsAndPublicChannels(userId));
+			
+			this.sendUpdatedChannelListToAllUsersWithSocket();
 
 			delete newChannel.hash;
 			return newChannel;
@@ -80,7 +78,7 @@ export class ChatChannelService {
 				}
 			});
 
-			this.ws.sendSocketMessageToAll('UPDATE_CHANNELS_LIST', await this.getMyChannelsAndPublicChannels(userId));
+			this.sendUpdatedChannelListToAllUsersWithSocket();
 
 			delete channel.hash;
 			return channel;
@@ -104,7 +102,7 @@ export class ChatChannelService {
 			}
 		});
 
-		this.ws.sendSocketMessageToAll('UPDATE_CHANNELS_LIST', await this.getMyChannelsAndPublicChannels(userId));
+		this.sendUpdatedChannelListToAllUsersWithSocket();
 		
 		delete channel.hash;
 		return channel;
@@ -236,6 +234,25 @@ export class ChatChannelService {
 		const formattedChannelsList = this.formatChannelsList(myChannelsAndPublicChannelsList);
 
 		return formattedChannelsList;
+	}
+
+	private async sendUpdatedChannelListToAllUsersWithSocket() {
+
+		const allUsers = await this.prisma.user.findMany({
+			include: {
+				chatChannelUser: {
+					include: {
+						channel: true
+					},
+				}
+			},
+		});
+
+		/*
+		for (const user of allUsers) {
+			this.ws.sendSocketMessageToUser(user.id, 'UPDATE_CHANNELS_LIST', await this.getMyChannelsAndPublicChannels(user.id));
+		}
+		*/
 	}
 
 

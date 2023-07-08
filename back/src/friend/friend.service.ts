@@ -4,12 +4,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ThrowHttpException } from '../utils/error-handler';
 import { FriendDto } from "./dto";
 import { UserService } from '../user/user.service';
-import { ChatGateway } from '../chat/chat-socket/chat.gateway';
 
 
 @Injectable()
 export class FriendService {
-	constructor(private prisma: PrismaService, private userService: UserService, private ws: ChatGateway) { }
+	constructor(private prisma: PrismaService, private userService: UserService) { }
 
 	async addFriend(userId: number, dto: FriendDto) {
 		const user = await this.userService.getUserById(userId);
@@ -26,9 +25,11 @@ export class FriendService {
 			// Friendship doesnt exist
 			await this.createFriendship(user.id, friend.id, false);
 
+			/*
 			this.ws.sendSocketMessageToUser(friend.id, 'FRIEND_REQUEST_NEW', {
 				friend_requests: await this.getFriendsFiltered(friend.id, false),
 			});
+			*/
 		}
 
 		const friends = this.getFriendsFiltered(userId, true);
@@ -43,6 +44,7 @@ export class FriendService {
 		await this.updateFriendship(friendship.id, {accepted: true});
 		await this.createFriendship(user.id, friend.id, true);
 
+		/*
 		this.ws.sendSocketMessageToUser(user.id, 'FRIEND_REQUEST_ACCEPTED', {
 			friends: await this.getFriendsFiltered(user.id, true),
 			friend_requests: await this.getFriendsFiltered(user.id, false),
@@ -52,6 +54,7 @@ export class FriendService {
 			friends: await this.getFriendsFiltered(friend.id, true),
 			friend_requests: await this.getFriendsFiltered(friend.id, false),
 		});
+		*/
 
 		const friends = this.getFriendsFiltered(userId, true);
 		return friends;
