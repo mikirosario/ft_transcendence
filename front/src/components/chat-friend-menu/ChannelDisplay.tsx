@@ -303,7 +303,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
           </button>
         ))}
       </div>
-    </div>
+    // </div>
   );
 }
 
