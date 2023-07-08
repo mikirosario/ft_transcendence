@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import * as Pong from "./pong/pong";
 import { io, Socket } from 'socket.io-client';
+import { getServerIP } from "../utils/utils";
+import { Console } from "console";
 
 
 const socketOptions = {
@@ -60,7 +62,7 @@ function PongPage() {
     };
 
     useEffect(() => {
-        const socket: Socket = io('http://localhost:8082/', socketOptions);
+        const socket: Socket = io(getServerIP(8082), socketOptions);
         Pong.main(socket);
     
         return () => {
