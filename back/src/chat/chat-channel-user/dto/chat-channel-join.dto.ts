@@ -5,8 +5,8 @@ import { ApiProperty } from "@nestjs/swagger";
 export class ChatChannelJoinDto {
 
 	@ApiProperty()
-	@IsNumber()
-	id: number
+	@IsString()
+	name: string
 
 	@ApiProperty()
 	@IsString()

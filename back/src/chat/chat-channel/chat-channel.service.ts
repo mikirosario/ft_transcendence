@@ -108,9 +108,6 @@ export class ChatChannelService {
 		return channel;
 	}
 
-	/*
-	 * Private methods
-	*/
 	async getChannel(channelId: number) {
 		if (channelId == null)
 			ThrowHttpException(new BadRequestException, 'You must provide channel id');
@@ -118,6 +115,23 @@ export class ChatChannelService {
 		const channel = await this.prisma.chatChannel.findUnique({
 			where: {
 				id: channelId,
+			}
+		});
+
+		if (channel === null) {
+			ThrowHttpException(new NotFoundException, 'Channel not found');
+		}
+
+		return channel;
+	}
+
+	async getChannelByName(name: string) {
+		if (!name)
+			ThrowHttpException(new BadRequestException, 'You must provide channel id');
+
+		const channel = await this.prisma.chatChannel.findFirst({
+			where: {
+				name: name,
 			}
 		});
 

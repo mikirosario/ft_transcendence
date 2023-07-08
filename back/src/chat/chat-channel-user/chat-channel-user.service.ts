@@ -15,7 +15,7 @@ export class ChatChannelUserService {
 
 	async joinChannel(userId: number, dto: ChatChannelJoinDto) {
 		const user = await this.userService.getUserById(userId);
-		const channel = await this.chatChannelService.getChannel(dto.id);
+		const channel = await this.chatChannelService.getChannelByName(dto.name);
 
 		if (channel.isPrivate == true)
 			await this.checkChannelPassword(channel.hash, dto.password);
