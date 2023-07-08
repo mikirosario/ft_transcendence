@@ -150,44 +150,46 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: '0%',
-    height: '16%',
+    height: '65%',
     width: '100%',
   };
 
   const friendsListStyle: React.CSSProperties = {
     display: 'flex',
     flexWrap: 'wrap',
-    justifyContent: 'center',
-    width: '80%',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    alignContent: 'start',
+    width: '100%',
+    height: '64.5%',
+    marginTop: '7.5%',
     textAlign: 'center',
-    gap: '75px',
-    // overflowY: 'scroll', y ajuste de tamano
+    overflowY: 'auto',
+    background: 'transparent'
   };
 
   const friendContainerStyle: React.CSSProperties = {
-    width: '35%',
-    marginBottom: '6%',
+    left:'12.5%',
+    top: '10px',
+    width: '38%',
     borderRadius: '8px',
     border: 'none',
     background: 'transparent',
     position: 'relative',
     cursor: 'pointer',
-    transition: 'transform 0.3s ease-in-out, background-color 0.3s ease',
+    // transition: 'transform 0.3s ease-in-out, background-color 0.3s ease',
     maxHeight: '50px',
-  };
-
-  const nameStyle: React.CSSProperties = {
-    width: '85px',
-    height: '38px',
-    position: 'relative',
-    justifyContent: 'flex-start',
-    fontSize: '16px',
-    color: '#c0c0c0',
     display: 'flex',
     alignItems: 'center',
-    paddingLeft: '10px',
-    flexDirection: 'row',
-    transition: 'font-weight 2.5s ease-in-out',
+    justifyContent: 'flex-start',
+    scale: '0.9',
+};
+
+  const nameStyle: React.CSSProperties = {
+    fontSize: '16px',
+    fontFamily: 'Quantico',
+    color: '#c0c0c0',
   }
 
   const handleCreateChannel = async (event: React.FormEvent) => {
@@ -266,7 +268,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
         </div>
       </div>
       {/* Channel List */}
-      <div style={channelListWrapper}>
+      {/* <div style={channelListWrapper}> */}
         <div style={friendsListStyle}>
           {channelList.map((channel, index) => (
             <button
@@ -294,7 +296,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
           ))}
         </div>
       </div>
-    </div>
+    // </div>
   );
 }
 

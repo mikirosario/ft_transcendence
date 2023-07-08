@@ -124,13 +124,34 @@ export async function deleteAvatarProfile() {
 
 export async function getUserImage(URI: string) {
   try {
+    let fetchedImage = URI;
 
-    const imageResponse = await axios.get('uploads/avatars/' + URI, {
-      responseType: 'blob',
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('token'),
-      },
-    });
+    let imageResponse;
+
+    if (fetchedImage.includes('https://cdn.intra.42.fr/users/')) {
+
+      const authorization = axios.defaults.headers.common["Authorization"];
+      delete axios.defaults.headers.common["Authorization"];
+
+      imageResponse = await axios.get(fetchedImage, {
+        responseType: 'blob',
+        headers: {
+          'Accept': 'image/avif,image/webp,image/apng'
+        },
+      });
+
+      axios.defaults.headers.common["Authorization"] = authorization;
+
+    } else {
+
+      fetchedImage = '/uploads/avatars/' + fetchedImage;
+      imageResponse = await axios.get(fetchedImage, {
+        responseType: 'blob',
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('token'),
+        },
+      });
+    }
 
     if (imageResponse.status !== 200) {
       throw new Error('Request failed with status ' + imageResponse.status);
