@@ -7,6 +7,7 @@ import ChannelDisplay from "./ChannelDisplay"
 import { io, Socket } from 'socket.io-client';
 import { FaAngleRight, FaAngleLeft } from 'react-icons/fa'; // SOLID ARROW
 import ChatDisplay from "./ChatDisplay";
+import { getServerIP } from "../../utils/utils";
 //BiChevronLeft 
 
 const socketOptions = {
@@ -19,8 +20,7 @@ const socketOptions = {
   }
 };
 
-const socket: Socket = io('http://localhost:8083/', socketOptions);
-console.log("aaaaaaaaaaaaaaaaaaaaaa");
+const socket: Socket = io(getServerIP(8083), socketOptions);
 
 function Menu() {
   const initialIsMenuExpanded = localStorage.getItem("isMenuExpanded") === "true";
