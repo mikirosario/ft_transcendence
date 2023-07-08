@@ -12,6 +12,7 @@ import Register from './pages/Register';
 import PreRegister from './pages/PreRegister';
 import { io, Socket } from 'socket.io-client';
 import Verification2af from './pages/Verification2AF';
+import { getServerIP } from './utils/utils';
 
 
 const socketOptions = {
@@ -24,7 +25,7 @@ const socketOptions = {
   }
 };
 
-const socket: Socket = io('http://localhost:8081/', socketOptions);
+const socket: Socket = io(getServerIP(8081), socketOptions);
 
 // Si no esta logeado no puede acceder a ninguna ruta
 
