@@ -7,20 +7,23 @@ import ChannelDisplay from "./ChannelDisplay"
 import { io, Socket } from 'socket.io-client';
 import { FaAngleRight, FaAngleLeft } from 'react-icons/fa'; // SOLID ARROW
 import ChatDisplay from "./ChatDisplay";
+import { SocketContext, SocketProvider } from '../../SocketContext';
 //BiChevronLeft 
 
-const socketOptions = {
-  transportOptions: {
-    polling: {
-      extraHeaders: {
-        Authorization: 'Bearer ' + localStorage.getItem("token"),
-      }
-    }
-  }
-};
+// export const SocketContext = React.createContext();
 
-const socket: Socket = io('http://localhost:8083/', socketOptions);
-console.log("aaaaaaaaaaaaaaaaaaaaaa");
+// const socketOptions = {
+//   transportOptions: {
+//     polling: {
+//       extraHeaders: {
+//         Authorization: 'Bearer ' + localStorage.getItem("token"),
+//       }
+//     }
+//   }
+// };
+
+// const socket: Socket = io('http://localhost:8083/', socketOptions);
+
 
 function Menu() {
   const initialIsMenuExpanded = localStorage.getItem("isMenuExpanded") === "true";
@@ -48,11 +51,6 @@ function Menu() {
     };
 
     fetchUserProfile();
-
-    socket.on("UPDATE_CHANNELS_LIST", (data) => {
-      console.log(data);
-    });
-
   }, []);
 
 
@@ -158,9 +156,6 @@ function Menu() {
     setIsFriendChat(isFriend);
   };
 
-
-
-
   return (
     <>
       <button
@@ -188,13 +183,16 @@ function Menu() {
           <button style={ChannelsButtonStyle} onClick={handleChannelsButtonClick}>
             Canales
           </button>
-          <div style={SocialDisplay}>
-            {selectedChat ? (
-              <ChatDisplay selectedChat={selectedChat} setSelectedChat={setSelectedChat} isFriendChat={isFriendChat} />
-            ) : (
-              selectedButton === 'friend' ? <FriendDisplay openChat={(id) => openChat(id, true)} /> : <ChannelDisplay openChat={(id) => openChat(id, false)} />
-            )}
-          </div>
+          {/* <SocketContext.Provider value={socket}> */}
+
+            <div style={SocialDisplay}>
+              {selectedChat ? (
+                <ChatDisplay selectedChat={selectedChat} setSelectedChat={setSelectedChat} isFriendChat={isFriendChat} />
+              ) : (
+                selectedButton === 'friend' ? <FriendDisplay openChat={(id) => openChat(id, true)} /> : <ChannelDisplay openChat={(id) => openChat(id, false)} />
+              )}
+            </div>
+          {/* </SocketContext.Provider> */}
         </div>
       </div>
     </>

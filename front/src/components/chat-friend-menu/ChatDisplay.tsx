@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { IoMdArrowRoundBack, IoMdSend } from 'react-icons/io';
 import { getChatDirect, sendDirectMessage, getChatChannel, sendChannelMessage } from '../../requests/Chat.Service';
 import { getUserImage } from "../../requests/User.Service";
+import { SocketContext } from '../../SocketContext';
 
 interface ChatDisplayProps {
     selectedChat: number;
@@ -24,6 +25,8 @@ interface User {
 
 
 const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat, isFriendChat }) => {
+    const socket = useContext(SocketContext);
+
     const [messagesList, setMessagesList] = useState<Message[]>([]);
     const [usersMap, setUsersMap] = useState<{ [id: string]: User }>({});
     const [message, setMessage] = useState('');
@@ -51,8 +54,14 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     setUsersMap(usersMap);
                 }
             }
-
         };
+
+        const handleNewMessages = async (data: Message) => {
+            setMessagesList(oldMessageList => [...oldMessageList, data]);
+            console.log(data);
+        };
+
+        socket.on("NEW_DIRECT_MESSAGE", handleNewMessages);
 
         fetchData();
     }, [selectedChat]);
@@ -144,6 +153,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         color: '#A9A9A9',
         fontSize: '14px',
         fontWeight: 'bold',
+        fontFamily: 'Quantico',
         wordBreak: 'break-word',
         overflowWrap: 'break-word',
     };

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { MdSend } from 'react-icons/md';
 import { createChannel, getChannelList, joinChannel } from '../../requests/Channel.Service';
+// import { SocketContext } from '../../SocketContext';
 
 interface Channel {
   id: number
@@ -9,6 +10,8 @@ interface Channel {
 }
 
 function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }) {
+  // const socket = useContext(SocketContext);
+
   const [channelList, setChannelList] = useState<Channel[]>([]);
 
   const [createChannelName, setCreateChannelName] = useState('');
@@ -161,7 +164,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
   };
 
   const friendContainerStyle: React.CSSProperties = {
-    left:'12.5%',
+    left: '12.5%',
     top: '10px',
     width: '38%',
     borderRadius: '8px',
@@ -175,7 +178,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
     alignItems: 'center',
     justifyContent: 'flex-start',
     scale: '0.9',
-};
+  };
 
   const nameStyle: React.CSSProperties = {
     fontSize: '16px',
@@ -219,7 +222,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
               <p style={{ fontFamily: "'Press Start 2P'", fontSize: '11px' }}>Crear Canal</p>
             )}
             {isHoveredCreate && <MdSend size={20} style={SendIconStyle}
-            onClick={handleCreateChannel} 
+              onClick={handleCreateChannel}
             />}
           </div>
 
@@ -253,7 +256,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
               <p style={{ fontFamily: "'Press Start 2P'", fontSize: '11px' }}>Unirse Canal</p>
             )}
             {isHoveredJoin && <MdSend size={20} style={SendIconStyle}
-            onClick={handleJoinChannel} 
+              onClick={handleJoinChannel}
             />}
           </div>
 
@@ -269,33 +272,33 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
         </div>
       </div>
       {/* Channel List */}
-        <div style={friendsListStyle}>
-          {channelList.map((channel, index) => (
-            <button
-              key={index}
-              style={friendContainerStyle}
-              onMouseEnter={() => setIsChannelHovered(index)}
-              onMouseLeave={() => setIsChannelHovered(-1)}
+      <div style={friendsListStyle}>
+        {channelList.map((channel, index) => (
+          <button
+            key={index}
+            style={friendContainerStyle}
+            onMouseEnter={() => setIsChannelHovered(index)}
+            onMouseLeave={() => setIsChannelHovered(-1)}
             onClick={() => openChat(channel.id)}
-            >
-              <div style={{
-                transform: isChannelHovered === index ? 'scale(1.1)' : 'none',
-                transition: 'transform 0.3s ease-in-out',
+          >
+            <div style={{
+              transform: isChannelHovered === index ? 'scale(1.1)' : 'none',
+              transition: 'transform 0.3s ease-in-out',
+            }}>
+
+              <p style={{
+                ...nameStyle,
+                fontWeight: isChannelHovered === index ? 'bold' : 'normal'
               }}>
+                {channel.isPrivate ? '🔒' : '🌐'}
+                {channel.name}
+              </p>
+            </div>
 
-                <p style={{
-                  ...nameStyle,
-                  fontWeight: isChannelHovered === index ? 'bold' : 'normal'
-                }}>
-                  {channel.isPrivate ? '🔒' : '🌐'}
-                  {channel.name}
-                </p>
-              </div>
-
-            </button>
-          ))}
-        </div>
+          </button>
+        ))}
       </div>
+    </div>
   );
 }
 

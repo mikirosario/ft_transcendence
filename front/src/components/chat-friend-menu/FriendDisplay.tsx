@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { addFriend, deleteFriend, getBlockedUsers, getFriendList, getFriendRequests, unblockUser, updateFriendList } from '../../requests/Friend.Service';
 import { getUserImage } from "../../requests/User.Service";
 import { FaCaretDown, FaCaretUp, FaCheck, FaTimes } from 'react-icons/fa';
 import { MdSend } from 'react-icons/md';
+import { SocketContext } from '../../SocketContext';
 
 interface Friend {
     userId: number;
@@ -10,10 +11,12 @@ interface Friend {
     avatarUri: string;
     isOnline: boolean;
     isInGame: boolean;
-    avatarFile?: string;
+    avatarFile?: string | null;
 }
 
 function FriendDisplay({ openChat }: { openChat: (friendName: number) => void }) {
+    const socket = useContext(SocketContext);
+
     const initialFriendsExpanded = localStorage.getItem("showFriends") === "true";
     const initialPetitionsExpanded = localStorage.getItem("showRequests") === "true";
     const initialBlocksExpanded = localStorage.getItem("showBlocked") === "true";
@@ -25,7 +28,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
     const [showFriends, setShowFriends] = useState(initialFriendsExpanded);
     const [isFriendHovered, setIsFriendHovered] = useState(-1);
     
-    const [friendPetitionList, setFriendLPetitionList] = useState<Friend[]>([]);
+    const [friendPetitionList, setFriendPetitionList] = useState<Friend[]>([]);
     const [showRequests, setShowRequests] = useState(initialPetitionsExpanded);
     const [isRequestHovered, setIsRequestHovered] = useState(-1);
     const [isAcceptHovered, setIsAcceptHovered] = useState(false);
@@ -36,6 +39,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
     const [isBlockedHovered, setIsBlockedHovered] = useState(-1);
 
     useEffect(() => {
+
         const fetchFriends = async () => {
             const friendsRequest = await getFriendList();
             const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
@@ -45,14 +49,71 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
             setFriendList(friendsWithImages);
         };
 
+        const handleFriendListNew = async (data: {friends: [], friend_requests: []}) => {
+            const newFriendsList = data.friends;
+            const newRequestList = data.friend_requests;
+
+            console.log(newFriendsList);
+            const friendsWithImages = await Promise.all(newFriendsList.map(async (friend: Friend) => {
+                const imageUrl = await getUserImage(friend.avatarUri);
+                return { ...friend, avatarFile: imageUrl };
+            }));
+            setFriendList(friendsWithImages);
+
+            console.log(newRequestList);
+            const friendsWithImages2 = await Promise.all(newRequestList.map(async (friend: Friend) => {
+                const imageUrl = await getUserImage(friend.avatarUri);
+                return { ...friend, avatarFile: imageUrl };
+            }));
+            setFriendPetitionList(friendsWithImages2);
+        };
+
+        fetchFriends();
+        socket.on("FRIEND_REQUEST_ACCEPTED", handleFriendListNew);
+    
+        // // Función de limpieza
+        // return () => {
+        //     socket.off("FRIEND_REQUEST_ACCEPTED", handleFriendListNew);
+        // };
+
+        
         const fetchFriendPetition = async () => {
             const friendsRequest = await getFriendRequests();
             const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
                 const imageUrl = await getUserImage(friend.avatarUri);
                 return { ...friend, avatarFile: imageUrl };
             }));
-            setFriendLPetitionList(friendsWithImages);
+            setFriendPetitionList(friendsWithImages);
         };
+        
+        const handleFriendRequestNew = async (newFriendsRequest: Friend[]) => {
+            console.log(newFriendsRequest);
+            const friendsWithImages = await Promise.all(newFriendsRequest.map(async (friend: Friend) => {
+                const imageUrl = await getUserImage(friend.avatarUri);
+                return { ...friend, avatarFile: imageUrl };
+            }));
+            setFriendPetitionList(friendsWithImages);
+        };
+        
+        const handleFriendRequestReject = async (newFriendsRequest: Friend[]) => {
+            console.log(newFriendsRequest);
+            const friendsWithImages = await Promise.all(newFriendsRequest.map(async (friend: Friend) => {
+                const imageUrl = await getUserImage(friend.avatarUri);
+                return { ...friend, avatarFile: imageUrl };
+            }));
+            setFriendPetitionList(friendsWithImages);
+        };
+
+    
+        fetchFriendPetition();
+        socket.on("FRIEND_REQUEST_NEW", handleFriendRequestNew);
+        socket.on("FRIEND_REQUEST_REJECTED", handleFriendRequestReject);
+        
+    
+        // // Función de limpieza
+        // return () => {
+        //     socket.off("FRIEND_REQUEST_NEW", handleFriendRequestNew);
+        // };
 
         const fetchBlockedUsers = async () => {
             const blockedUsersRequest = await getBlockedUsers();
@@ -73,7 +134,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
         fetchFriendPetition();
         fetchBlockedUsers();
 
-    }, []);
+    }, [socket]);
 
     useEffect(() => {
         localStorage.setItem("showFriends", String(showFriends));
@@ -348,7 +409,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
                                         <img
                                             className='FriendAvatar'
                                             alt={'Avatar de' + friend.nick}
-                                            src={friend.avatarFile}
+                                            src={friend.avatarFile || ''}
                                             style={avatarStyle}
                                         />
                                         
@@ -386,7 +447,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
                                         <img
                                             className='FriendAvatar'
                                             alt={'Avatar de' + request.nick}
-                                            src={request.avatarFile}
+                                            src={request.avatarFile  || ''}
                                             style={avatarStyle}
                                         />
                                     </div>
@@ -442,7 +503,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
                                         <img
                                             className='FriendAvatar'
                                             alt={'Avatar de' + blockedUser.nick}
-                                            src={blockedUser.avatarFile}
+                                            src={blockedUser.avatarFile || ''}
                                             style={avatarStyle}
                                         />
                                     </div>

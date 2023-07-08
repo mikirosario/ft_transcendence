@@ -5,12 +5,14 @@ import { ChatBlockedUserService } from '../chat-blocked-user/chat-blocked-user.s
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ChatDirectMessageDto } from './dto';
+import { ChatGateway } from '../chat-socket/chat.gateway';
 
 @Injectable()
 export class ChatDirectMessageService {
 
 	constructor(private prisma: PrismaService, private userService: UserService,
-				private chatBlockedUserService: ChatBlockedUserService) { }
+				private chatBlockedUserService: ChatBlockedUserService,
+				private ws: ChatGateway) { }
 
 	async sendDirectMessage(userId: number, dto: ChatDirectMessageDto) {
 		const user1 = await this.userService.getUserById(userId);
@@ -33,6 +35,18 @@ export class ChatDirectMessageService {
 					userId: user1.id,
 					message: dto.message
 				}
+			});
+
+			this.ws.sendSocketMessageToUser(user1.id, 'NEW_DIRECT_MESSAGE', {
+				sender: user1.nick,
+				sentAt: newMessage.sentAt,
+				message: newMessage.message,
+			});
+
+			this.ws.sendSocketMessageToUser(user2.id, 'NEW_DIRECT_MESSAGE', {
+				sender: user1.nick,
+				sentAt: newMessage.sentAt,
+				message: newMessage.message,
 			});
 
 			return newMessage;
