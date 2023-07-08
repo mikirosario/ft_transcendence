@@ -27,7 +27,6 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
     const [friendList, setFriendList] = useState<Friend[]>([]);
     const [showFriends, setShowFriends] = useState(initialFriendsExpanded);
     const [isFriendHovered, setIsFriendHovered] = useState(-1);
-
     const [friendPetitionList, setFriendPetitionList] = useState<Friend[]>([]);
     const [showRequests, setShowRequests] = useState(initialPetitionsExpanded);
     const [isRequestHovered, setIsRequestHovered] = useState(-1);
