@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SettingsButton from "../components/home/SettingsButton";
 import HomeButton from "../components/B_Home";
 import GameButton from "../components/B_General";
-import SocialMenu from "../components/chat-friend-menu/SocialMenu";
+import SocialMenu from "../components/socialMenu/SocialMenu";
 
 function Home() {
     const navigate = useNavigate();
