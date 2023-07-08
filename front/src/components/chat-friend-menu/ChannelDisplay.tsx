@@ -33,9 +33,9 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
     const handleChannelsList = async (newChannelList: []) => {
       setChannelList(newChannelList)
     };
-      
-      fetchChannels();
-      socket.on("UPDATE_CHANNELS_LIST", handleChannelsList);
+
+    fetchChannels();
+    socket.on("UPDATE_CHANNELS_LIST", handleChannelsList);
   }, []);
 
   // ------------------- BUTTON CHANNELS STYLES ------------------------------
@@ -303,7 +303,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
           </button>
         ))}
       </div>
-    // </div>
+    </div>
   );
 }
 
