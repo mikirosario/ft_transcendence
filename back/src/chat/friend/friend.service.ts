@@ -1,14 +1,15 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { PrismaService } from '../prisma/prisma.service';
-import { ThrowHttpException } from '../utils/error-handler';
+import { PrismaService } from '../../prisma/prisma.service';
+import { ThrowHttpException } from '../../utils/error-handler';
 import { FriendDto } from "./dto";
-import { UserService } from '../user/user.service';
+import { UserService } from '../../user/user.service';
+import { ChatGateway } from '../chat-socket/chat.gateway';
 
 
 @Injectable()
 export class FriendService {
-	constructor(private prisma: PrismaService, private userService: UserService) { }
+	constructor(private prisma: PrismaService, private userService: UserService, private ws: ChatGateway) { }
 
 	async addFriend(userId: number, dto: FriendDto) {
 		const user = await this.userService.getUserById(userId);
@@ -25,11 +26,9 @@ export class FriendService {
 			// Friendship doesnt exist
 			await this.createFriendship(user.id, friend.id, false);
 
-			/*
 			this.ws.sendSocketMessageToUser(friend.id, 'FRIEND_REQUEST_NEW', {
 				friend_requests: await this.getFriendsFiltered(friend.id, false),
 			});
-			*/
 		}
 
 		const friends = this.getFriendsFiltered(userId, true);

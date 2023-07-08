@@ -75,18 +75,22 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			return ;
 		}
 
-		const user = await this.userService.getUserById(userId);
-		if (!user)
-		{
-			console.log(userId + ' se ha ido del chat 💬❌');
-			this.connectedUsers.delete(userId);
-			client.disconnect();
-			return ;
-		}
+		try {
+			const user = await this.userService.getUserById(userId);
+			if (!user)
+			{
+				console.log(userId + ' se ha ido del chat 💬❌');
+				this.connectedUsers.delete(userId);
+				client.disconnect();
+				return ;
+			}
 
-		this.connectedUsers.delete(user.id);
-		client.disconnect();
-		console.log(user.nick + ' se ha ido del chat 💬❌');
+			this.connectedUsers.delete(user.id);
+			client.disconnect();
+			console.log(user.nick + ' se ha ido del chat 💬❌');
+		} catch (error) {
+			client.disconnect();
+		}
 	}
 
 	@SubscribeMessage('event_join')

@@ -1,7 +1,7 @@
 import { Controller, Get, UseGuards, Body, Delete, Post, Put } from "@nestjs/common";
 import { ApiBearerAuth } from "@nestjs/swagger"
-import { JwtGuard } from "../auth/guard";
-import { GetJwt } from "../auth/decorator";
+import { JwtGuard } from "../../auth/guard";
+import { GetJwt } from "../../auth/decorator";
 import { FriendService } from "./friend.service";
 import { FriendDto } from "./dto/friend.dto";
 
