@@ -52,7 +52,6 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                 }
             }
 
-
         };
 
         fetchData();

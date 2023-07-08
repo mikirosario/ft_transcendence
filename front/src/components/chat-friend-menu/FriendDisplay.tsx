@@ -288,6 +288,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
         event.preventDefault();
 
         await addFriend(friendName);
+        setFriendName('');
     }
 
     return (
