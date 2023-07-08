@@ -12,6 +12,7 @@ export async function getChatDirect(chatId: number) {
             },
         });
 
+        
         return response.data;
 
     } catch (error) {
@@ -55,8 +56,7 @@ export async function getChatChannel(chatId: number) {
             },
         });
 
-        const { channels } = response.data;
-        return channels;
+        return response.data;
 
     } catch (error) {
         console.log('Error: Could not remove that friend', error);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MdSend } from 'react-icons/md';
-import { createChannel, getChannelList } from '../../requests/Channel.Service';
+import { createChannel, getChannelList, joinChannel } from '../../requests/Channel.Service';
 
 interface Channel {
   id: number
@@ -145,55 +145,58 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
 
   // ------------------- CHANNELS LIST STYLES ------------------------------
 
-  const channelListWrapper: React.CSSProperties = {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: '0%',
-    height: '16%',
-    width: '100%',
-  };
-
   const friendsListStyle: React.CSSProperties = {
     display: 'flex',
     flexWrap: 'wrap',
-    justifyContent: 'center',
-    width: '80%',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    alignContent: 'start',
+    width: '100%',
+    height: '64.5%',
+    marginTop: '7.5%',
     textAlign: 'center',
-    gap: '75px',
-    // overflowY: 'scroll', y ajuste de tamano
+    overflowY: 'auto',
+    background: 'transparent'
   };
 
   const friendContainerStyle: React.CSSProperties = {
-    width: '35%',
-    marginBottom: '6%',
+    left:'12.5%',
+    top: '10px',
+    width: '38%',
     borderRadius: '8px',
     border: 'none',
     background: 'transparent',
     position: 'relative',
     cursor: 'pointer',
-    transition: 'transform 0.3s ease-in-out, background-color 0.3s ease',
+    // transition: 'transform 0.3s ease-in-out, background-color 0.3s ease',
     maxHeight: '50px',
-  };
-
-  const nameStyle: React.CSSProperties = {
-    width: '85px',
-    height: '38px',
-    position: 'relative',
-    justifyContent: 'flex-start',
-    fontSize: '16px',
-    color: '#c0c0c0',
     display: 'flex',
     alignItems: 'center',
-    paddingLeft: '10px',
-    flexDirection: 'row',
-    transition: 'font-weight 2.5s ease-in-out',
+    justifyContent: 'flex-start',
+    scale: '0.9',
+};
+
+  const nameStyle: React.CSSProperties = {
+    fontSize: '16px',
+    fontFamily: 'Quantico',
+    color: '#c0c0c0',
   }
 
   const handleCreateChannel = async (event: React.FormEvent) => {
     event.preventDefault();
 
     await createChannel(createChannelName, createChannelPassword);
+    setCreateChannelName('');
+    setCreateChannelPassword('');
+  }
+
+  const handleJoinChannel = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    await joinChannel(joinChannelName, JoinChannelPassword);
+    setCreateChannelName('');
+    setCreateChannelPassword('');
   }
 
   return (
@@ -250,7 +253,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
               <p style={{ fontFamily: "'Press Start 2P'", fontSize: '11px' }}>Unirse Canal</p>
             )}
             {isHoveredJoin && <MdSend size={20} style={SendIconStyle}
-            // onClick={} 
+            onClick={handleJoinChannel} 
             />}
           </div>
 
@@ -266,7 +269,6 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
         </div>
       </div>
       {/* Channel List */}
-      <div style={channelListWrapper}>
         <div style={friendsListStyle}>
           {channelList.map((channel, index) => (
             <button
@@ -294,7 +296,6 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
           ))}
         </div>
       </div>
-    </div>
   );
 }
 

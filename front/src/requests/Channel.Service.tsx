@@ -96,10 +96,10 @@ export async function deleteChannel(id: number, password: string) {
   }
 }
 
-export async function joinChannel(id: number, password: string) {
+export async function joinChannel(name: string, password: string) {
   try {
     const response = await axios.post('/chat/channels/join', {
-      id: id,
+      name: name,
       password: password
     }, {
       responseType: 'json',
