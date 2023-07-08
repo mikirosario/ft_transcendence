@@ -41,6 +41,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try {
 			const user = await this.userService.getUserById(userId);
 
+			/*
 			if (this.connectedUsers.has(user.id))
 			{
 				const mySocket = this.connectedUsers.get(user.id);
@@ -50,10 +51,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			}
 
 			console.log(this.connectedUsers.size);
+			*/
 
 
 			this.connectedUsers.set(user.id, client);
-			this.sendSocketMessageToUser(user.id, "UPDATE_CHANNELS_LIST", "bienvenido");
 			console.log('Hola! ' + user.nick + ' está en el chat 💬✅');
 			console.log(this.connectedUsers.size);
 

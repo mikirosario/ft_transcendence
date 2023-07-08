@@ -26,9 +26,8 @@ export class FriendService {
 			// Friendship doesnt exist
 			await this.createFriendship(user.id, friend.id, false);
 
-			this.ws.sendSocketMessageToUser(friend.id, 'FRIEND_REQUEST_NEW', {
-				friend_requests: await this.getFriendsFiltered(friend.id, false),
-			});
+			this.ws.sendSocketMessageToUser(friend.id, 'FRIEND_REQUEST_NEW', 
+				await this.getFriendsFiltered(friend.id, false));
 		}
 
 		const friends = this.getFriendsFiltered(userId, true);
@@ -43,7 +42,6 @@ export class FriendService {
 		await this.updateFriendship(friendship.id, {accepted: true});
 		await this.createFriendship(user.id, friend.id, true);
 
-		/*
 		this.ws.sendSocketMessageToUser(user.id, 'FRIEND_REQUEST_ACCEPTED', {
 			friends: await this.getFriendsFiltered(user.id, true),
 			friend_requests: await this.getFriendsFiltered(user.id, false),
@@ -53,7 +51,6 @@ export class FriendService {
 			friends: await this.getFriendsFiltered(friend.id, true),
 			friend_requests: await this.getFriendsFiltered(friend.id, false),
 		});
-		*/
 
 		const friends = this.getFriendsFiltered(userId, true);
 		return friends;
@@ -78,7 +75,12 @@ export class FriendService {
 		await this.deleteFriendship(user.id, friend.id);
 		await this.deleteFriendship(friend.id, user.id);
 
-		const friends = this.getFriendsFiltered(userId, false);
+		const friends = await this.getFriendsFiltered(userId, false);
+
+		this.ws.sendSocketMessageToUser(user.id, 'FRIEND_REQUEST_REJECTED', friends);
+		this.ws.sendSocketMessageToUser(friend.id, 'FRIEND_REQUEST_REJECTED', 
+				await this.getFriendsFiltered(friend.id, false));
+
 		return friends;
 	}
 
@@ -178,9 +180,8 @@ export class FriendService {
 			where: { userId: userId1, friend_userId: userId2 },
 		});
 
-		if (friendship === null) {
-			ThrowHttpException(new NotFoundException, 'Friend relationship not found');
-		}
+		if (friendship === null)
+			return ;
 
 		await this.prisma.friend.delete({
 			where: {
