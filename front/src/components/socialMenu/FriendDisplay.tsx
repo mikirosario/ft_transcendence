@@ -37,8 +37,8 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
 
     useEffect(() => {
         const fetchFriends = async () => {
-            const friendsRequest = await getFriendList();
-            const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
+            const friendsList = await getFriendList();
+            const friendsWithImages = await Promise.all(friendsList.friends.map(async (friend: { avatarUri: string; }) => {
                 const imageUrl = await getUserImage(friend.avatarUri);
                 return { ...friend, avatarFile: imageUrl };
             }));
