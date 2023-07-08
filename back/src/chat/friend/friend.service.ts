@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { PrismaService } from '../prisma/prisma.service';
-import { ThrowHttpException } from '../utils/error-handler';
+import { PrismaService } from '../../prisma/prisma.service';
+import { ThrowHttpException } from '../../utils/error-handler';
 import { FriendDto } from "./dto";
-import { UserService } from '../user/user.service';
-import { ChatGateway } from '../chat/chat-socket/chat.gateway';
+import { UserService } from '../../user/user.service';
+import { ChatGateway } from '../chat-socket/chat.gateway';
 
 
 @Injectable()
@@ -43,6 +43,7 @@ export class FriendService {
 		await this.updateFriendship(friendship.id, {accepted: true});
 		await this.createFriendship(user.id, friend.id, true);
 
+		/*
 		this.ws.sendSocketMessageToUser(user.id, 'FRIEND_REQUEST_ACCEPTED', {
 			friends: await this.getFriendsFiltered(user.id, true),
 			friend_requests: await this.getFriendsFiltered(user.id, false),
@@ -52,6 +53,7 @@ export class FriendService {
 			friends: await this.getFriendsFiltered(friend.id, true),
 			friend_requests: await this.getFriendsFiltered(friend.id, false),
 		});
+		*/
 
 		const friends = this.getFriendsFiltered(userId, true);
 		return friends;

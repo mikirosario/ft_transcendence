@@ -7,7 +7,7 @@ import { ChatBlockedDto } from './dto'
 
 
 @UseGuards(JwtGuard)
-@Controller('chat/blocks')
+@Controller('users/blocks')
 @ApiBearerAuth()
 export class ChatBlockedUserController {
 	

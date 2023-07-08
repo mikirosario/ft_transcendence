@@ -5,7 +5,7 @@ import { ChatChannelService } from '../chat-channel/chat-channel.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as argon from "argon2";
-import { ChatChannelJoinDto, ChatChannelLeaveDto, ChatChannelUserDto } from './dto'
+import { ChatChannelJoinDto, ChatChannelLeaveDto, ChatChannelUserDto } from './dto';
 
 @Injectable()
 export class ChatChannelUserService {
@@ -15,7 +15,7 @@ export class ChatChannelUserService {
 
 	async joinChannel(userId: number, dto: ChatChannelJoinDto) {
 		const user = await this.userService.getUserById(userId);
-		const channel = await this.chatChannelService.getChannel(dto.id);
+		const channel = await this.chatChannelService.getChannelByName(dto.name);
 
 		if (channel.isPrivate == true)
 			await this.checkChannelPassword(channel.hash, dto.password);

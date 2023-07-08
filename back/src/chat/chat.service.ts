@@ -3,11 +3,12 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ChatBlockedUserService } from './chat-blocked-user/chat-blocked-user.service';
 import { ChatChannelService } from '../chat/chat-channel/chat-channel.service';
 
+
 @Injectable()
 export class ChatService {
 	constructor(private prisma: PrismaService,
 					private chatBlockedUserService: ChatBlockedUserService,
-					private chatChannelService: ChatChannelService, ) { }
+					private chatChannelService: ChatChannelService) { }
 
 	async getChats(userId: number) {
 		const blockedUsers = await this.chatBlockedUserService.getMyBlockedUsersList(userId);
@@ -18,4 +19,5 @@ export class ChatService {
 			blocked_users: blockedUsers
 		};
 	}
+
 }
