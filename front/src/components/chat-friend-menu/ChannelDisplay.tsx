@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { MdSend } from 'react-icons/md';
 import { createChannel, getChannelList, joinChannel } from '../../requests/Channel.Service';
-// import { SocketContext } from '../../SocketContext';
+import { SocketContext } from '../../SocketContext';
 
 interface Channel {
   id: number
@@ -10,7 +10,7 @@ interface Channel {
 }
 
 function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }) {
-  // const socket = useContext(SocketContext);
+  const socket = useContext(SocketContext);
 
   const [channelList, setChannelList] = useState<Channel[]>([]);
 
@@ -30,7 +30,12 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
       setChannelList(channels);
     };
 
-    fetchChannels();
+    const handleChannelsList = async (newChannelList: []) => {
+      setChannelList(newChannelList)
+    };
+      
+      fetchChannels();
+      socket.on("UPDATE_CHANNELS_LIST", handleChannelsList);
   }, []);
 
   // ------------------- BUTTON CHANNELS STYLES ------------------------------
