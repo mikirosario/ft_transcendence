@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { IoMdArrowRoundBack, IoMdSend } from 'react-icons/io';
 import { getChatDirect, sendDirectMessage, getChatChannel, sendChannelMessage } from '../../requests/Chat.Service';
 import { getUserImage } from "../../requests/User.Service";
@@ -43,7 +44,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     const { members, messages } = result;
                     const usersWithImages = await Promise.all(members.map(async (user: User) => {
                         const imageUrl = await getUserImage(user.avatarUri);
-                        console.log('getUserImage imageUrl:', imageUrl);
+                        // console.log('getUserImage imageUrl:', imageUrl);
                         return { ...user, avatarFile: imageUrl ?? '' };
                     }));
                     setMessagesList(messages);
@@ -56,14 +57,37 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
             }
         };
 
-        const handleNewMessages = async (data: Message) => {
-            setMessagesList(oldMessageList => [...oldMessageList, data]);
-            console.log(data);
+        const handleNewDirectMessages = async (msg: Message) => {
+            setMessagesList(oldMessageList => [...oldMessageList, msg]);
+            // console.log(msg);
         };
 
-        socket.on("NEW_DIRECT_MESSAGE", handleNewMessages);
+        const handleNewUser = async (newUser: User) => {
+            const imageUrl = await getUserImage(newUser.avatarUri);
+            const userWithImage = { ...newUser, avatarFile: imageUrl ?? '' };
+            setUsersMap(oldUsersMap => ({ ...oldUsersMap, [userWithImage.nick]: userWithImage }));
+        }
+
+        const handleNewChannelMessages = async (msg: Message) => {
+            setMessagesList(oldMessageList => [...oldMessageList, msg]);
+            // console.log(msg);
+        };
 
         fetchData();
+        if (isFriendChat)
+            socket.on("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
+        else {
+            socket.on("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
+            socket.on("NEW_USER_CHANNEL", handleNewUser);
+        }
+
+        // Función de limpieza
+        // return () => {
+        //     socket.off("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
+        //     socket.off("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
+        //     socket.off("NEW_USER_CHANNEL", handleNewUser);
+        // };
+
     }, [selectedChat]);
 
     const ChatWrapper: React.CSSProperties = {
@@ -176,7 +200,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         if (selectedChat !== null) {
             if (isFriendChat)
                 await sendDirectMessage(selectedChat, message);
-            else 
+            else
                 await sendChannelMessage(selectedChat, message);
             setMessage('');
         }
@@ -192,9 +216,27 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     const user = usersMap[messageItem.sender];
                     return (
                         <div key={index} style={MessageStyle}>
-                            <img src={usersMap[user?.nick]?.avatarFile} alt={user?.nick} style={UserImageStyle} />
+                            <img
+                                src={usersMap[user?.nick]?.avatarFile}
+                                alt={user?.nick}
+                                style={UserImageStyle}
+                                // as={Link}
+                                // to="/settings"       CHANGE TO USER PROFILEPAGE
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                }}
+                            />
                             <div style={MessageInfoStyle}>
-                                <span style={UserNameStyle}>{messageItem.sender}</span>
+                                <span
+                                    style={UserNameStyle}
+                                    // as={Link}
+                                    // to="/settings"   CHANGE TO USER PROFILEPAGE
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                    }}
+                                >
+                                    {messageItem.sender}
+                                </span>
                                 <p style={MessageContentStyle}>
                                     {messageItem.message}
                                 </p>
