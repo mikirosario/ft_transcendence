@@ -18,31 +18,6 @@ export const SocketContext = createContext<Socket>(socket);
 
 // Crear un proveedor del socket
 export function SocketProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<any>(null);
-
-  useEffect(() => {
-    socket.on("UPDATE_CHANNELS_LIST", (data: any) => {
-      console.log(data);
-      setData(data);
-    });
-
-    // socket.on("FRIEND_REQUEST_NEW", (data: any) => {
-    //   console.log(data);
-    //   setData(data);
-    // });
-
-    socket.on("FRIEND_REQUEST_ACCEPTED", (data: any) => {
-      console.log(data);
-      setData(data);
-    });
-
-    // socket.on("FRIEND_REQUEST_REJECTED", (data: any) => {
-    //   console.log(data);
-    //   setData(data);
-    // });
-
-
-  }, []);
 
   return (
     <SocketContext.Provider value={socket}>
