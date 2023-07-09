@@ -4,11 +4,12 @@ import { ChatChannelCreateDto, ChatChannelUpdateDto } from "./dto";
 import { UserService } from '../../user/user.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { ChatGateway } from '../chat-socket/chat.gateway'
 import * as argon from "argon2";
 
 @Injectable()
 export class ChatChannelService {
-	constructor(private prisma: PrismaService, private userService: UserService) { }
+	constructor(private prisma: PrismaService, private userService: UserService, private ws: ChatGateway) { }
 
 	async getChannelChat(userId: number, channelId: number) {
 		const channel = await this.getChannelChatInfo(userId, channelId);
@@ -262,11 +263,10 @@ export class ChatChannelService {
 			},
 		});
 
-		/*
 		for (const user of allUsers) {
-			this.ws.sendSocketMessageToUser(user.id, 'UPDATE_CHANNELS_LIST', await this.getMyChannelsAndPublicChannels(user.id));
+			this.ws.sendSocketMessageToUser(user.id, 'UPDATE_CHANNELS_LIST',
+					await this.getMyChannelsAndPublicChannels(user.id));
 		}
-		*/
 	}
 
 

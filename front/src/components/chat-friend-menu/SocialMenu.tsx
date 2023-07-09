@@ -1,31 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import UserProfile from "./ProfileDisplay";
 import { useNavigate } from "react-router-dom";
 import { getUserProfile } from '../../requests/User.Service';
 import FriendDisplay from "./FriendDisplay";
 import ChannelDisplay from "./ChannelDisplay"
-import { io, Socket } from 'socket.io-client';
 import { FaAngleRight, FaAngleLeft } from 'react-icons/fa'; // SOLID ARROW
 import ChatDisplay from "./ChatDisplay";
-import { SocketContext, SocketProvider } from '../../SocketContext';
+import { SocketContext } from '../../SocketContext';
 //BiChevronLeft 
-
-// export const SocketContext = React.createContext();
-
-// const socketOptions = {
-//   transportOptions: {
-//     polling: {
-//       extraHeaders: {
-//         Authorization: 'Bearer ' + localStorage.getItem("token"),
-//       }
-//     }
-//   }
-// };
-
-// const socket: Socket = io('http://localhost:8083/', socketOptions);
 
 
 function Menu() {
+  const socket = useContext(SocketContext);
+
   const initialIsMenuExpanded = localStorage.getItem("isMenuExpanded") === "true";
   const initialSelectedButton = localStorage.getItem("selectedButton") || 'friend';
   // const initialSelectedChat = localStorage.getItem("selectedChat") ? parseInt(localStorage.getItem("selectedChat")!) : null;
