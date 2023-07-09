@@ -3,6 +3,7 @@ import PlayButton from "../components/home/StartButton";
 import axios from 'axios';
 import Logo from '../assets/images/Logo.png';
 import { useNavigate } from 'react-router-dom';
+import { getServerIP } from '../utils/utils';
 
 function PreRegister() {
     const navigate = useNavigate();
@@ -35,7 +36,7 @@ function PreRegister() {
 
     const AuthLoginLink = async () => {
         try{
-            const response = await axios.get('http://localhost:3000/oauth/generateAuthURL');
+            const response = await axios.get(getServerIP(3000) + 'oauth/generateAuthURL');
             const authUrl = response.data.url;
             console.log(authUrl);
             window.location.href = authUrl;

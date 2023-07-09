@@ -6,12 +6,12 @@ import FriendDisplay from "./FriendDisplay";
 import ChannelDisplay from "./ChannelDisplay"
 import { FaAngleRight, FaAngleLeft } from 'react-icons/fa'; // SOLID ARROW
 import ChatDisplay from "./ChatDisplay";
-import { SocketContext } from '../../SocketContext';
+//import { SocketContext } from '../../SocketContext';
 //BiChevronLeft 
 
 
 function Menu() {
-  const socket = useContext(SocketContext);
+  // const socket = useContext(SocketContext);
 
   const initialIsMenuExpanded = localStorage.getItem("isMenuExpanded") === "true";
   const initialSelectedButton = localStorage.getItem("selectedButton") || 'friend';

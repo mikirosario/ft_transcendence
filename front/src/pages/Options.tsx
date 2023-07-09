@@ -3,6 +3,7 @@ import UserSettingsButtons from "../components/settings/UserSettingsButtons";
 import GoToHomepage from "../components/home/Home";
 import QRCodeDisplay from "../components/2AF/QRCodeDisplay";
 import axios from 'axios';
+import { getServerIP } from '../utils/utils';
 
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
 
@@ -13,7 +14,7 @@ function Options() {
         const check2AFOnLoad = async () => {
           try {
             const token = localStorage.getItem('token');
-            const response = await axios.get<{ checkresult: boolean }>('http://localhost:3000/auth/second-auth-factor/check', {
+            const response = await axios.get<{ checkresult: boolean }>(getServerIP(3000) + 'auth/second-auth-factor/check', {
               headers: { 'Authorization': `Bearer ${token}` }
             });
             setIs2AFACtive(response.data.checkresult);
@@ -30,7 +31,7 @@ function Options() {
         {
             try {
               const token = localStorage.getItem('token');
-              await axios.put<string>('http://localhost:3000/auth/second-auth-factor/disable', {
+              await axios.put<string>(getServerIP(3000) + 'auth/second-auth-factor/disable', {
                 headers: { 'Authorization': `Bearer ${token}` }
               });
               console.log("2AF disabled");
