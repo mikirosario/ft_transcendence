@@ -57,8 +57,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 			if (this.connectedUsers.has(user.id))
 			{
-				const sockets: Socket[] = this.connectedUsers.get(user.id);
-				this.connectedUsers.set(user.id, [...sockets, client]);
+				let sockets: Socket[] = this.connectedUsers.get(user.id);
+				sockets = [...sockets, client];
+				this.connectedUsers.set(user.id, sockets);
 
 				console.log('Hola! ' + user.nick + ' está en el chat (' + sockets.length + ' conex) 💬✅');
 			} else {
