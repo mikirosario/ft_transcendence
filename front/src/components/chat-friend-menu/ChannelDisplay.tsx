@@ -36,7 +36,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
 
     fetchChannels();
     socket.on("UPDATE_CHANNELS_LIST", handleChannelsList);
-  }, []);
+  });
 
   // ------------------- BUTTON CHANNELS STYLES ------------------------------
 

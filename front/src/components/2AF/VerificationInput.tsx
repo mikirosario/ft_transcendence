@@ -1,5 +1,6 @@
 import React, { useState, ChangeEvent } from 'react';
 import axios from 'axios';
+import { getServerIP } from '../../utils/utils';
 
 interface VerificationInputProps {
   onVerificationResult: (result: boolean) => void;
@@ -17,7 +18,7 @@ const VerificationInput: React.FC<VerificationInputProps> = ({ onVerificationRes
 
   const verify2FA = async () => {
     try {
-      const response = await axios.post<VerificationResponse>('http://localhost:3000/auth/second-auth-factor/verify', {
+      const response = await axios.post<VerificationResponse>(getServerIP(3000) + 'auth/second-auth-factor/verify', {
         code: verificationCode,
         headers: {
           Authorization: 'Bearer ' + localStorage.getItem('token'),

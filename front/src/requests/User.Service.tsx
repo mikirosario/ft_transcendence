@@ -1,6 +1,7 @@
 import axios from "axios";
+import { getServerIP } from '../utils/utils';
 
-axios.defaults.baseURL = 'http://localhost:3000';
+axios.defaults.baseURL = getServerIP(3000);
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
 
 export async function updateUserProfile(username: string, image: File | null) {

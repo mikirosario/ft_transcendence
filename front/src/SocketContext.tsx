@@ -1,5 +1,6 @@
-import React, { createContext, useEffect, useState, ReactNode } from "react";
+import { createContext, ReactNode } from "react";
 import io, { Socket } from "socket.io-client";
+import { getServerIP } from './utils/utils';
 
 const socketOptions = {
   transportOptions: {
@@ -11,7 +12,7 @@ const socketOptions = {
   }
 };
 
-const socket: Socket = io('http://localhost:8083/', socketOptions);
+const socket: Socket = io(getServerIP(8083), socketOptions);
 
 // Crear un contexto para el socket
 export const SocketContext = createContext<Socket>(socket);
