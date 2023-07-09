@@ -11,8 +11,6 @@ import { ConfigService } from "@nestjs/config";
 import { UserService } from "../../user/user.service";
 import { WebSocketService } from '../../auth/websocket/websocket.service';
 import { Injectable } from '@nestjs/common';
-import { ChatChannelService } from '../chat-channel/chat-channel.service';
-
 
 
 @WebSocketGateway(8083, {
@@ -29,7 +27,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	private connectedUsers: Map<number, Socket[]> = new Map();
 	
 	constructor(private config: ConfigService, private userService: UserService,
-		private webSocketService: WebSocketService, private chatChannelService: ChatChannelService) { }
+		private webSocketService: WebSocketService) { }
 
 	afterInit(server: any) { }
 	
