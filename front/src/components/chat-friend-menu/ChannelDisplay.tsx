@@ -7,6 +7,7 @@ interface Channel {
   id: number
   name: string
   isPrivate: boolean
+  imInside: boolean
 }
 
 function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }) {
@@ -29,14 +30,15 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
       const channels = await getChannelList();
       setChannelList(channels);
     };
-
+    
     const handleChannelsList = async (newChannelList: []) => {
       setChannelList(newChannelList)
     };
-
+    
     fetchChannels();
     socket.on("UPDATE_CHANNELS_LIST", handleChannelsList);
-  });
+  }, [socket]);
+
 
   // ------------------- BUTTON CHANNELS STYLES ------------------------------
 
@@ -201,10 +203,19 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
 
   const handleJoinChannel = async (event: React.FormEvent) => {
     event.preventDefault();
-
+    
     await joinChannel(joinChannelName, JoinChannelPassword);
     setCreateChannelName('');
     setCreateChannelPassword('');
+  }
+  
+  const handleJoinByList = async (event: React.FormEvent, ch: Channel) => {
+    event.preventDefault();
+
+    if (!ch.imInside)
+      await joinChannel(ch.name, "");
+
+    openChat(ch.id)
   }
 
   return (
@@ -284,7 +295,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
             style={friendContainerStyle}
             onMouseEnter={() => setIsChannelHovered(index)}
             onMouseLeave={() => setIsChannelHovered(-1)}
-            onClick={() => openChat(channel.id)}
+            onClick={(event) => handleJoinByList(event, channel)}
           >
             <div style={{
               transform: isChannelHovered === index ? 'scale(1.1)' : 'none',

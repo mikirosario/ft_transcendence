@@ -4,13 +4,15 @@ import {
 	OnGatewayInit,
 	SubscribeMessage,
 	WebSocketGateway,
-	WebSocketServer,
+	WebSocketServer
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ConfigService } from "@nestjs/config";
 import { UserService } from "../../user/user.service";
 import { WebSocketService } from '../../auth/websocket/websocket.service';
 import { Injectable } from '@nestjs/common';
+import { ChatChannelService } from '../chat-channel/chat-channel.service';
+
 
 
 @WebSocketGateway(8083, {
@@ -24,9 +26,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 {
 	@WebSocketServer() server: Server;
 
-	private connectedUsers: Map<number, Socket> = new Map();
+	private connectedUsers: Map<number, Socket[]> = new Map();
 	
-	constructor(private config: ConfigService, private userService: UserService, private webSocketService: WebSocketService) { }
+	constructor(private config: ConfigService, private userService: UserService,
+		private webSocketService: WebSocketService, private chatChannelService: ChatChannelService) { }
 
 	afterInit(server: any) { }
 	
@@ -54,16 +57,23 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			*/
 
 
-			this.connectedUsers.set(user.id, client);
-			console.log('Hola! ' + user.nick + ' está en el chat 💬✅');
-			console.log(this.connectedUsers.size);
+			if (this.connectedUsers.has(user.id))
+			{
+				const sockets: Socket[] = this.connectedUsers.get(user.id);
+				this.connectedUsers.set(user.id, [...sockets, client]);
+
+				console.log('Hola! ' + user.nick + ' está en el chat (' + sockets.length + ' conex) 💬✅');
+			} else {
+				console.log('Hola! ' + user.nick + ' está en el chat 💬✅');
+				this.connectedUsers.set(user.id, [client]);
+			}
+
+			console.log("Usuarios conectados al chat: " +this.connectedUsers.size);
 
 		} catch (error) {
 			client.disconnect();
 			return;
 		}
-
-		
 	}
 	
 	async handleDisconnect(client: any) {
@@ -78,22 +88,65 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 		try {
 			const user = await this.userService.getUserById(userId);
-			if (!user)
+
+			if (this.connectedUsers.has(user.id))
 			{
-				console.log(userId + ' se ha ido del chat 💬❌');
-				this.connectedUsers.delete(userId);
+				const sockets: Socket[] = this.connectedUsers.get(user.id);
+
+				const newSockets = sockets.filter((value) => value !== client);
+				this.connectedUsers.set(user.id, newSockets);
 				client.disconnect();
-				return ;
 			}
 
-			this.connectedUsers.delete(user.id);
-			client.disconnect();
-			console.log(user.nick + ' se ha ido del chat 💬❌');
+			if (!user)
+				console.log(userId + ' se ha ido del chat 💬❌');
+			else
+				console.log(user.nick + ' se ha ido del chat 💬❌');
+
 		} catch (error) {
 			client.disconnect();
 		}
 	}
 
+	joinRoom(userId: number, room: string) {
+		const userSockets: Socket[] = this.connectedUsers.get(userId);
+
+		for (const socket of userSockets) {
+			socket.join("room_" + room);
+		}
+	}
+
+	leaveRoom(userId: number, room: string) {
+		const userSockets: Socket[] = this.connectedUsers.get(userId);
+
+		for (const socket of userSockets) {
+			socket.leave("room_" + room);
+		}
+	}
+
+	async sendSocketMessageToRoom(room: string, eventName: string, data: any) {
+		this.server.to("room_" + room).emit(eventName, data);
+	}
+
+	async sendSocketMessageToUser(userId: number, eventName: string, data: any) {
+		const userSockets: Socket[] = this.connectedUsers.get(userId);
+
+		for (const socket of userSockets) {
+			socket.emit(eventName, data);
+		}
+	}
+
+	async sendSocketMessageToAll(eventName: string, data: any) {
+		this.server.emit(eventName, data);
+	}
+
+	/*
+	async sendSocketMessageToRoom(room: string, eventName: string, data: any) {
+		this.server.to(`room_${room}`).emit(eventName, data);
+	}
+	*/
+
+	/*
 	@SubscribeMessage('event_join')
 	handleJoinRoom(client: Socket, room: string) {
 		client.join(`room_${room}`);
@@ -104,6 +157,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		console.log(`chao room_${room}`)
 		client.leave(`room_${room}`);
 	}
+	*/
 
 	/*
 	@SubscribeMessage('event_message') //TODO Backend
@@ -115,20 +169,5 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.server.to(`room_${room}`).emit('new_message', message);
 	}
 	*/
-
-	async sendSocketMessageToUser(userId: number, eventName: string, data: any) {
-		const userSocket = this.connectedUsers.get(userId);
-
-		if (userSocket) {
-			userSocket.emit(eventName, data);
-		}
-	}
-
-	async sendSocketMessageToRoom(room: string, eventName: string, data: any) {
-		this.server.to(`room_${room}`).emit(eventName, data);
-	}
-
-	async sendSocketMessageToAll(eventName: string, data: any) {
-		this.server.emit(eventName, data);
-	}
+	
 }

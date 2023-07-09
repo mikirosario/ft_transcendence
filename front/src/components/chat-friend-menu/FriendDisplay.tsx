@@ -116,9 +116,6 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
             setBlockedUsersList(blockedUsersWithImages);
         };
 
-        const handleUserBlocks = async (data: Friend) => {
-
-        }
 
         fetchFriends();
         socket.on("FRIEND_REQUEST_ACCEPTED", handleFriendListNew);
@@ -129,7 +126,6 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
         socket.on("FRIEND_REQUEST_REJECTED", handleFriendRequestReject);
         
         fetchBlockedUsers();
-        socket.on("USER_BLOCK_LSIT", handleUserBlocks);
 
 
         // // Función de limpieza

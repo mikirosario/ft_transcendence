@@ -38,7 +38,9 @@ export class ChatChannelService {
 				}
 			});
 			
-			await this.joinChannel(newChannel.id, user.id, true);
+			await this.joinChannelOwner(newChannel.id, user.id, true);
+
+			this.ws.joinRoom(userId, "channel_" + String(newChannel.id));
 			
 			this.sendUpdatedChannelListToAllUsersWithSocket();
 
@@ -171,7 +173,7 @@ export class ChatChannelService {
 		return channelUser;
 	}
 
-	private async joinChannel(channelId: number, userId: number, isOwner: boolean) {
+	private async joinChannelOwner(channelId: number, userId: number, isOwner: boolean) {
 		try {
 			await this.prisma.chatChannelUser.create({
 				data: {
@@ -239,16 +241,16 @@ export class ChatChannelService {
 
 	async getMyChannelsAndPublicChannels(userId: number) {
 		const myChannels = await this.getMyChannels(userId);
+		const myChannelsFormatted = this.formatChannelsList(myChannels, true);
 
 		const myChannelsList = myChannels.map(channel => channel.id);
 
 		const publicChannels = await this.getAllPublicChannels(myChannelsList);
+		const publicChannelsFormatted = this.formatChannelsList(publicChannels, false);
 
-		const myChannelsAndPublicChannelsList = [...myChannels, ...publicChannels];
+		const myChannelsAndPublicChannelsList = [...myChannelsFormatted, ...publicChannelsFormatted];
 
-		const formattedChannelsList = this.formatChannelsList(myChannelsAndPublicChannelsList);
-
-		return formattedChannelsList;
+		return myChannelsAndPublicChannelsList;
 	}
 
 	private async sendUpdatedChannelListToAllUsersWithSocket() {
@@ -314,21 +316,7 @@ export class ChatChannelService {
 		if (!channelChatInfo)
 			return {};
 
-		let userInChannel = false;
-		channelChatInfo.chatChannelUser.forEach((item) => {
-			if (item.userId == userId) {
-				userInChannel = true;
-			}
-		});
-
-		if (userInChannel) {
-			return channelChatInfo;
-		}
-		else {
-			await this.joinChannel(channelId, userId, false);
-			return await this.getChannelChatInfo(userId, channelId);
-		}
-		
+		return channelChatInfo;
 	}
 
 	private async getAllPublicChannels(myChannels: number[]) {
@@ -369,10 +357,12 @@ export class ChatChannelService {
 		return channelFormatted;
 	}
 
-	private formatChannelsList(channelsList: any) {
+	private formatChannelsList(channelsList: any, imInside: boolean) {
 		const channelsListFormatted: any[] = channelsList.map((channel) => ({
 			id: channel.id,
-			name: channel.name
+			name: channel.name,
+			isPrivate: channel.isPrivate,
+			imInside: imInside
 		}));
 
 		return channelsListFormatted;

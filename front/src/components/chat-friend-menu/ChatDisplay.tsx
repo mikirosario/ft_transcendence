@@ -5,6 +5,8 @@ import { getChatDirect, sendDirectMessage, getChatChannel, sendChannelMessage } 
 import { getUserImage } from "../../requests/User.Service";
 import { SocketContext } from '../../SocketContext';
 
+//Opcion de usuario
+
 interface ChatDisplayProps {
     selectedChat: number;
     setSelectedChat: (chat: number | null) => void;
@@ -62,10 +64,17 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
             // console.log(msg);
         };
 
-        const handleNewUser = async (newUser: User) => {
-            const imageUrl = await getUserImage(newUser.avatarUri);
-            const userWithImage = { ...newUser, avatarFile: imageUrl ?? '' };
-            setUsersMap(oldUsersMap => ({ ...oldUsersMap, [userWithImage.nick]: userWithImage }));
+        const handleUpdateChannel = async (newUserList: []) => {
+            const usersWithImages = await Promise.all(newUserList.map(async (user: User) => {
+                const imageUrl = await getUserImage(user.avatarUri);
+                // console.log('getUserImage imageUrl:', imageUrl);
+                return { ...user, avatarFile: imageUrl ?? '' };
+            }));
+            const usersMap = usersWithImages.reduce((acc, currUser) => {
+                acc[currUser.nick] = currUser;
+                return acc;
+            }, {} as { [key: string]: User });
+            setUsersMap(usersMap);
         }
 
         const handleNewChannelMessages = async (msg: Message) => {
@@ -78,7 +87,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
             socket.on("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
         else {
             socket.on("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
-            socket.on("NEW_USER_CHANNEL", handleNewUser);
+            socket.on("UPDATE_CHANNEL_USERLIST", handleUpdateChannel);
         }
 
         // Función de limpieza
@@ -88,7 +97,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         //     socket.off("NEW_USER_CHANNEL", handleNewUser);
         // };
 
-    }, [selectedChat]);
+    }, [selectedChat, socket]);
 
     const ChatWrapper: React.CSSProperties = {
         height: '80vh',
@@ -251,6 +260,13 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Escribe un mensaje"
+                    onKeyPress={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            // if (message != '')
+                            handleSend();
+                        }
+                    }}
                 />
             </div>
             <button style={SendButtonStyle} onClick={handleSend}>
