@@ -37,13 +37,7 @@ export class ChatDirectMessageService {
 				}
 			});
 
-			this.ws.sendSocketMessageToUser(user1.id, 'NEW_DIRECT_MESSAGE', {
-				sender: user1.nick,
-				sentAt: newMessage.sentAt,
-				message: newMessage.message,
-			});
-
-			this.ws.sendSocketMessageToUser(user2.id, 'NEW_DIRECT_MESSAGE', {
+			this.ws.sendSocketMessageToRoom("direct_" + String(directChat.id), 'NEW_DIRECT_MESSAGE', {
 				sender: user1.nick,
 				sentAt: newMessage.sentAt,
 				message: newMessage.message,
@@ -63,7 +57,6 @@ export class ChatDirectMessageService {
 
 		return await this.getDirectChatAndMessages(directChat.id);
 	}
-
 
 
 
@@ -98,6 +91,11 @@ export class ChatDirectMessageService {
 					userId2: userId2,
 				}
 			});
+
+			this.ws.joinRoom(userId1, "direct_" + String(directChat.id));
+			this.ws.joinRoom(userId2, "direct_" + String(directChat.id));
+
+
 			return directChat;
 
 		} catch (error) {

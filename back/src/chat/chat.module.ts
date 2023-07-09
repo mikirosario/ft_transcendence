@@ -18,6 +18,7 @@ import { ChatChannelBannedUserService } from './chat-channel-banned-user/chat-ch
 import { ChatChannelUserService } from './chat-channel-user/chat-channel-user.service';
 import { ChatChannelMessageService } from './chat-channel-message/chat-channel-message.service';
 import { FriendController } from './friend/friend.controller';
+import { ChatCommandsService } from './chat-commands/chat-commands.service';
 
 
 
@@ -27,6 +28,7 @@ import { FriendController } from './friend/friend.controller';
                 ChatChannelUserController, ChatDirectMessageController, FriendController],
   providers: [ChatService, UserService, WebSocketService, FriendService, ChatGateway,
               ChatBlockedUserService, ChatChannelService, ChatChannelBannedUserService,
-              ChatChannelMessageService, ChatChannelUserService, ChatDirectMessageService, ],
+              ChatChannelMessageService, ChatChannelUserService, ChatDirectMessageService,
+              ChatCommandsService ],
 })
 export class ChatModule { }

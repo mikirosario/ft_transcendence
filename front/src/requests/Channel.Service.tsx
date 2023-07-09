@@ -6,7 +6,7 @@ axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getIte
 
 export async function getChannelList() {
   try {
-    const response = await axios.get('/chats/', {
+    const response = await axios.get('/chats', {
       responseType: 'json',
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('token'),

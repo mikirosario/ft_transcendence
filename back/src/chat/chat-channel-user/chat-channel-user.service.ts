@@ -6,12 +6,13 @@ import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as argon from "argon2";
 import { ChatChannelJoinDto, ChatChannelLeaveDto, ChatChannelUserDto } from './dto';
+import { ChatGateway } from '../chat-socket/chat.gateway';
 
 @Injectable()
 export class ChatChannelUserService {
 
 	constructor(private prisma: PrismaService, private userService: UserService,
-				private chatChannelService: ChatChannelService) { }
+				private chatChannelService: ChatChannelService, private ws: ChatGateway) { }
 
 	async joinChannel(userId: number, dto: ChatChannelJoinDto) {
 		const user = await this.userService.getUserById(userId);
@@ -27,6 +28,12 @@ export class ChatChannelUserService {
 					userId: user.id
 				}
 			});
+
+			this.ws.joinRoom(userId, "channel_" + String(channel.id));
+
+			this.ws.sendSocketMessageToUser(user.id, 'UPDATE_CHANNELS_LIST',
+					await this.chatChannelService.getMyChannelsAndPublicChannels(user.id));
+			await this.sendUpdatedUserListToAllUsersWithSocket(channel.id);
 
 			return newChannelUser;
 
@@ -48,6 +55,8 @@ export class ChatChannelUserService {
 				id: channelUser.id
 			}
 		});
+
+		this.ws.leaveRoom(userId, "channel_" + String(channel.id));
 		
 		return channelUser;
 	}
@@ -106,6 +115,25 @@ export class ChatChannelUserService {
 		}
 	}
 
+	async sendUpdatedUserListToAllUsersWithSocket(channelId: number) {
+
+		let channelChatInfo = await this.prisma.chatChannel.findFirst({
+			where: {
+				id: channelId
+			},
+			include: {
+				chatChannelUser: {
+					include: {
+						user: true,
+					},
+				},
+			}
+		});
+
+		this.ws.sendSocketMessageToRoom("channel_" + String(channelId), 'UPDATE_CHANNEL_USERS_LIST',
+				this.formatChannelUsers(channelChatInfo.chatChannelUser));
+	}
+
 
 	/*
 	 * Private methods
@@ -119,5 +147,19 @@ export class ChatChannelUserService {
 			ThrowHttpException(new BadRequestException, 'You must provide a correct password');
 	}
 
+	private formatChannelUsers(userList: any) {
+		const userListFormatted: any[] = userList.map((user) => ({
+			id: user.user.id,
+			nick: user.user.nick,
+			avatarUri: user.user.avatarUri,
+			isOnline: user.user.isOnline,
+			isInGame: user.user.isInGame,
+			joinedAt: user.joinedAt,
+			isOwner: user.isOwner,
+			isAdmin: user.isAdmin
+		}));
+
+		return userListFormatted;
+	}
 	
 }
