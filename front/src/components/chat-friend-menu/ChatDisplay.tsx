@@ -67,7 +67,6 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         const handleUpdateChannel = async (newUserList: []) => {
             const usersWithImages = await Promise.all(newUserList.map(async (user: User) => {
                 const imageUrl = await getUserImage(user.avatarUri);
-                // console.log('getUserImage imageUrl:', imageUrl);
                 return { ...user, avatarFile: imageUrl ?? '' };
             }));
             const usersMap = usersWithImages.reduce((acc, currUser) => {
@@ -87,7 +86,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
             socket.on("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
         else {
             socket.on("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
-            socket.on("UPDATE_CHANNEL_USERLIST", handleUpdateChannel);
+            socket.on("UPDATE_CHANNEL_USERS_LIST", handleUpdateChannel);
         }
 
         // Función de limpieza

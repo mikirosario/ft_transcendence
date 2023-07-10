@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import UserProfile from "./ProfileDisplay";
 import { useNavigate } from "react-router-dom";
 import { getUserProfile } from '../../requests/User.Service';
@@ -6,12 +6,12 @@ import FriendDisplay from "./FriendDisplay";
 import ChannelDisplay from "./ChannelDisplay"
 import { FaAngleRight, FaAngleLeft } from 'react-icons/fa'; // SOLID ARROW
 import ChatDisplay from "./ChatDisplay";
-//import { SocketContext } from '../../SocketContext';
+import { SocketContext } from '../../SocketContext';
 //BiChevronLeft 
 
 
 function Menu() {
-  // const socket = useContext(SocketContext);
+  const socket = useContext(SocketContext);
 
   const initialIsMenuExpanded = localStorage.getItem("isMenuExpanded") === "true";
   const initialSelectedButton = localStorage.getItem("selectedButton") || 'friend';
@@ -30,6 +30,8 @@ function Menu() {
     navigate('/settings');
   };
 
+  const previousSelectedButton = useRef(selectedButton);  // inicializar la ref
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       const userProfile = await getUserProfile();
@@ -37,8 +39,22 @@ function Menu() {
       setUserImage(userProfile.userImage);
     };
 
+    if (selectedChat) {
+      setSelectedButton('');
+    } else if (selectedChat === null && selectedButton === '' && previousSelectedButton.current) {
+      setSelectedButton(previousSelectedButton.current);
+    }
+
+
     fetchUserProfile();
-  }, []);
+  }, [socket, selectedChat]);
+
+  useEffect(() => {
+
+    if (selectedButton !== '') {
+      setSelectedChat(null);
+    }
+  }, [selectedButton]);
 
 
   const MenuStyle: React.CSSProperties = {
@@ -131,15 +147,20 @@ function Menu() {
   const handleFriendButtonClick = () => {
     setSelectedButton('friend');
     localStorage.setItem("selectedButton", 'friend');
+    previousSelectedButton.current = '';
   };
 
   const handleChannelsButtonClick = () => {
     setSelectedButton('channels');
     localStorage.setItem("selectedButton", 'channels');
+    previousSelectedButton.current = '';
   };
 
   const openChat = (id: number, isFriend: boolean) => {
-    setSelectedChat(id);
+    if (id !== 0) {
+      previousSelectedButton.current = selectedButton;
+    }
+    setSelectedChat(id !== 0 ? id : null);
     setIsFriendChat(isFriend);
   };
 
@@ -170,16 +191,13 @@ function Menu() {
           <button style={ChannelsButtonStyle} onClick={handleChannelsButtonClick}>
             Canales
           </button>
-          {/* <SocketContext.Provider value={socket}> */}
-
-            <div style={SocialDisplay}>
-              {selectedChat ? (
-                <ChatDisplay selectedChat={selectedChat} setSelectedChat={setSelectedChat} isFriendChat={isFriendChat} />
-              ) : (
-                selectedButton === 'friend' ? <FriendDisplay openChat={(id) => openChat(id, true)} /> : <ChannelDisplay openChat={(id) => openChat(id, false)} />
-              )}
-            </div>
-          {/* </SocketContext.Provider> */}
+          <div style={SocialDisplay}>
+            {selectedChat ? (
+              <ChatDisplay selectedChat={selectedChat} setSelectedChat={setSelectedChat} isFriendChat={isFriendChat} />
+            ) : (
+              selectedButton === 'friend' ? <FriendDisplay openChat={(id) => openChat(id, true)} /> : <ChannelDisplay openChat={(id) => openChat(id, false)} />
+            )}
+          </div>
         </div>
       </div>
     </>

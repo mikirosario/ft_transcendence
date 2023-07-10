@@ -71,7 +71,6 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
 
         }
 
-
         // FriendPetition Functions
         const fetchFriendPetition = async () => {
             const friendsRequest = await getFriendRequests();
@@ -83,7 +82,6 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
         };
 
         const handleFriendRequestNew = async (newFriendsRequest: Friend[]) => {
-            console.log(newFriendsRequest);
             const friendsWithImages = await Promise.all(newFriendsRequest.map(async (friend: Friend) => {
                 const imageUrl = await getUserImage(friend.avatarUri);
                 return { ...friend, avatarFile: imageUrl };
@@ -92,7 +90,6 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
         };
 
         const handleFriendRequestReject = async (newFriendsRequest: Friend[]) => {
-            console.log(newFriendsRequest);
             const friendsWithImages = await Promise.all(newFriendsRequest.map(async (friend: Friend) => {
                 const imageUrl = await getUserImage(friend.avatarUri);
                 return { ...friend, avatarFile: imageUrl };
@@ -116,16 +113,34 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
             setBlockedUsersList(blockedUsersWithImages);
         };
 
+        const handleFriendListUpdate = async (newFriendList: []) => {
+            const friendsWithImages = await Promise.all(newFriendList.map(async (friend: Friend) => {
+                const imageUrl = await getUserImage(friend.avatarUri);
+                return { ...friend, avatarFile: imageUrl };
+            }));
+            setFriendList(friendsWithImages);
+        };
+
+        const handleBlockedListUpdate = async (newBlockedList: []) => {
+            const friendsWithImages = await Promise.all(newBlockedList.map(async (friend: Friend) => {
+                const imageUrl = await getUserImage(friend.avatarUri);
+                return { ...friend, avatarFile: imageUrl };
+            }));
+            setBlockedUsersList(friendsWithImages);
+        };
+
 
         fetchFriends();
         socket.on("FRIEND_REQUEST_ACCEPTED", handleFriendListNew);
-        socket.on("FRIENDLIST_STATUS", handleFriendListStatus);
+        socket.on("FRIEND_LIST_STATUS", handleFriendListStatus);
 
         fetchFriendPetition();
         socket.on("FRIEND_REQUEST_NEW", handleFriendRequestNew);
         socket.on("FRIEND_REQUEST_REJECTED", handleFriendRequestReject);
         
         fetchBlockedUsers();
+        socket.on("UPDATE_FRIEND_LIST", handleFriendListUpdate);
+        socket.on("UPDATE_BLOCKED_LIST", handleBlockedListUpdate);
 
 
         // // Función de limpieza
@@ -348,8 +363,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
         localStorage.setItem("showBlocked", JSON.stringify(newState));
     };
 
-    const handleFriendSumbit = async (event: React.FormEvent) => {
-        event.preventDefault();
+    const handleFriendSumbit = async () => {
 
         await addFriend(friendName);
         setFriendName('');
@@ -373,7 +387,14 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
                             type="text"
                             value={friendName}
                             onChange={(e) => setFriendName(e.target.value)}
-                            maxLength={10} />
+                            maxLength={10}
+                            onKeyPress={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                  e.preventDefault();
+                                  handleFriendSumbit();
+                                }
+                              }} 
+                        />
                         <button
                             style={{ backgroundColor: 'transparent', border: 'none' }}
                             onClick={handleFriendSumbit}

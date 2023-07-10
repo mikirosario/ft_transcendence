@@ -38,7 +38,8 @@ export async function createChannel(channelName: string, password: string) {
       throw new Error('Request failed with status ' + response.status);
     }
 
-    return true;
+    const { id } = response.data;
+    return id;
 
   } catch (error) {
     console.log('Error: Could not create the channel', error);
@@ -115,11 +116,12 @@ export async function joinChannel(name: string, password: string) {
       throw new Error('Request failed with status ' + response.status);
     }
 
-    return true;
+    const { channelId } = response.data;
+    return channelId;
 
   } catch (error) {
-    console.log('Error: Could not create the channel', error);
-    return false;
+    console.log('Error: Could not join the channel', error);
+    return -1;
   }
 }
 

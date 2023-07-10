@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SettingsButton from "../components/home/SettingsButton";
 import HomeButton from "../components/B_Home";
@@ -7,6 +8,7 @@ import SocialMenu from "../components/chat-friend-menu/SocialMenu";
 
 function Home() {
     const navigate = useNavigate();
+
 
     const Window: React.CSSProperties = {
         height: '100%',
@@ -30,7 +32,6 @@ function Home() {
         display: 'flex',
         alignItems: 'flex-end',
     };
-
 
     const SettingsStyle: React.CSSProperties = {
         position: 'fixed',
