@@ -285,5 +285,37 @@ export class UserService {
 
 		return user;
 	}
+
+	async getUserAndChatsById(userId: number) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: userId,
+			},
+			include: {
+				chatDirectUser1: {
+					select: {
+						id: true
+					}
+				},
+				chatDirectUser2: {
+					select: {
+						id: true
+					}
+				},
+				chatChannelUser: {
+					select: {
+						channelId: true
+					}
+				}
+			}
+		});
+
+		if (user === null) {
+			ThrowHttpException(new NotFoundException, 'User not found');
+		}
+
+		delete user.hash;
+		return user;
+	}
 }
 
