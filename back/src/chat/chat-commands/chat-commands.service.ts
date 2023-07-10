@@ -16,6 +16,17 @@ export class ChatCommandsService {
 	private commands = {
 		'/say': 'Usa /say [mensaje] para decir algo',
 		'/help': 'Usa /help para mostrar esta lista de comandos',
+
+		'/duel': 'Reta a un <usuario> a un Pong',
+		'/block': 'Bloquea a un <usuario>',
+		'/unblock': 'Desbloquea a un <usuario>',
+
+	// Chat-Commands
+		'/mute': 'Silencia a un <usuario> <n> minutos',
+		'/unmute': 'Vuelve dejar a escribir a un <usuario> en el chat',
+		'/kick': 'Expulsa a un <usuario> de un canal de forma inmediata',
+		'/ban': 'Expulsa y deniega el acceso a un <usuario> del canal presente <n> minutos o indefinidamente',
+		'/unban': 'Revoca el acceso a un <usuario> de un canal presente'
 		// Agrega aquí más comandos...
 	};
 
