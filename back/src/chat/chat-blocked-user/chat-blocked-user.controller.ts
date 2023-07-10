@@ -13,11 +13,13 @@ export class ChatBlockedUserController {
 	
 	constructor(private chatBlockedUserService: ChatBlockedUserService) { }
 
+	/*
 	@Post()
 	@ApiBody({ type: ChatBlockedDto })
 	async chatBlockUser(@GetJwt('sub') userId: number, @Body() dto: ChatBlockedDto) {
 		return this.chatBlockedUserService.chatBlockUser(userId, dto);
 	}
+	*/
 
 	@Delete()
 	@ApiBody({ type: ChatBlockedDto })

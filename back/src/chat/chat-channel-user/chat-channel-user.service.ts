@@ -18,6 +18,9 @@ export class ChatChannelUserService {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.chatChannelService.getChannelByName(dto.name);
 
+		if (await this.chatChannelService.isUserBanned(channel.id, user.id))
+			ThrowHttpException(new UnauthorizedException, 'Estás baneado del canal, no puedes entrar');
+
 		if (channel.isPrivate == true)
 			await this.checkChannelPassword(channel.hash, dto.password);
 
@@ -133,6 +136,7 @@ export class ChatChannelUserService {
 		this.ws.sendSocketMessageToRoom("channel_" + String(channelId), 'UPDATE_CHANNEL_USERS_LIST',
 				this.formatChannelUsers(channelChatInfo.chatChannelUser));
 	}
+
 
 
 	/*

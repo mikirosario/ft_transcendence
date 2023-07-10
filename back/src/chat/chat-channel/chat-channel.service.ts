@@ -6,14 +6,22 @@ import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ChatGateway } from '../chat-socket/chat.gateway'
 import * as argon from "argon2";
+import { ChatBlockedUserService } from '../chat-blocked-user/chat-blocked-user.service';
+
 
 @Injectable()
 export class ChatChannelService {
-	constructor(private prisma: PrismaService, private userService: UserService, private ws: ChatGateway) { }
+	constructor(private prisma: PrismaService, private userService: UserService,
+		private ws: ChatGateway, private chatBlockedUserService: ChatBlockedUserService) { }
 
 	async getChannelChat(userId: number, channelId: number) {
-		const channel = await this.getChannelChatInfo(userId, channelId);
-		return this.formatChannel(channel);
+		try {
+			const channel = await this.getChannelChatInfo(userId, channelId);
+			return this.formatChannel(channel);
+		} catch (error) {
+			ThrowHttpException(new NotFoundException, 'Channel not found');
+		}
+		
 	}
 	
 	async createChannel(userId: number, dto: ChatChannelCreateDto) {
@@ -215,7 +223,7 @@ export class ChatChannelService {
 		}
 	}
 
-	async isUserBlocked(channelId: number, userId: number) {
+	async isUserBanned(channelId: number, userId: number) {
 		const channelBannedUser = await this.getBannedUser(channelId, userId);
 
 		if (!channelBannedUser)
@@ -316,6 +324,19 @@ export class ChatChannelService {
 		if (!channelChatInfo)
 			return {};
 
+		/*
+		Evitamos que el usuario reciba los mensajes de usuarios que tiene bloqueados
+		*/
+		const blockedUserIds: number[] = await this.chatBlockedUserService.getMyBlockedUsersIdList(userId);
+
+		let newMessageList: any[] = [];
+		for (const msg of channelChatInfo.chatChannelMessage) {
+			if (!blockedUserIds.includes(msg.userId))
+				newMessageList = [...newMessageList, msg];
+		}
+
+		channelChatInfo.chatChannelMessage = newMessageList;
+		
 		return channelChatInfo;
 	}
 
@@ -391,6 +412,25 @@ export class ChatChannelService {
 		}));
 
 		return messageListFormatted;
+	}
+
+	async getChannelUserList(channelId: number): Promise<number[]> {
+		let channelChatInfo = await this.prisma.chatChannel.findFirst({
+			where: {
+				id: channelId
+			},
+			include: {
+				chatChannelUser: {
+					include: {
+						user: true,
+					},
+				},
+			}
+		});
+
+		const userIds = channelChatInfo.chatChannelUser.map((chatChannelUser) => chatChannelUser.user.id);
+
+		return userIds;
 	}
 
 }

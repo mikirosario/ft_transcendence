@@ -19,6 +19,7 @@ export class ChatDirectMessageService {
 		const user2 = await this.userService.getUserById(dto.user_id);
 
 		const directChat = await this.getDirectChatByUserIds(user1.id, user2.id);
+		
 		if (!directChat)
 			ThrowHttpException(new BadRequestException, 'Some error occurred creating direct chat.');
 

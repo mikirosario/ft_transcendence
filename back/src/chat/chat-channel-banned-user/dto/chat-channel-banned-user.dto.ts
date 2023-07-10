@@ -9,8 +9,8 @@ export class ChatChannelBannedUserDto {
 	channel_id: number
 
 	@ApiProperty()
-	@IsNumber()
-	user_id: number
+	@IsString()
+	nick: string
 
 	@ApiProperty()
 	@IsBoolean()
