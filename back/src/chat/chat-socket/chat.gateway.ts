@@ -11,6 +11,7 @@ import { ConfigService } from "@nestjs/config";
 import { UserService } from "../../user/user.service";
 import { WebSocketService } from '../../auth/websocket/websocket.service';
 import { Injectable } from '@nestjs/common';
+import { use } from 'passport';
 
 
 @WebSocketGateway(8083, {
@@ -31,7 +32,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	afterInit(server: any) { }
 	
-	async handleConnection(client: any, ...args: any[]) {
+	async handleConnection(client: Socket, ...args: any[]) {
 		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
 		if (userId == null)
 		{
@@ -40,20 +41,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 
 		try {
-			const user = await this.userService.getUserById(userId);
-
-			/*
-			if (this.connectedUsers.has(user.id))
-			{
-				const mySocket = this.connectedUsers.get(user.id);
-				mySocket.disconnect();
-				this.connectedUsers.delete(user.id);
-				console.log(this.connectedUsers);
-			}
-
-			console.log(this.connectedUsers.size);
-			*/
-
+			const user = await this.userService.getUserAndChatsById(userId);
 
 			if (this.connectedUsers.has(user.id))
 			{
@@ -67,6 +55,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				this.connectedUsers.set(user.id, [client]);
 			}
 
+			// Meter al usuario en todas las rooms en las que este
+			this.joinMyChatRooms(client, user);
+
 			console.log("Usuarios conectados al chat: " +this.connectedUsers.size);
 
 		} catch (error) {
@@ -74,8 +65,20 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			return;
 		}
 	}
+
+	async joinMyChatRooms(socket: Socket, user: any) {
+		let directs = [...new Set([...user.chatDirectUser1, ...user.chatDirectUser2])];
+
+		for (const direct of directs) {
+			socket.join("room_" + String(direct.id));
+		}
+
+		for (const channel of user.chatChannelUser) {
+			socket.join("room_" + String(channel.channelId));
+		}
+	}
 	
-	async handleDisconnect(client: any) {
+	async handleDisconnect(client: Socket) {
 
 		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
 		if (!userId)
@@ -86,7 +89,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 
 		try {
-			const user = await this.userService.getUserById(userId);
+			const user = await this.userService.getUserAndChatsById(userId);
 
 			if (this.connectedUsers.has(user.id))
 			{
@@ -108,18 +111,22 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	joinRoom(userId: number, room: string) {
-		const userSockets: Socket[] = this.connectedUsers.get(userId);
+		if (this.connectedUsers.has(userId)) {
+			const userSockets: Socket[] = this.connectedUsers.get(userId);
 
-		for (const socket of userSockets) {
-			socket.join("room_" + room);
+			for (const socket of userSockets) {
+				socket.join("room_" + room);
+			}
 		}
 	}
 
 	leaveRoom(userId: number, room: string) {
-		const userSockets: Socket[] = this.connectedUsers.get(userId);
+		if (this.connectedUsers.has(userId)) {
+			const userSockets: Socket[] = this.connectedUsers.get(userId);
 
-		for (const socket of userSockets) {
-			socket.leave("room_" + room);
+			for (const socket of userSockets) {
+				socket.leave("room_" + room);
+			}
 		}
 	}
 
@@ -128,10 +135,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async sendSocketMessageToUser(userId: number, eventName: string, data: any) {
-		const userSockets: Socket[] = this.connectedUsers.get(userId);
+		if (this.connectedUsers.has(userId)) {
+			const userSockets: Socket[] = this.connectedUsers.get(userId);
 
-		for (const socket of userSockets) {
-			socket.emit(eventName, data);
+			for (const socket of userSockets) {
+				socket.emit(eventName, data);
+			}
 		}
 	}
 
