@@ -30,13 +30,18 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
       const channels = await getChannelList();
       setChannelList(channels);
     };
-    
+
     const handleChannelsList = async (newChannelList: []) => {
       setChannelList(newChannelList)
     };
-    
+
+    const handleKickCommand = async (channelId: number) => {
+      openChat(0);
+    }
+
     fetchChannels();
     socket.on("UPDATE_CHANNELS_LIST", handleChannelsList);
+    socket.on("KICK_FROM_CHANNEL", handleKickCommand);
   }, [socket]);
 
 
@@ -193,28 +198,38 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
     color: '#c0c0c0',
   }
 
-  const handleCreateChannel = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleCreateChannel = async () => {
 
-    await createChannel(createChannelName, createChannelPassword);
-    setCreateChannelName('');
-    setCreateChannelPassword('');
+    if (createChannelName !== '') {
+      const resp = await createChannel(createChannelName, createChannelPassword);
+      setCreateChannelName('');
+      setCreateChannelPassword('');
+      if (resp > 0)
+        openChat(resp);
+    }
   }
 
-  const handleJoinChannel = async (event: React.FormEvent) => {
-    event.preventDefault();
-    
-    await joinChannel(joinChannelName, JoinChannelPassword);
-    setCreateChannelName('');
-    setCreateChannelPassword('');
-  }
+  const handleJoinChannel = async () => {
   
+    if (joinChannelName !== '') {
+      const resp = await joinChannel(joinChannelName, JoinChannelPassword);
+      setCreateChannelName('');
+      setCreateChannelPassword('');
+      if (resp > 0)
+        openChat(resp);
+    }
+  }
+
   const handleJoinByList = async (event: React.FormEvent, ch: Channel) => {
     event.preventDefault();
 
-    if (!ch.imInside)
-      await joinChannel(ch.name, "");
-
+    if (!ch.imInside) {
+      const resp = await joinChannel(ch.name, "");
+      
+      if (resp < 0)
+        return ;
+    }
+    
     openChat(ch.id)
   }
 
@@ -233,6 +248,12 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
                 placeholder='Canal'
                 maxLength={10}
                 style={InputStyleCreate}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleCreateChannel();
+                  }
+                }}
               />
             ) : (
               <p style={{ fontFamily: "'Press Start 2P'", fontSize: '11px' }}>Crear Canal</p>
@@ -249,6 +270,12 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
               placeholder='Contraseña'
               maxLength={10}
               style={PasswordInputStyleCreate}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleCreateChannel();
+                }
+              }}
             />
           </div>
         </div>
@@ -267,6 +294,12 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
                 placeholder='Canal'
                 maxLength={10}
                 style={InputStyleJoin}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleJoinChannel();
+                  }
+                }}
               />
             ) : (
               <p style={{ fontFamily: "'Press Start 2P'", fontSize: '11px' }}>Unirse Canal</p>
@@ -283,6 +316,12 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
               placeholder='Contraseña'
               maxLength={10}
               style={PasswordInputStyleJoin}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleJoinChannel();
+                }
+              }}
             />
           </div>
         </div>
