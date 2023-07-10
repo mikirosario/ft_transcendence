@@ -13,10 +13,11 @@ export class ChatChannelBannedUserController {
 	
 	constructor(private chatChannelBannedUserService: ChatChannelBannedUserService) { }
 
-	@Put('block')
+	/*
+	@Put('ban')
 	@ApiBody({ type: ChatChannelBannedUserDto })
-	async blockUserInChannel(@GetJwt('sub') userId: number, @Body() dto: ChatChannelBannedUserDto) {
-		return this.chatChannelBannedUserService.blockUserInChannel(userId, dto);
+	async banUserInChannel(@GetJwt('sub') userId: number, @Body() dto: ChatChannelBannedUserDto) {
+		return this.chatChannelBannedUserService.banUserInChannel(userId, dto);
 	}
 
 	@Put('mute')
@@ -24,4 +25,5 @@ export class ChatChannelBannedUserController {
 	async muteUserInChannel(@GetJwt('sub') userId: number, @Body() dto: ChatChannelBannedUserDto) {
 		return this.chatChannelBannedUserService.muteUserInChannel(userId, dto);
 	}
+	*/
 }

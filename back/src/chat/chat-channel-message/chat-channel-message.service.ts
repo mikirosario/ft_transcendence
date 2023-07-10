@@ -7,6 +7,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ChatChannelMessageDto } from './dto'
 import { ChatGateway } from '../chat-socket/chat.gateway';
 import { ChatCommandsService } from '../chat-commands/chat-commands.service';
+import { ChatBlockedUserService } from '../chat-blocked-user/chat-blocked-user.service';
 
 
 @Injectable()
@@ -14,7 +15,8 @@ export class ChatChannelMessageService {
 
 	constructor(private prisma: PrismaService, private userService: UserService,
 				private chatChannelService: ChatChannelService, private ws: ChatGateway,
-				private chatCommandsService: ChatCommandsService) { }
+				private chatCommandsService: ChatCommandsService,
+				private chatBlockedUserService: ChatBlockedUserService) { }
 
 	async sendChannelMessage(userId: number, dto: ChatChannelMessageDto) {
 		const user = await this.userService.getUserById(userId);
@@ -22,10 +24,14 @@ export class ChatChannelMessageService {
 
 		await this.chatChannelService.getChannelUser(channel.id, user.id);
 
-		if (this.chatCommandsService.executeCommand(dto) == true)
-			return ;
+		const response: any = await this.chatCommandsService.executeCommand(userId, dto);
+		if (response.commandExecuted == true)
+		{
+			delete response.commandExecuted;
+			return response;
+		}
 
-		if (await this.chatChannelService.isUserBlocked(channel.id, user.id))
+		if (await this.chatChannelService.isUserBanned(channel.id, user.id))
 			ThrowHttpException(new UnauthorizedException, 'Not authorized to send message, you are blocked from channel.');
 
 		if (await this.chatChannelService.isUserMuted(channel.id, user.id))
@@ -41,12 +47,25 @@ export class ChatChannelMessageService {
 				}
 			});
 
-			this.ws.sendSocketMessageToRoom("channel_" + String(channel.id), 'NEW_CHANNEL_MESSAGE', {
-				sender: user.nick,
-				sentAt: newMessage.sentAt,
-				message: newMessage.message,
-			});
+			/*
+				Mandar socket (solo a usuarios del canal que no le tengan bloqueado)
+				- Obtener lista de userIds del canal
+				- Comprobar uno a uno si tienen bloqueado al sender
+				- Si no lo tienen, mandar socket
+			*/
+			const channelUserIds: number[] = await this.chatChannelService.getChannelUserList(dto.channel_id);
 
+			for (const userId of channelUserIds) {
+				const blockedUserIds: number[] = await this.chatBlockedUserService.getMyBlockedUsersIdList(userId);
+				if (!blockedUserIds.includes(user.id)) {
+					this.ws.sendSocketMessageToUser(userId, 'NEW_CHANNEL_MESSAGE', {
+						sender: user.nick,
+						sentAt: newMessage.sentAt,
+						message: newMessage.message,
+					});
+				}
+			}
+			
 			return newMessage;
 
 		} catch (error) {

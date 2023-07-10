@@ -70,11 +70,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		let directs = [...new Set([...user.chatDirectUser1, ...user.chatDirectUser2])];
 
 		for (const direct of directs) {
-			socket.join("room_" + String(direct.id));
+			socket.join("room_direct_" + String(direct.id));
 		}
 
 		for (const channel of user.chatChannelUser) {
-			socket.join("room_" + String(channel.channelId));
+			socket.join("room_channel_" + String(channel.channelId));
 		}
 	}
 	
