@@ -183,6 +183,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
     };
 
     const MessageContentStyle: React.CSSProperties = {
+        whiteSpace: 'pre-wrap',
         color: '#A9A9A9',
         fontSize: '14px',
         fontWeight: 'bold',
@@ -207,11 +208,13 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
 
     const handleSend = async () => {
         if (selectedChat !== null) {
-            if (isFriendChat)
-                await sendDirectMessage(selectedChat, message);
-            else
-                await sendChannelMessage(selectedChat, message);
-            setMessage('');
+            if (message.trim() != '') {
+                if (isFriendChat)
+                    await sendDirectMessage(selectedChat, message);
+                else
+                    await sendChannelMessage(selectedChat, message);
+                setMessage('');
+            }
         }
     }
 
@@ -263,7 +266,6 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     onKeyPress={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
-                            // if (message != '')
                             handleSend();
                         }
                     }}
