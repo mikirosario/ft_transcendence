@@ -126,7 +126,7 @@ function Menu() {
   const toggleButtonStyle: React.CSSProperties = isMenuExpanded
     ? {
       position: 'absolute',
-      top: '30px',
+      top: '50px',
       right: '20vw',
       backgroundColor: 'transparent',
       color: 'white',

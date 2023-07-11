@@ -12,6 +12,7 @@ import { ChatChannelBannedUserService } from '../chat-channel-banned-user/chat-c
 import { ChatChannelBannedUserDto } from '../chat-channel-banned-user/dto';
 import { ChatChannelService } from '../chat-channel/chat-channel.service';
 import { ChatChannelUserService } from '../chat-channel-user/chat-channel-user.service';
+import { ChatChannelUpdateDto } from '../chat-channel/dto';
 
 
 @Injectable()
@@ -140,15 +141,16 @@ export class ChatCommandsService {
 
 				break;
 			case '/changepwd':
-
-				break;
+				const updatePassword: ChatChannelUpdateDto = {
+					id: chatChannelMessageDto.channel_id,
+				}
+				return this.changePasswordInChannel(userId, args[0], args[1], updatePassword);
 			case '/duel':
 
 				break;
 			case '/spectate':
 
 				break;
-			// Aquí puedes agregar más casos para manejar otros comandos...
 			default:
 				console.log('Comando no reconocido');
 				return { commandExecuted: false, response: '', error: false };
@@ -248,6 +250,33 @@ export class ChatCommandsService {
 				response: 'Has echado a ' + bannedUserDto.nick + ' del canal',
 				error: false
 			};
+		} catch (error) {
+			return { commandExecuted: true, response: error.response.message, error: true };
+		}
+	}
+
+	private async changePasswordInChannel(userId: number, oldPassword: string, newPassword: string, dto: ChatChannelUpdateDto) {
+		try {
+			if (!(await this.chatChannelService.getChannel(dto.id)).isPrivate)
+				return {
+					commandExecuted: true,
+					response: 'La contrasena no se puede cambniar en un canal publico',
+					error: true
+				};
+
+			await this.chatChannelService.checkUserIsAuthorizedInChannnel(userId, dto.id);
+
+			const savedPassword = (await this.chatChannelService.getChannel(dto.id)).hash;
+			if (savedPassword === oldPassword) {
+					dto.password = newPassword;
+					await this.chatChannelService.updateChannel(dto.id, dto)
+			}
+			return {
+				commandExecuted: true,
+				response: 'La contrasena ha sido cambiada',
+				error: false
+			};
+
 		} catch (error) {
 			return { commandExecuted: true, response: error.response.message, error: true };
 		}
