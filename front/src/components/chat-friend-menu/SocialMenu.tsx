@@ -6,13 +6,13 @@ import FriendDisplay from "./FriendDisplay";
 import ChannelDisplay from "./ChannelDisplay"
 import { FaAngleRight, FaAngleLeft } from 'react-icons/fa'; // SOLID ARROW
 import ChatDisplay from "./ChatDisplay";
-import { SocketContext } from '../../SocketContext';
+import { SocketContext1 } from '../../SocketContext';
 import NotificationContext from '../../NotificationContext';
 //BiChevronLeft 
 
 
 function Menu() {
-  const socket = useContext(SocketContext);
+  const socket = useContext(SocketContext1);
 
   const initialIsMenuExpanded = localStorage.getItem("isMenuExpanded") === "true";
   const initialSelectedButton = localStorage.getItem("selectedButton") || 'friend';
@@ -77,9 +77,9 @@ function Menu() {
     }
   }, [notifications]);
 
-  useEffect(() => {
-    handleNotification("¡Esta es una notificación inicial!");
-  }, []);
+  // useEffect(() => {
+  //   handleNotification("¡Esta es una notificación inicial!");
+  // }, []);
 
   const MenuStyle: React.CSSProperties = {
     height: '100vh',

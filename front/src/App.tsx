@@ -14,24 +14,10 @@ import NoPermissionPage from './pages/PermissionDenied';
 import { getUserProfile } from './requests/User.Service';
 import PermissionDenied from './pages/PermissionDenied';
 
-const socketOptions = {
-  transportOptions: {
-    polling: {
-      extraHeaders: {
-        Authorization: 'Bearer ' + localStorage.getItem("token"),
-      }
-    }
-  }
-};
-
-// Puede que no sea necesario
-const socket: Socket = io(getServerIP(8081), socketOptions);
-
 const useAuth = () => {
   const token = localStorage.getItem('token');
   return !!token;
 };
-
 
 function ProtectedComponent({ children }: { children: React.ReactElement }) {
   const isAuthenticated = useAuth();
@@ -42,7 +28,6 @@ function GuestComponent({ children }: { children: React.ReactElement }) {
   const isAuthenticated = useAuth();
   return !isAuthenticated ? children : <Navigate to="/homepage" replace />;
 }
-
 
 function App() {
   return (

@@ -12,17 +12,26 @@ const socketOptions = {
   }
 };
 
-const socket: Socket = io(getServerIP(8083), socketOptions);
+const socket1: Socket = io(getServerIP(8083), socketOptions);
+const socket2: Socket = io(getServerIP(8081), socketOptions);
 
-// Crear un contexto para el socket
-export const SocketContext = createContext<Socket>(socket);
+// Crear un contexto para cada socket
+export const SocketContext1 = createContext<Socket>(socket1);
+export const SocketContext2 = createContext<Socket>(socket2);
 
-// Crear un proveedor del socket
-export function SocketProvider({ children }: { children: ReactNode }) {
-
+// Crear un proveedor para cada socket
+export function SocketProvider1({ children }: { children: ReactNode }) {
   return (
-    <SocketContext.Provider value={socket}>
+    <SocketContext1.Provider value={socket1}>
       {children}
-    </SocketContext.Provider>
+    </SocketContext1.Provider>
+  );
+}
+
+export function SocketProvider2({ children }: { children: ReactNode }) {
+  return (
+    <SocketContext2.Provider value={socket2}>
+      {children}
+    </SocketContext2.Provider>
   );
 }
