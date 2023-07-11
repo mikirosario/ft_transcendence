@@ -13,6 +13,7 @@ import { ChatChannelBannedUserDto } from '../chat-channel-banned-user/dto';
 import { ChatChannelService } from '../chat-channel/chat-channel.service';
 import { ChatChannelUserService } from '../chat-channel-user/chat-channel-user.service';
 import { ChatChannelUpdateDto } from '../chat-channel/dto';
+import { ChatChannelUserDto } from '../chat-channel-user/dto';
 
 
 @Injectable()
@@ -127,24 +128,30 @@ export class ChatCommandsService {
 					isBanned: false
 				};
 				return this.unbanUserInChannel(userId, unbannedUserDto);
-				
-			case '/mod':
 
-				break;
-			case '/unmod':
-
-				break;
 			case '/setadmin':
+				const setAdminUserDto: ChatChannelUserDto = {
+					id: chatChannelMessageDto.channel_id,
+					nick: args[0],
+					isAdmin: true
+				};
+				return this.setAdminInChannel(userId, setAdminUserDto);
 
-				break;
-			case '/unadmmin':
+			case '/unsetadmmin':
+				const unsetAdminUserDto: ChatChannelUserDto = {
+					id: chatChannelMessageDto.channel_id,
+					nick: args[0],
+					isAdmin: false
+				};
+				return this.unsetAdminInChannel(userId, unsetAdminUserDto);
 
-				break;
 			case '/changepwd':
 				const updatePassword: ChatChannelUpdateDto = {
 					id: chatChannelMessageDto.channel_id,
+					password: args[0]
 				}
-				return this.changePasswordInChannel(userId, args[0], args[1], updatePassword);
+				return this.changePasswordInChannel(userId, updatePassword);
+				
 			case '/duel':
 
 				break;
@@ -241,8 +248,12 @@ export class ChatCommandsService {
 			const victim = await this.userService.getUserByNick(bannedUserDto.nick);
 			await this.chatChannelService.checkUserIsAuthorizedInChannnel(userId, bannedUserDto.channel_id);
 
+			const victimChannelUser = await this.chatChannelService.getChannelUser(bannedUserDto.channel_id, victim.id);
+
+			if (victimChannelUser.isOwner)
+				ThrowHttpException(new UnauthorizedException, 'No tienes permiso para echar al propietario del canal');
+
 			await this.chatChannelUserService.leaveChannel(victim.id, {id: bannedUserDto.channel_id});
-			
 			this.ws.sendSocketMessageToUser(victim.id, 'KICK_FROM_CHANNEL', {channelId: bannedUserDto.channel_id});
 			
 			return {
@@ -255,31 +266,47 @@ export class ChatCommandsService {
 		}
 	}
 
-	private async changePasswordInChannel(userId: number, oldPassword: string, newPassword: string, dto: ChatChannelUpdateDto) {
+	private async changePasswordInChannel(userId: number, dto: ChatChannelUpdateDto) {
 		try {
-			if (!(await this.chatChannelService.getChannel(dto.id)).isPrivate)
-				return {
-					commandExecuted: true,
-					response: 'La contrasena no se puede cambniar en un canal publico',
-					error: true
-				};
-
-			await this.chatChannelService.checkUserIsAuthorizedInChannnel(userId, dto.id);
-
-			const savedPassword = (await this.chatChannelService.getChannel(dto.id)).hash;
-			if (savedPassword === oldPassword) {
-					dto.password = newPassword;
-					await this.chatChannelService.updateChannel(dto.id, dto)
-			}
+			await this.chatChannelService.updateChannel(userId, dto);
+			
 			return {
 				commandExecuted: true,
-				response: 'La contrasena ha sido cambiada',
+				response: 'Has modificado la contraseña del canal',
 				error: false
 			};
-
 		} catch (error) {
 			return { commandExecuted: true, response: error.response.message, error: true };
 		}
 	}
+
+	private async setAdminInChannel(userId: number, dto: ChatChannelUserDto) {
+		try {
+			await this.chatChannelUserService.updateChannelUser(userId, dto);
+			
+			return {
+				commandExecuted: true,
+				response: 'Has hecho administrador del canal a ' + dto.nick,
+				error: false
+			};
+		} catch (error) {
+			return { commandExecuted: true, response: error.response.message, error: true };
+		}
+	}
+
+	private async unsetAdminInChannel(userId: number, dto: ChatChannelUserDto) {
+		try {
+			await this.chatChannelUserService.updateChannelUser(userId, dto);
+			
+			return {
+				commandExecuted: true,
+				response: 'Has quitado el permiso de administrador de canal a ' + dto.nick,
+				error: false
+			};
+		} catch (error) {
+			return { commandExecuted: true, response: error.response.message, error: true };
+		}
+	}
+
 
 }
