@@ -32,7 +32,6 @@ export async function updateUserProfile(username: string, image: File | null) {
 };
 
 export async function getUserProfile() {
-  try {
     const response = await axios.get('users/profile', {
       headers: {
         Authorization: 'Bearer ' + localStorage.getItem('token'),
@@ -80,11 +79,6 @@ export async function getUserProfile() {
     const imageURL = URL.createObjectURL(imageResponse.data);
 
     return { username: fetchedName, userImage: imageURL };
-
-  } catch (error) {
-    console.log('Error:', error);
-    return { username: "", userImage: "" };
-  }
 }
 
 export async function deleteAvatarProfile() {

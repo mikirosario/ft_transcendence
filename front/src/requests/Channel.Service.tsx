@@ -23,28 +23,22 @@ export async function getChannelList() {
 }
 
 export async function createChannel(channelName: string, password: string) {
-  try {
-    const response = await axios.post('/chat/channels', {
-      name: channelName,
-      password: password
-    }, {
-      responseType: 'json',
-      headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('token'),
-      },
-    });
+  const response = await axios.post('/chat/channels', {
+    name: channelName,
+    password: password
+  }, {
+    responseType: 'json',
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token'),
+    },
+  });
 
-    if (response.status !== 200 && response.status !== 201) {
-      throw new Error('Request failed with status ' + response.status);
-    }
-
-    const { id } = response.data;
-    return id;
-
-  } catch (error) {
-    console.log('Error: Could not create the channel', error);
-    return false;
+  if (response.status !== 200 && response.status !== 201) {
+    throw new Error('Request failed with status ' + response.status);
   }
+
+  const { id } = response.data;
+  return { id: id, notif: "Canal creado correctamente" };
 }
 
 export async function editChannel(id: number, newChannelName: string, newPassword: string) {
@@ -76,14 +70,14 @@ export async function deleteChannel(id: number, password: string) {
   try {
     const response = await axios.delete('/chat/channels', {
       data: {
-          id: id,
-          password: password
+        id: id,
+        password: password
       },
       responseType: 'json',
       headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        'Authorization': 'Bearer ' + localStorage.getItem('token'),
       },
-  });
+    });
 
     // Errores para el caso de contrasena incorrecta
     if (response.status !== 200 && response.status !== 201) {
@@ -129,13 +123,13 @@ export async function leaveChannel(id: number) {
   try {
     const response = await axios.delete('/chat/channels/leave', {
       data: {
-          id: id
+        id: id
       },
       responseType: 'json',
       headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        'Authorization': 'Bearer ' + localStorage.getItem('token'),
       },
-  });
+    });
 
     if (response.status !== 200 && response.status !== 201) {
       throw new Error('Request failed with status ' + response.status);
@@ -155,16 +149,16 @@ export async function editPermsChannel(id: number, name: string, setOwner: boole
     // Tengo que obtener la lista y editar los datos? O funciona como un mapa y lo puedo editar directamente?
     const response = await axios.put('/chat/channels/users', {
       data: {
-          id: id,
-          user_id: name,
-          isOwner: setOwner,
-          isAdmin: setAdmin
+        id: id,
+        user_id: name,
+        isOwner: setOwner,
+        isAdmin: setAdmin
       },
       responseType: 'json',
       headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        'Authorization': 'Bearer ' + localStorage.getItem('token'),
       },
-  });
+    });
 
     if (response.status !== 200 && response.status !== 201) {
       throw new Error('Request failed with status ' + response.status);
@@ -180,27 +174,27 @@ export async function editPermsChannel(id: number, name: string, setOwner: boole
 
 // delete /chat/channels/users ?????
 
-export async function sendDirectMessage(id: number , content: string) {
+export async function sendDirectMessage(id: number, content: string) {
   try {
-      const response = await axios.post('/chat/channels/message', {
-          channel_id: id,
-          message: content
-      }, {
-          responseType: 'json',
-          headers: {
-              'Authorization': 'Bearer ' + localStorage.getItem('token'),
-          },
-      });
+    const response = await axios.post('/chat/channels/message', {
+      channel_id: id,
+      message: content
+    }, {
+      responseType: 'json',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+      },
+    });
 
-      if (response.status !== 200 && response.status !== 201) {
-          throw new Error('Request failed with status ' + response.status);
-        }
+    if (response.status !== 200 && response.status !== 201) {
+      throw new Error('Request failed with status ' + response.status);
+    }
 
-      return true;
+    return true;
 
   } catch (error) {
-      console.log('Error: Could not remove that friend', error);
-      return false;
+    console.log('Error: Could not remove that friend', error);
+    return false;
   }
 }
 
@@ -210,16 +204,16 @@ export async function modChannel(id: number, name: string, setBan: boolean, setM
   try {
     const response = await axios.put('/chat/channels/leave', {
       data: {
-          id: id,
-          user_id: name,
-          isBanned: setBan,
-          isMuteSecs: setMute
+        id: id,
+        user_id: name,
+        isBanned: setBan,
+        isMuteSecs: setMute
       },
       responseType: 'json',
       headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        'Authorization': 'Bearer ' + localStorage.getItem('token'),
       },
-  });
+    });
 
     if (response.status !== 200 && response.status !== 201) {
       throw new Error('Request failed with status ' + response.status);

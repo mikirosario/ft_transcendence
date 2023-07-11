@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { MdSend } from 'react-icons/md';
 import { createChannel, getChannelList, joinChannel } from '../../requests/Channel.Service';
 import { SocketContext } from '../../SocketContext';
+import NotificationContext from '../../NotificationContext';
 
 interface Channel {
   id: number
@@ -12,6 +13,7 @@ interface Channel {
 
 function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }) {
   const socket = useContext(SocketContext);
+  const { handleNotification } = useContext(NotificationContext);
 
   const [channelList, setChannelList] = useState<Channel[]>([]);
 
@@ -199,13 +201,16 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
   }
 
   const handleCreateChannel = async () => {
-
     if (createChannelName !== '') {
-      const resp = await createChannel(createChannelName, createChannelPassword);
-      setCreateChannelName('');
-      setCreateChannelPassword('');
-      if (resp > 0)
-        openChat(resp);
+      try {
+        const resp = await createChannel(createChannelName, createChannelPassword);
+        setCreateChannelName('');
+        setCreateChannelPassword('');
+        openChat(resp.id);
+        handleNotification(resp.notif);
+      } catch (error) {
+        handleNotification("Hubo un error al crear el canal");
+      }
     }
   }
 
