@@ -53,15 +53,22 @@ export class ChatChannelUserService {
 		
 		const channelUser = await this.chatChannelService.getChannelUser(channel.id, user.id);
 
-		await this.prisma.chatChannelUser.delete({
-			where: {
-				id: channelUser.id
-			}
-		});
+		try {
+			await this.prisma.chatChannelUser.delete({
+				where: {
+					id: channelUser.id
+				}
+			});
+			await this.sendUpdatedUserListToAllUsersWithSocket(channel.id);
+			this.ws.leaveRoom(userId, "channel_" + String(channel.id));
 
-		this.ws.leaveRoom(userId, "channel_" + String(channel.id));
-		
-		return channelUser;
+			return channelUser;
+
+		} catch (error) {
+			if (error instanceof PrismaClientKnownRequestError) {
+				ThrowHttpException(error, 'Unknown error deleting channel user');
+			}
+		}
 	}
 
 	async updateChannelUser(userId: number, dto: ChatChannelUserDto) {
@@ -102,22 +109,12 @@ export class ChatChannelUserService {
 
 		await this.chatChannelService.checkUserIsAuthorizedInChannnel(user.id, channel.id);
 
-		const channelUser = await this.chatChannelService.getChannelUser(channel.id, otherUser.id);
+		/* TODO: No permitir borrar a owner de canales. Admins solo los puede borrar el owner?
+		if (otherUser.isSiteOwner)
+			ThrowHttpException(new UnauthorizedException, 'No tienes permiso borrar al propietario del sitio de un canal');
+		*/
 
-		try {
-			const channelUserUpdated = await this.prisma.chatChannelUser.delete({
-				where: {
-					id: channelUser.id
-				},
-			});
-
-			return channelUserUpdated;
-
-		} catch (error) {
-			if (error instanceof PrismaClientKnownRequestError) {
-				ThrowHttpException(error, 'Unknown error deleting channel user');
-			}
-		}
+		await this.leaveChannel(otherUser.id, {id: channel.id});
 	}
 
 	async sendUpdatedUserListToAllUsersWithSocket(channelId: number) {
