@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import UserProfile from "./ProfileDisplay";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { getUserProfile } from '../../requests/User.Service';
 import FriendDisplay from "./FriendDisplay";
 import ChannelDisplay from "./ChannelDisplay"
 import { FaAngleRight, FaAngleLeft } from 'react-icons/fa'; // SOLID ARROW
 import ChatDisplay from "./ChatDisplay";
 import { SocketContext } from '../../SocketContext';
+import NotificationContext from '../../NotificationContext';
 //BiChevronLeft 
 
 
@@ -24,6 +25,9 @@ function Menu() {
   const [isFriendChat, setIsFriendChat] = useState(false);
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
 
+  const [notifications, setNotifications] = useState<Array<{ id: number; content: string }>>([]);
+  const [showNotification, setShowNotification] = useState(false);
+
   const navigate = useNavigate();
 
   const nickProfileLink = () => {
@@ -34,9 +38,15 @@ function Menu() {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      const userProfile = await getUserProfile();
-      setUsername(userProfile.username);
-      setUserImage(userProfile.userImage);
+      try {
+        const userProfile = await getUserProfile();
+        setUsername(userProfile.username);
+        setUserImage(userProfile.userImage);
+      } catch (error) {
+        localStorage.removeItem('token'); // No te lleva en un solo reload
+        navigate('/');
+      }
+
     };
 
     if (selectedChat) {
@@ -56,6 +66,20 @@ function Menu() {
     }
   }, [selectedButton]);
 
+  useEffect(() => {
+    if (notifications.length > 0) {
+      setShowNotification(true);
+      setTimeout(() => {
+        setNotifications((prev) => prev.slice(1));
+      }, 4000);
+    } else {
+      setShowNotification(false);
+    }
+  }, [notifications]);
+
+  useEffect(() => {
+    handleNotification("¡Esta es una notificación inicial!");
+  }, []);
 
   const MenuStyle: React.CSSProperties = {
     height: '100vh',
@@ -135,7 +159,7 @@ function Menu() {
       transition: 'right 0.5s ease',
     } : {
       position: 'absolute',
-      top: '30px',
+      top: '50px',
       right: '0',
       backgroundColor: 'transparent',
       color: 'white',
@@ -143,6 +167,19 @@ function Menu() {
       padding: '6px',
       transition: 'right 0.5s ease',
     };
+
+  const notificationMessageStyle: React.CSSProperties = {
+    position: "fixed",
+    top: "15px",
+    right: isMenuExpanded ? "355px" : "10px",
+    padding: "8px",
+    backgroundColor: "#1C2C4A",
+    fontSize: '14px',
+    color: "#fff",
+    zIndex: 1000,
+    borderRadius: '5px',
+    transition: 'right 0.5s ease'
+  };
 
   const handleFriendButtonClick = () => {
     setSelectedButton('friend');
@@ -164,43 +201,55 @@ function Menu() {
     setIsFriendChat(isFriend);
   };
 
-  return (
-    <>
-      <button
-        style={toggleButtonStyle}
-        onClick={() => {
-          setIsMenuExpanded(!isMenuExpanded);
-          localStorage.setItem("isMenuExpanded", (!isMenuExpanded).toString());
-        }}
-      >
-        {isMenuExpanded ? <FaAngleRight size={22} /> : <FaAngleLeft size={22} />}
-      </button>
+  const handleNotification = (message: string) => {
+    setNotifications((prev) => [...prev, { id: Date.now(), content: message }]);
+  };
 
-      <div style={{
-        ...MenuStyle,
-        width: isMenuExpanded ? '20vw' : '0',
-        left: isMenuExpanded ? '80%' : '100%',
-      }}>
-        <button style={ProfileButtonStyle} onClick={nickProfileLink}>
-          <UserProfile image={userImage} name={username}></UserProfile>
+  return (
+    <NotificationContext.Provider value={{ handleNotification }}>
+      <>
+        <button
+          style={toggleButtonStyle}
+          onClick={() => {
+            setIsMenuExpanded(!isMenuExpanded);
+            localStorage.setItem("isMenuExpanded", (!isMenuExpanded).toString());
+          }}
+        >
+          {isMenuExpanded ? <FaAngleRight size={22} /> : <FaAngleLeft size={22} />}
         </button>
-        <div>
-          <button style={FriendButtonStyle} onClick={handleFriendButtonClick}>
-            Amigos
+
+        {showNotification && (
+          <div style={notificationMessageStyle}>
+            {notifications[0]?.content}
+          </div>
+        )}
+
+        <div style={{
+          ...MenuStyle,
+          width: isMenuExpanded ? '20vw' : '0',
+          left: isMenuExpanded ? '80%' : '100%',
+        }}>
+          <button style={ProfileButtonStyle} onClick={nickProfileLink}>
+            <UserProfile image={userImage} name={username}></UserProfile>
           </button>
-          <button style={ChannelsButtonStyle} onClick={handleChannelsButtonClick}>
-            Canales
-          </button>
-          <div style={SocialDisplay}>
-            {selectedChat ? (
-              <ChatDisplay selectedChat={selectedChat} setSelectedChat={setSelectedChat} isFriendChat={isFriendChat} />
-            ) : (
-              selectedButton === 'friend' ? <FriendDisplay openChat={(id) => openChat(id, true)} /> : <ChannelDisplay openChat={(id) => openChat(id, false)} />
-            )}
+          <div>
+            <button style={FriendButtonStyle} onClick={handleFriendButtonClick}>
+              Amigos
+            </button>
+            <button style={ChannelsButtonStyle} onClick={handleChannelsButtonClick}>
+              Canales
+            </button>
+            <div style={SocialDisplay}>
+              {selectedChat ? (
+                <ChatDisplay selectedChat={selectedChat} setSelectedChat={setSelectedChat} isFriendChat={isFriendChat} />
+              ) : (
+                selectedButton === 'friend' ? <FriendDisplay openChat={(id) => openChat(id, true)} /> : <ChannelDisplay openChat={(id) => openChat(id, false)} />
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </>
+      </>
+    </NotificationContext.Provider>
   );
 }
 
