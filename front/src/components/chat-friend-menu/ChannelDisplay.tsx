@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { MdSend } from 'react-icons/md';
 import { createChannel, getChannelList, joinChannel } from '../../requests/Channel.Service';
-import { SocketContext } from '../../SocketContext';
+import { SocketContext1 } from '../../SocketContext';
 import NotificationContext from '../../NotificationContext';
 
 interface Channel {
@@ -12,7 +12,7 @@ interface Channel {
 }
 
 function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }) {
-  const socket = useContext(SocketContext);
+  const socket = useContext(SocketContext1);
   const { handleNotification } = useContext(NotificationContext);
 
   const [channelList, setChannelList] = useState<Channel[]>([]);
@@ -39,6 +39,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
 
     const handleKickCommand = async (channelId: number) => {
       openChat(0);
+      handleNotification('Te han echado/baneado del canal ' + channelList.find(channel => channel.id === channelId)?.name);
     }
 
     fetchChannels();
@@ -215,13 +216,18 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
   }
 
   const handleJoinChannel = async () => {
-  
+
     if (joinChannelName !== '') {
-      const resp = await joinChannel(joinChannelName, JoinChannelPassword);
-      setCreateChannelName('');
-      setCreateChannelPassword('');
-      if (resp > 0)
-        openChat(resp);
+      try {
+
+        const resp = await joinChannel(joinChannelName, JoinChannelPassword);
+        setCreateChannelName('');
+        setCreateChannelPassword('');
+        openChat(resp.channelId);
+        handleNotification(resp.notif);
+      } catch (error) {
+        handleNotification("No se ha podido unir al canal");
+      }
     }
   }
 
@@ -230,12 +236,13 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
 
     if (!ch.imInside) {
       const resp = await joinChannel(ch.name, "");
-      
-      if (resp < 0)
-        return ;
-    }
-    
-    openChat(ch.id)
+      if (resp.channelId < 0) {
+        handleNotification("No se ha podido unir al canal");
+        return;
+      }
+      handleNotification(resp.notif);  
+    } 
+      openChat(ch.id)
   }
 
   return (

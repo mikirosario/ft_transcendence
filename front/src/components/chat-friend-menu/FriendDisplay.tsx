@@ -3,7 +3,8 @@ import { addFriend, deleteFriend, getBlockedUsers, getFriendList, getFriendReque
 import { getUserImage } from "../../requests/User.Service";
 import { FaCaretDown, FaCaretUp, FaCheck, FaTimes } from 'react-icons/fa';
 import { MdSend } from 'react-icons/md';
-import { SocketContext } from '../../SocketContext';
+import { SocketContext1, SocketContext2 } from '../../SocketContext';
+import NotificationContext from '../../NotificationContext';
 
 interface Friend {
     userId: number;
@@ -15,7 +16,9 @@ interface Friend {
 }
 
 function FriendDisplay({ openChat }: { openChat: (friendName: number) => void }) {
-    const socket = useContext(SocketContext);
+    const socket = useContext(SocketContext1);
+    const socketUserStatus = useContext(SocketContext2);
+    const { handleNotification } = useContext(NotificationContext);
 
     const initialFriendsExpanded = localStorage.getItem("showFriends") === "true";
     const initialPetitionsExpanded = localStorage.getItem("showRequests") === "true";
@@ -67,8 +70,16 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
             setFriendPetitionList(friendsWithImages2);
         };
 
-        const handleFriendListStatus = async (data: Friend) => {
-
+        const handleFriendListStatus = async (newFriend: Friend) => {
+            let i = -1;
+            friendList.forEach((friend, index) => {
+                if (friend.userId === newFriend.userId)
+                    i = index;   
+            });
+            if (i === -1) return;
+            friendList[i] = newFriend;
+            friendList[i].avatarFile = await getUserImage(newFriend.avatarUri);
+            setFriendList([...friendList]);
         }
 
         // FriendPetition Functions
@@ -132,7 +143,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
 
         fetchFriends();
         socket.on("FRIEND_REQUEST_ACCEPTED", handleFriendListNew);
-        socket.on("FRIEND_LIST_STATUS", handleFriendListStatus);
+        socketUserStatus.on("UPDATE_USER", handleFriendListStatus);
 
         fetchFriendPetition();
         socket.on("FRIEND_REQUEST_NEW", handleFriendRequestNew);
@@ -365,8 +376,20 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
 
     const handleFriendSumbit = async () => {
 
-        await addFriend(friendName);
+        const resp = await addFriend(friendName);
+        if (resp)
+            handleNotification('Se ha enviado la peticion a ' + friendName);
+        else
+            handleNotification('No se ha podido enviar la peticion a ' + friendName);
         setFriendName('');
+    }
+
+    const handleUnblockUser = async (blockedUser: Friend) => {
+        const resp = await unblockUser(blockedUser.nick);
+        if (resp)
+            handleNotification('Se ha desbloqueado a ' + blockedUser.nick);
+        else
+            handleNotification('No se ha podido desbloquear a ' + blockedUser.nick);
     }
 
     return (
@@ -518,7 +541,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
                                 style={friendContainerStyle}
                                 onMouseEnter={() => setIsBlockedHovered(index)}
                                 onMouseLeave={() => setIsBlockedHovered(-1)}
-                                onClick={async () => await unblockUser(blockedUser.nick)}
+                                onClick={(event) => handleUnblockUser(blockedUser)}
                             >
                                 <div style={{
                                     transform: isBlockedHovered === index ? 'scale(1.1)' : 'none',

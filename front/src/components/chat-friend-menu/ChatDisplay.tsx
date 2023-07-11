@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { IoMdArrowRoundBack, IoMdSend } from 'react-icons/io';
 import { getChatDirect, sendDirectMessage, getChatChannel, sendChannelMessage } from '../../requests/Chat.Service';
 import { getUserImage } from "../../requests/User.Service";
-import { SocketContext } from '../../SocketContext';
+import { SocketContext1 } from '../../SocketContext';
+import NotificationContext from '../../NotificationContext';
 
 //Opcion de usuario
 
@@ -28,7 +29,8 @@ interface User {
 
 
 const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat, isFriendChat }) => {
-    const socket = useContext(SocketContext);
+    const socket = useContext(SocketContext1);
+    const { handleNotification } = useContext(NotificationContext);
 
     const [messagesList, setMessagesList] = useState<Message[]>([]);
     const [usersMap, setUsersMap] = useState<{ [id: string]: User }>({});
@@ -46,7 +48,6 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     const { members, messages } = result;
                     const usersWithImages = await Promise.all(members.map(async (user: User) => {
                         const imageUrl = await getUserImage(user.avatarUri);
-                        // console.log('getUserImage imageUrl:', imageUrl);
                         return { ...user, avatarFile: imageUrl ?? '' };
                     }));
                     setMessagesList(messages);
@@ -61,7 +62,6 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
 
         const handleNewDirectMessages = async (msg: Message) => {
             setMessagesList(oldMessageList => [...oldMessageList, msg]);
-            // console.log(msg);
         };
 
         const handleUpdateChannel = async (newUserList: []) => {
@@ -78,7 +78,6 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
 
         const handleNewChannelMessages = async (msg: Message) => {
             setMessagesList(oldMessageList => [...oldMessageList, msg]);
-            // console.log(msg);
         };
 
         fetchData();
@@ -208,10 +207,15 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
     const handleSend = async () => {
         if (selectedChat !== null) {
             if (message.trim() != '') {
-                if (isFriendChat)
-                    await sendDirectMessage(selectedChat, message);
-                else
-                    await sendChannelMessage(selectedChat, message);
+                if (isFriendChat) {
+                    const resp = await sendDirectMessage(selectedChat, message);
+                    if (!resp)
+                        handleNotification('El mensaje no se ha podido mandar');
+                } else {
+                    const resp = await sendChannelMessage(selectedChat, message);
+                    if (!resp)
+                        handleNotification('El mensaje no se ha podido mandar');
+                }
                 setMessage('');
             }
         }
