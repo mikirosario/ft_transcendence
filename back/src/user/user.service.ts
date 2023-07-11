@@ -205,7 +205,7 @@ export class UserService {
 	/*
 	 * Remove avatar file
 	*/
-	async removeAvatar(fileName: string) {
+	private async removeAvatar(fileName: string) {
 		if (fileName && fileName !== this.config.get('DEFAULT_AVATAR'))
 		{
 			fs.unlink(join(__dirname, '../../', this.config.get('PATH_AVATARS'), fileName), (err) => {
@@ -220,17 +220,29 @@ export class UserService {
 	*/
 	async setUserStatus(userId: number, isOnline: boolean): Promise<any> {
 		try {
-			const user = await this.prisma.user.update({
+			let user: any = await this.prisma.user.update({
 				where: {
 					id: userId
 				},
 				data: {
 					isOnline: isOnline
 				},
+				select: {
+					id: true,
+					nick: true,
+					avatarUri: true,
+					isOnline: true,
+					isInGame: true,
+				}
 			});
-			
-			delete user.hash;
-			return user;
+
+			return {
+					userId: user.id,
+					nick: user.nick,
+					avatarUri: user.avatarUri,
+					isOnline: user.isOnline,
+					isInGame: user.isInGame,
+				};
 		}
 		catch (error) {
 			return (null);
