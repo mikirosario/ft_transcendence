@@ -11,7 +11,7 @@ stop:
 
 clean:
 	@echo "System cleaned!"
-	-docker-compose -f ./srcs/docker-compose.yml --env-file srcs/.env down -v --rmi  all
+	-docker-compose -f ./srcs/docker-compose.yml --env-file srcs/.env down -v --rmi all
 	-docker system prune -af
 
 fclean: clean
@@ -21,13 +21,9 @@ front:
 	@echo "STARTING FRONT...\n"
 	@cd ./srcs/front && npm start
 
-front-stop:
-
 back:
 	@echo "STARTING BACK...\n"
 	@cd ./srcs/front && npm run start:dev
-
-back-stop:
 
 database:
 	@cd ./srcs/front && npm run db:dev:remove
