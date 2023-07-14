@@ -1,7 +1,10 @@
 FROM node:lts-alpine
 
-COPY package*.json ./
+RUN mkdir back
+WORKDIR /back
+# COPY package*.json .
+# COPY tsconfig*.json .
+COPY . .
 RUN npm install
-COPY . ./back
 
-CMD ["npm", "run", "start"]
+CMD npx prisma migrate dev && npm run start

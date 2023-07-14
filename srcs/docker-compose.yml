@@ -43,7 +43,7 @@ services:
       context: ./front/
       dockerfile: Dockerfile
     ports:
-      - 3001:3000
+      - 3001:3002
     networks:
       - transcendence
     depends_on:

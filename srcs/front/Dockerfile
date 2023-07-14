@@ -1,7 +1,9 @@
 FROM node:lts-alpine
 
-COPY package*.json ./
+RUN mkdir front
+WORKDIR /front
+COPY . .
 RUN npm install
-COPY . ./front
 
-CMD ["npm", "start"]
+CMD tail -f
+# CMD npm start
