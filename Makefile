@@ -9,13 +9,13 @@ stop:
 	@cd ./srcs/ && docker-compose down
 	@echo "CONTAINERS STOPPED!\n"
 
-clean:
+clean: stop
+	docker-compose -f ./srcs/docker-compose.yml --env-file srcs/.env down -v --rmi all
 	@echo "System cleaned!"
-	-docker-compose -f ./srcs/docker-compose.yml --env-file srcs/.env down -v --rmi all
-	-docker system prune -af
 
 fclean: clean
-	@echo "System deeply cleaned!"
+	docker system prune -af
+	@echo "System pruned!"
 
 front:
 	@echo "STARTING FRONT...\n"
@@ -26,13 +26,12 @@ back:
 	@cd ./srcs/front && npm run start:dev
 
 database:
-	@cd ./srcs/front && npm run db:dev:remove
+	@cd ./srcs/front && npm run db:dev:restart
 	@echo "Database created succesfully..."
 
-database-stop:
+migrate:
+	@cd ./srcs/back && npx prisma migrate dev
 
-prune:
-	@echo "System pruned!"
-	docker system prune -f
+re: fclean all
 
-.PHONY: all resume stop clean fclean front back database prune
+.PHONY: all resume stop clean fclean front back database migrate re
