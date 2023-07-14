@@ -1,5 +1,5 @@
 all:
-	@cd ./srcs/ && docker-compose up --build
+	@cd ./srcs/ && docker-compose up --build -d
 
 resume:
 	@echo "STARTING CONTAINERS...\n"

@@ -5,5 +5,4 @@ WORKDIR /front
 COPY . .
 RUN npm install
 
-CMD tail -f
-# CMD npm start
+CMD npm start

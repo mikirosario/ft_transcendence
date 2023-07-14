@@ -20,6 +20,19 @@ services:
       POSTGRES_DB: nest
     volumes:
       - data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - transcendence
+  
+  # NGINX #
+  nginx:
+    container_name: nginx
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    restart: unless-stopped
     networks:
       - transcendence
 
@@ -31,6 +44,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - 3000:3000
+    restart: unless-stopped
     networks:
       - transcendence
     depends_on:
@@ -43,7 +57,8 @@ services:
       context: ./front/
       dockerfile: Dockerfile
     ports:
-      - 3001:3002
+      - 3001:3001
+    restart: unless-stopped
     networks:
       - transcendence
     depends_on:
