@@ -30,6 +30,7 @@ interface User {
 
 const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat, isFriendChat }) => {
     const socket = useContext(SocketContext1);
+
     const { handleNotification } = useContext(NotificationContext);
 
     const [messagesList, setMessagesList] = useState<Message[]>([]);
@@ -37,64 +38,65 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
     const [message, setMessage] = useState('');
 
     useEffect(() => {
-        const fetchData = async () => {
-            if (selectedChat !== null) {
-                let result;
-                if (isFriendChat)
-                    result = await getChatDirect(selectedChat);
-                else
-                    result = await getChatChannel(selectedChat);
-                if (result && result.members && result.messages) {
-                    const { members, messages } = result;
-                    const usersWithImages = await Promise.all(members.map(async (user: User) => {
-                        const imageUrl = await getUserImage(user.avatarUri);
-                        return { ...user, avatarFile: imageUrl ?? '' };
-                    }));
-                    setMessagesList(messages);
-                    const usersMap = usersWithImages.reduce((acc, currUser) => {
-                        acc[currUser.nick] = currUser;
-                        return acc;
-                    }, {} as { [key: string]: User });
-                    setUsersMap(usersMap);
+            const fetchData = async () => {
+                if (selectedChat !== null) {
+                    let result;
+                    if (isFriendChat)
+                        result = await getChatDirect(selectedChat);
+                    else
+                        result = await getChatChannel(selectedChat);
+                    if (result && result.members && result.messages) {
+                        const { members, messages } = result;
+                        const usersWithImages = await Promise.all(members.map(async (user: User) => {
+                            const imageUrl = await getUserImage(user.avatarUri);
+                            return { ...user, avatarFile: imageUrl ?? '' };
+                        }));
+                        setMessagesList(messages);
+                        const usersMap = usersWithImages.reduce((acc, currUser) => {
+                            acc[currUser.nick] = currUser;
+                            return acc;
+                        }, {} as { [key: string]: User });
+                        setUsersMap(usersMap);
+                    }
                 }
+            };
+
+            const handleNewDirectMessages = async (msg: Message) => {
+                setMessagesList(oldMessageList => [...oldMessageList, msg]);
+            };
+
+            const handleUpdateChannel = async (newUserList: []) => {
+                const usersWithImages = await Promise.all(newUserList.map(async (user: User) => {
+                    const imageUrl = await getUserImage(user.avatarUri);
+                    return { ...user, avatarFile: imageUrl ?? '' };
+                }));
+                const usersMap = usersWithImages.reduce((acc, currUser) => {
+                    acc[currUser.nick] = currUser;
+                    return acc;
+                }, {} as { [key: string]: User });
+                setUsersMap(usersMap);
             }
-        };
 
-        const handleNewDirectMessages = async (msg: Message) => {
-            setMessagesList(oldMessageList => [...oldMessageList, msg]);
-        };
+            const handleNewChannelMessages = async (msg: Message) => {
+                setMessagesList(oldMessageList => [...oldMessageList, msg]);
+            };
 
-        const handleUpdateChannel = async (newUserList: []) => {
-            const usersWithImages = await Promise.all(newUserList.map(async (user: User) => {
-                const imageUrl = await getUserImage(user.avatarUri);
-                return { ...user, avatarFile: imageUrl ?? '' };
-            }));
-            const usersMap = usersWithImages.reduce((acc, currUser) => {
-                acc[currUser.nick] = currUser;
-                return acc;
-            }, {} as { [key: string]: User });
-            setUsersMap(usersMap);
-        }
+            fetchData();
+            if (isFriendChat)
+                socket?.on("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
+            else {
+                socket?.on("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
+                socket?.on("UPDATE_CHANNEL_USERS_LIST", handleUpdateChannel);
+            }
 
-        const handleNewChannelMessages = async (msg: Message) => {
-            setMessagesList(oldMessageList => [...oldMessageList, msg]);
-        };
-
-        fetchData();
-        if (isFriendChat)
-            socket.on("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
-        else {
-            socket.on("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
-            socket.on("UPDATE_CHANNEL_USERS_LIST", handleUpdateChannel);
-        }
-
-        // Función de limpieza
-        // return () => {
-        //     socket.off("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
-        //     socket.off("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
-        //     socket.off("NEW_USER_CHANNEL", handleNewUser);
-        // };
-
+            // return () => {
+            //     if (isFriendChat) {
+            //         socket.off("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
+            //     } else {
+            //         socket.off("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
+            //         socket.off("UPDATE_CHANNEL_USERS_LIST", handleUpdateChannel);
+            //     }
+            // };
     }, [selectedChat, socket]);
 
     const ChatWrapper: React.CSSProperties = {

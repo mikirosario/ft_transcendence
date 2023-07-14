@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { addFriend, deleteFriend, getBlockedUsers, getFriendList, getFriendRequests, unblockUser, updateFriendList } from '../../requests/Friend.Service';
 import { getUserImage } from "../../requests/User.Service";
 import { FaCaretDown, FaCaretUp, FaCheck, FaTimes } from 'react-icons/fa';
@@ -18,6 +18,7 @@ interface Friend {
 function FriendDisplay({ openChat }: { openChat: (friendName: number) => void }) {
     const socket = useContext(SocketContext1);
     const socketUserStatus = useContext(SocketContext2);
+
     const { handleNotification } = useContext(NotificationContext);
 
     const initialFriendsExpanded = localStorage.getItem("showFriends") === "true";
@@ -40,129 +41,133 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
     const [showBlocked, setShowBlocked] = useState(initialBlocksExpanded);
     const [isBlockedHovered, setIsBlockedHovered] = useState(-1);
 
+
+
+
     useEffect(() => {
-        // FriendList Functions
-        const fetchFriends = async () => {
-            const friendsRequest = await getFriendList();
-            const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
-                const imageUrl = await getUserImage(friend.avatarUri);
-                return { ...friend, avatarFile: imageUrl };
-            }));
-            setFriendList(friendsWithImages);
-        };
 
-        const handleFriendListNew = async (data: { friends: [], friend_requests: [] }) => {
-            const newFriendsList = data.friends;
-            const newRequestList = data.friend_requests;
+            if (!socketUserStatus) return undefined;
+            // FriendList Functions
+            const fetchFriends = async () => {
+                const friendsRequest = await getFriendList();
+                const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setFriendList(friendsWithImages);
+            };
 
-            console.log(newFriendsList);
-            const friendsWithImages = await Promise.all(newFriendsList.map(async (friend: Friend) => {
-                const imageUrl = await getUserImage(friend.avatarUri);
-                return { ...friend, avatarFile: imageUrl };
-            }));
-            setFriendList(friendsWithImages);
+            const handleFriendListNew = async (data: { friends: [], friend_requests: [] }) => {
+                const newFriendsList = data.friends;
+                const newRequestList = data.friend_requests;
 
-            console.log(newRequestList);
-            const friendsWithImages2 = await Promise.all(newRequestList.map(async (friend: Friend) => {
-                const imageUrl = await getUserImage(friend.avatarUri);
-                return { ...friend, avatarFile: imageUrl };
-            }));
-            setFriendPetitionList(friendsWithImages2);
-        };
+                console.log(newFriendsList);
+                const friendsWithImages = await Promise.all(newFriendsList.map(async (friend: Friend) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setFriendList(friendsWithImages);
 
-        const handleFriendListStatus = async (newFriend: Friend) => {
-            let i = -1;
-            friendList.forEach((friend, index) => {
-                if (friend.userId === newFriend.userId)
-                    i = index;   
-            });
-            if (i === -1) return;
-            friendList[i] = newFriend;
-            friendList[i].avatarFile = await getUserImage(newFriend.avatarUri);
-            setFriendList([...friendList]);
-        }
+                console.log(newRequestList);
+                const friendsWithImages2 = await Promise.all(newRequestList.map(async (friend: Friend) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setFriendPetitionList(friendsWithImages2);
+            };
 
-        // FriendPetition Functions
-        const fetchFriendPetition = async () => {
-            const friendsRequest = await getFriendRequests();
-            const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
-                const imageUrl = await getUserImage(friend.avatarUri);
-                return { ...friend, avatarFile: imageUrl };
-            }));
-            setFriendPetitionList(friendsWithImages);
-        };
+            const handleFriendListStatus = async (newFriend: Friend) => {
+                let i = -1;
+                friendList.forEach((friend, index) => {
+                    if (friend.userId === newFriend.userId)
+                        i = index;
+                });
+                if (i === -1) return;
+                friendList[i] = newFriend;
+                friendList[i].avatarFile = await getUserImage(newFriend.avatarUri);
+                setFriendList([...friendList]);
+            }
 
-        const handleFriendRequestNew = async (newFriendsRequest: Friend[]) => {
-            const friendsWithImages = await Promise.all(newFriendsRequest.map(async (friend: Friend) => {
-                const imageUrl = await getUserImage(friend.avatarUri);
-                return { ...friend, avatarFile: imageUrl };
-            }));
-            setFriendPetitionList(friendsWithImages);
-        };
+            // FriendPetition Functions
+            const fetchFriendPetition = async () => {
+                const friendsRequest = await getFriendRequests();
+                const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setFriendPetitionList(friendsWithImages);
+            };
 
-        const handleFriendRequestReject = async (newFriendsRequest: Friend[]) => {
-            const friendsWithImages = await Promise.all(newFriendsRequest.map(async (friend: Friend) => {
-                const imageUrl = await getUserImage(friend.avatarUri);
-                return { ...friend, avatarFile: imageUrl };
-            }));
-            setFriendPetitionList(friendsWithImages);
-        };
+            const handleFriendRequestNew = async (newFriendsRequest: Friend[]) => {
+                const friendsWithImages = await Promise.all(newFriendsRequest.map(async (friend: Friend) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setFriendPetitionList(friendsWithImages);
+            };
 
-        // BlockList Functions
-        const fetchBlockedUsers = async () => {
-            const blockedUsersRequest = await getBlockedUsers();
-            const blockedUsersWithImages = await Promise.all(blockedUsersRequest.map(async (blockedUser: { avatarUri: string; nick: string; userId: number }) => {
-                const imageUrl = await getUserImage(blockedUser.avatarUri);
-                return {
-                    userId: blockedUser.userId,
-                    nick: blockedUser.nick,
-                    avatarFile: imageUrl,
-                    isOnline: false,
-                    isInGame: false,
-                };
-            }));
-            setBlockedUsersList(blockedUsersWithImages);
-        };
+            const handleFriendRequestReject = async (newFriendsRequest: Friend[]) => {
+                const friendsWithImages = await Promise.all(newFriendsRequest.map(async (friend: Friend) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setFriendPetitionList(friendsWithImages);
+            };
 
-        const handleFriendListUpdate = async (newFriendList: []) => {
-            const friendsWithImages = await Promise.all(newFriendList.map(async (friend: Friend) => {
-                const imageUrl = await getUserImage(friend.avatarUri);
-                return { ...friend, avatarFile: imageUrl };
-            }));
-            setFriendList(friendsWithImages);
-        };
+            // BlockList Functions
+            const fetchBlockedUsers = async () => {
+                const blockedUsersRequest = await getBlockedUsers();
+                const blockedUsersWithImages = await Promise.all(blockedUsersRequest.map(async (blockedUser: { avatarUri: string; nick: string; userId: number }) => {
+                    const imageUrl = await getUserImage(blockedUser.avatarUri);
+                    return {
+                        userId: blockedUser.userId,
+                        nick: blockedUser.nick,
+                        avatarFile: imageUrl,
+                        isOnline: false,
+                        isInGame: false,
+                    };
+                }));
+                setBlockedUsersList(blockedUsersWithImages);
+            };
 
-        const handleBlockedListUpdate = async (newBlockedList: []) => {
-            const friendsWithImages = await Promise.all(newBlockedList.map(async (friend: Friend) => {
-                const imageUrl = await getUserImage(friend.avatarUri);
-                return { ...friend, avatarFile: imageUrl };
-            }));
-            setBlockedUsersList(friendsWithImages);
-        };
+            const handleFriendListUpdate = async (newFriendList: []) => {
+                const friendsWithImages = await Promise.all(newFriendList.map(async (friend: Friend) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setFriendList(friendsWithImages);
+            };
 
-
-        fetchFriends();
-        socket.on("FRIEND_REQUEST_ACCEPTED", handleFriendListNew);
-        socketUserStatus.on("UPDATE_USER", handleFriendListStatus);
-
-        fetchFriendPetition();
-        socket.on("FRIEND_REQUEST_NEW", handleFriendRequestNew);
-        socket.on("FRIEND_REQUEST_REJECTED", handleFriendRequestReject);
-        
-        fetchBlockedUsers();
-        socket.on("UPDATE_FRIEND_LIST", handleFriendListUpdate);
-        socket.on("UPDATE_BLOCKED_LIST", handleBlockedListUpdate);
+            const handleBlockedListUpdate = async (newBlockedList: []) => {
+                const friendsWithImages = await Promise.all(newBlockedList.map(async (friend: Friend) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setBlockedUsersList(friendsWithImages);
+            };
 
 
-        // // Función de limpieza
-        // return () => {
-        //     socket.off("FRIEND_REQUEST_ACCEPTED", handleFriendListNew);
-        //     socket.off("FRIENDLIST_STATUS", handleFriendListStatus);
-        //     socket.off("FRIEND_REQUEST_NEW", handleFriendRequestNew);
-        //     socket.off("FRIEND_REQUEST_REJECTED", handleFriendRequestReject);
-        //     socket.off("USER_BLOCK_LSIT", handleUserBlocks);
-        // };
+            fetchFriends();
+            socket?.on("FRIEND_REQUEST_ACCEPTED", handleFriendListNew);
+            socketUserStatus?.on("UPDATE_USER", handleFriendListStatus);
 
+            fetchFriendPetition();
+            socket?.on("FRIEND_REQUEST_NEW", handleFriendRequestNew);
+            socket?.on("FRIEND_REQUEST_REJECTED", handleFriendRequestReject);
+
+            fetchBlockedUsers();
+            socket?.on("UPDATE_FRIEND_LIST", handleFriendListUpdate);
+            socket?.on("UPDATE_BLOCKED_LIST", handleBlockedListUpdate);
+
+
+            // // Función de limpieza
+            // return () => {
+            //     socket.off("FRIEND_REQUEST_ACCEPTED", handleFriendListNew);
+            //     socket.off("FRIENDLIST_STATUS", handleFriendListStatus);
+            //     socket.off("FRIEND_REQUEST_NEW", handleFriendRequestNew);
+            //     socket.off("FRIEND_REQUEST_REJECTED", handleFriendRequestReject);
+            //     socket.off("USER_BLOCK_LSIT", handleUserBlocks);
+            // };
     }, [socket]);
 
     useEffect(() => {
@@ -413,10 +418,10 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
                             maxLength={10}
                             onKeyPress={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
-                                  e.preventDefault();
-                                  handleFriendSumbit();
+                                    e.preventDefault();
+                                    handleFriendSumbit();
                                 }
-                              }} 
+                            }}
                         />
                         <button
                             style={{ backgroundColor: 'transparent', border: 'none' }}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { MdSend } from 'react-icons/md';
 import { createChannel, getChannelList, joinChannel } from '../../requests/Channel.Service';
 import { SocketContext1 } from '../../SocketContext';
@@ -13,6 +13,7 @@ interface Channel {
 
 function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }) {
   const socket = useContext(SocketContext1);
+
   const { handleNotification } = useContext(NotificationContext);
 
   const [channelList, setChannelList] = useState<Channel[]>([]);
@@ -27,25 +28,31 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
   const [isHoveredCreate, setIsHoveredCreate] = useState(false);
   const [isHoveredJoin, setIsHoveredJoin] = useState(false);
 
+  const socketRef = useRef(socket);
   useEffect(() => {
-    const fetchChannels = async () => {
-      const channels = await getChannelList();
-      setChannelList(channels);
-    };
-
-    const handleChannelsList = async (newChannelList: []) => {
-      setChannelList(newChannelList)
-    };
-
-    const handleKickCommand = async (channelId: number) => {
-      openChat(0);
-      handleNotification('Te han echado/baneado del canal ' + channelList.find(channel => channel.id === channelId)?.name);
-    }
-
-    fetchChannels();
-    socket.on("UPDATE_CHANNELS_LIST", handleChannelsList);
-    socket.on("KICK_FROM_CHANNEL", handleKickCommand);
+    socketRef.current = socket;
   }, [socket]);
+
+  useEffect(() => {
+
+      const fetchChannels = async () => {
+        const channels = await getChannelList();
+        setChannelList(channels);
+      };
+
+      const handleChannelsList = async (newChannelList: []) => {
+        setChannelList(newChannelList)
+      };
+
+      const handleKickCommand = async (channelId: number) => {
+        openChat(0);
+        handleNotification('Te han echado/baneado del canal ' + channelList.find(channel => channel.id === channelId)?.name);
+      }
+
+      fetchChannels();
+      socket?.on("UPDATE_CHANNELS_LIST", handleChannelsList);
+      socket?.on("KICK_FROM_CHANNEL", handleKickCommand);
+  }, []);
 
 
   // ------------------- BUTTON CHANNELS STYLES ------------------------------
@@ -240,9 +247,9 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
         handleNotification("No se ha podido unir al canal");
         return;
       }
-      handleNotification(resp.notif);  
-    } 
-      openChat(ch.id)
+      handleNotification(resp.notif);
+    }
+    openChat(ch.id)
   }
 
   return (
