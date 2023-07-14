@@ -13,11 +13,17 @@ import { getServerIP } from './utils/utils';
 import NoPermissionPage from './pages/PermissionDenied';
 import { getUserProfile } from './requests/User.Service';
 import PermissionDenied from './pages/PermissionDenied';
+import Administration from './pages/Administration';
 
 const useAuth = () => {
   const token = localStorage.getItem('token');
   return !!token;
 };
+
+// const useAdmin = () => {
+//   const token = localStorage.getItem('token');
+//   return !!token;
+// };
 
 function ProtectedComponent({ children }: { children: React.ReactElement }) {
   const isAuthenticated = useAuth();
@@ -28,6 +34,11 @@ function GuestComponent({ children }: { children: React.ReactElement }) {
   const isAuthenticated = useAuth();
   return !isAuthenticated ? children : <Navigate to="/homepage" replace />;
 }
+
+// function AdminComponent({ children }: { children: React.ReactElement }) {
+//   const isAdmin = useAadmin();
+//   return !isAdmin ? children : <Navigate to="/homepage" replace />;
+// }
 
 function App() {
   return (
@@ -51,6 +62,8 @@ function App() {
         <Route path="/pong" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
         <Route path="/gameSelector" element={<ProtectedComponent><GameSelector /></ProtectedComponent>} />
         <Route path="/verification" element={<ProtectedComponent><Verification2af /></ProtectedComponent>} />
+        
+        <Route path="/administration" element={<ProtectedComponent><Administration /></ProtectedComponent>} />
       </Routes>
     </BrowserRouter>
   );
