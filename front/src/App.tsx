@@ -14,6 +14,7 @@ import NoPermissionPage from './pages/PermissionDenied';
 import { getUserProfile } from './requests/User.Service';
 import PermissionDenied from './pages/PermissionDenied';
 import Administration from './pages/Administration';
+import Perfil from './pages/Perfil';
 
 const useAuth = () => {
   const token = localStorage.getItem('token');
@@ -63,6 +64,7 @@ function App() {
         <Route path="/gameSelector" element={<ProtectedComponent><GameSelector /></ProtectedComponent>} />
         <Route path="/verification" element={<ProtectedComponent><Verification2af /></ProtectedComponent>} />
         
+        <Route path="/perfil" element={<ProtectedComponent><Perfil /></ProtectedComponent>} />
         <Route path="/administration" element={<ProtectedComponent><Administration /></ProtectedComponent>} />
       </Routes>
     </BrowserRouter>
