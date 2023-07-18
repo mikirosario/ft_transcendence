@@ -30,6 +30,8 @@ export class OAuthController {
         const jwt_token = await this.oAuthService.signup(user);
         const jwt = jwt_token.access_token;
 
-        return res.redirect('http://localhost:3001/register?token=' + jwt);
+        const redirectIP = process.env.REACT_APP_SERVER_ADDRESS;
+
+        return res.redirect(`http://${redirectIP}:3001/register?token=` + jwt);
     }
 }

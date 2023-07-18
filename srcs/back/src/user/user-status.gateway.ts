@@ -13,8 +13,8 @@ import { WebSocketService } from '../auth/websocket/websocket.service';
 
 @WebSocketGateway(8081, {
 	cors: {
-		origin: ['http://localhost:3001']
-		// origin: '*'
+		//origin: ['http://localhost:3001']
+		origin: '*'
 	},
 })
 export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect

@@ -17,8 +17,8 @@ import { Player, PlayerID } from './player';
 
 @WebSocketGateway(8082, {
 	cors: {
-		origin: ['http://localhost:3001']
-		//origin: '*'
+		//origin: ['http://localhost:3001']
+		origin: '*'
 	},
 })
 export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect

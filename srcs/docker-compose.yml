@@ -44,11 +44,16 @@ services:
       dockerfile: Dockerfile
     ports:
       - 3000:3000
+      - 8081:8081
+      - 8082:8082
+      - 8083:8083
     restart: unless-stopped
     networks:
       - transcendence
     depends_on:
       - db
+    env_file:
+      - .env
 
 # FRONT #
   front:
@@ -63,3 +68,5 @@ services:
       - transcendence
     depends_on:
       - back
+    env_file:
+      - .env
