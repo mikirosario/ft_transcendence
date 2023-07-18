@@ -103,7 +103,7 @@ function GameSelector() {
 
     //<<< BUILD >>>//
     return (
-        <body style={BodyStyle}>
+        <div style={BodyStyle}>
             <div style={Content}>
                 <HomeButton></HomeButton>
                 <div style={Box}>
@@ -122,7 +122,7 @@ function GameSelector() {
             <div style={SocialMenu} className='SocialWindow'>
                     {/* SOCIAL WINDOW */}
             </div>
-        </body>
+        </div>
     );
 }
 
