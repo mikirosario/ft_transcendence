@@ -6,7 +6,7 @@ import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ChatGateway } from '../chat-socket/chat.gateway';
 import * as minimist from 'minimist';
-import { ChatChannelMessageDto } from '../chat-channel-message/dto'
+import { ChatCommandMessageDto } from './dto'
 import { ChatBlockedDto } from '../chat-blocked-user/dto';
 import { ChatChannelBannedUserService } from '../chat-channel-banned-user/chat-channel-banned-user.service';
 import { ChatChannelBannedUserDto } from '../chat-channel-banned-user/dto';
@@ -50,7 +50,7 @@ export class ChatCommandsService {
 		private ws: ChatGateway) { }
 
 
-	private parseCommand(dto: ChatChannelMessageDto) {
+	private parseCommand(dto: ChatCommandMessageDto) {
 		// Dividir el mensaje de chat en un array de palabras
 		let words = dto.message.split(' ');
 
@@ -68,10 +68,12 @@ export class ChatCommandsService {
 	}
 
 	// Ejemplo de cómo manejar un comando
-	private handleCommand(userId: number, chatChannelMessageDto: ChatChannelMessageDto, command: string, args: string[]) {
+	private handleCommand(userId: number, chatCommandMessageDto: ChatCommandMessageDto, command: string, args: string[]) {
 		console.log('User ID: ' + userId);
 		console.log('Command: ' + command);
 		console.log('Args: ' + args[0]);
+
+		const commandNotExecuted = { commandExecuted: false, response: '', error: false };
 
 		switch (command) {
 			case '/help':
@@ -91,63 +93,87 @@ export class ChatCommandsService {
 				return this.unBlockUser(userId, unblockUserDto);
 
 			case '/mute':
+				if (chatCommandMessageDto.isDirect) // avoid command in direct chat
+					return commandNotExecuted;
+
 				const mutedUserDto: ChatChannelBannedUserDto = {
-					channel_id: chatChannelMessageDto.channel_id,
+					channel_id: chatCommandMessageDto.chat_id,
 					nick: args[0],
 					isMutedSecs: Number(args[1]),
 				};
 				return this.muteUserInChannel(userId, mutedUserDto);
 
 			case '/unmute':
+				if (chatCommandMessageDto.isDirect) // avoid command in direct chat
+				return commandNotExecuted;
+
 				const unmutedUserDto: ChatChannelBannedUserDto = {
-					channel_id: chatChannelMessageDto.channel_id,
+					channel_id: chatCommandMessageDto.chat_id,
 					nick: args[0],
 					isMutedSecs: 0,
 				};
 				return this.unmuteUserInChannel(userId, unmutedUserDto);
 
 			case '/kick':
+				if (chatCommandMessageDto.isDirect) // avoid command in direct chat
+					return commandNotExecuted;
+
 				const kickUserDto: ChatChannelBannedUserDto = {
-					channel_id: chatChannelMessageDto.channel_id,
+					channel_id: chatCommandMessageDto.chat_id,
 					nick: args[0]
 				};
 				return this.kickUserInChannel(userId, kickUserDto);
 
 			case '/ban':
+				if (chatCommandMessageDto.isDirect) // avoid command in direct chat
+					return commandNotExecuted;
+
 				const bannedUserDto: ChatChannelBannedUserDto = {
-					channel_id: chatChannelMessageDto.channel_id,
+					channel_id: chatCommandMessageDto.chat_id,
 					nick: args[0],
 					isBanned: true
 				};
 				return this.banUserInChannel(userId, bannedUserDto);
 
 			case '/unban':
+				if (chatCommandMessageDto.isDirect) // avoid command in direct chat
+					return commandNotExecuted;
+
 				const unbannedUserDto: ChatChannelBannedUserDto = {
-					channel_id: chatChannelMessageDto.channel_id,
+					channel_id: chatCommandMessageDto.chat_id,
 					nick: args[0],
 					isBanned: false
 				};
 				return this.unbanUserInChannel(userId, unbannedUserDto);
 
 			case '/setadmin':
+				if (chatCommandMessageDto.isDirect) // avoid command in direct chat
+					return commandNotExecuted;
+
 				const setAdminUserDto: ChatChannelUserDto = {
-					id: chatChannelMessageDto.channel_id,
+					id: chatCommandMessageDto.chat_id,
 					nick: args[0],
 					isAdmin: true
 				};
 				return this.setAdminInChannel(userId, setAdminUserDto);
 
-			case '/unsetadmmin':
+			case '/unsetadmin':
+				if (chatCommandMessageDto.isDirect) // avoid command in direct chat
+					return commandNotExecuted;
+
 				const unsetAdminUserDto: ChatChannelUserDto = {
-					id: chatChannelMessageDto.channel_id,
+					id: chatCommandMessageDto.chat_id,
 					nick: args[0],
 					isAdmin: false
 				};
 				return this.unsetAdminInChannel(userId, unsetAdminUserDto);
 
 			case '/changepwd':
+				if (chatCommandMessageDto.isDirect) // avoid command in direct chat
+					return commandNotExecuted;
+
 				const updatePassword: ChatChannelUpdateDto = {
-					id: chatChannelMessageDto.channel_id,
+					id: chatCommandMessageDto.chat_id,
 					password: args[0]
 				}
 				return this.changePasswordInChannel(userId, updatePassword);
@@ -160,13 +186,13 @@ export class ChatCommandsService {
 				break;
 			default:
 				console.log('Comando no reconocido');
-				return { commandExecuted: false, response: '', error: false };
+				return commandNotExecuted;
 		}
 	}
 
-	executeCommand(userId: number, chatChannelMessageDto: ChatChannelMessageDto) {
-		let command = this.parseCommand(chatChannelMessageDto);
-		return this.handleCommand(userId, chatChannelMessageDto, command.command, command.args._);
+	executeCommand(userId: number, chatCommandMessageDto: ChatCommandMessageDto) {
+		let command = this.parseCommand(chatCommandMessageDto);
+		return this.handleCommand(userId, chatCommandMessageDto, command.command, command.args._);
 	}
 
 	private async blockUser(userId: number, dto: ChatBlockedDto) {

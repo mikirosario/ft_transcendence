@@ -6,12 +6,15 @@ import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ChatDirectMessageDto } from './dto';
 import { ChatGateway } from '../chat-socket/chat.gateway';
+import { ChatCommandsService } from '../chat-commands/chat-commands.service';
+
 
 @Injectable()
 export class ChatDirectMessageService {
 
 	constructor(private prisma: PrismaService, private userService: UserService,
 				private chatBlockedUserService: ChatBlockedUserService,
+				private chatCommandsService: ChatCommandsService,
 				private ws: ChatGateway) { }
 
 	async sendDirectMessage(userId: number, dto: ChatDirectMessageDto) {
@@ -28,6 +31,13 @@ export class ChatDirectMessageService {
 
 		if (await this.chatBlockedUserService.isUserBlocked(user2.id, user1.id))
 			ThrowHttpException(new BadRequestException, 'You cant send a message, you are blocked by the other user.');
+
+			const response: any = await this.chatCommandsService.executeCommand(userId, {isDirect: true, chat_id: directChat.id, message: dto.message});
+			if (response.commandExecuted == true)
+			{
+				delete response.commandExecuted;
+				return response;
+			}
 		
 		try {
 			const newMessage = await this.prisma.chatDirectMessage.create({
