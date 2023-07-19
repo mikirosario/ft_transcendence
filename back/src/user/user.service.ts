@@ -6,11 +6,15 @@ import { EditUserDto, UserProfileDto, UserProfileUpdateDto } from "./dto";
 import { ConfigService } from "@nestjs/config";
 import { join } from 'path';
 import * as fs from 'fs';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UserStateChangedEvent } from './user.events';
+import { use } from 'passport';
 
 
 @Injectable()
 export class UserService {
-	constructor(private prisma: PrismaService, private config: ConfigService) { }
+	constructor(private prisma: PrismaService, private config: ConfigService,
+				private eventEmitter: EventEmitter2) { }
 
 	async getUserById(userId: number) {
 		const user = await this.prisma.user.findUnique({
@@ -148,6 +152,8 @@ export class UserService {
 				},
 			});
 
+			this.updateUserState(userId);
+
 			if (prevAvatar && prevAvatar !== fileName)
 			{
 				this.removeAvatar(prevAvatar);
@@ -190,6 +196,8 @@ export class UserService {
 				},
 			});
 
+			this.updateUserState(userId);
+
 			this.removeAvatar(avatar);
 
 			delete user.hash;
@@ -208,10 +216,7 @@ export class UserService {
 	private async removeAvatar(fileName: string) {
 		if (fileName && fileName !== this.config.get('DEFAULT_AVATAR'))
 		{
-			fs.unlink(join(__dirname, '../../', this.config.get('PATH_AVATARS'), fileName), (err) => {
-				if (err)
-					console.log(err);
-			})
+			fs.unlink(join(__dirname, '../../', this.config.get('PATH_AVATARS'), fileName), (err) => {});
 		}
 	}
 
@@ -250,7 +255,7 @@ export class UserService {
 	}
 
 	/*
-	 * Set user status (online / offline)
+	 * Set user status (ingame)
 	*/
 	async setUserInGame(userId: number, isInGame: boolean): Promise<any> {
 		try {
@@ -265,6 +270,34 @@ export class UserService {
 			
 			delete user.hash;
 			return user;
+		}
+		catch (error) {
+			return (null);
+		}
+	}
+
+	async getUserStatus(userId: number): Promise<any> {
+		try {
+			let user: any = await this.prisma.user.findFirst({
+				where: {
+					id: userId
+				},
+				select: {
+					id: true,
+					nick: true,
+					avatarUri: true,
+					isOnline: true,
+					isInGame: true,
+				}
+			});
+
+			return {
+					userId: user.id,
+					nick: user.nick,
+					avatarUri: user.avatarUri,
+					isOnline: user.isOnline,
+					isInGame: user.isInGame,
+				};
 		}
 		catch (error) {
 			return (null);
@@ -328,6 +361,11 @@ export class UserService {
 
 		delete user.hash;
 		return user;
+	}
+
+	public async updateUserState(userId: number): Promise<void> {
+		const user = await this.getUserStatus(userId);
+		this.eventEmitter.emit(UserStateChangedEvent.name, new UserStateChangedEvent(user));
 	}
 }
 

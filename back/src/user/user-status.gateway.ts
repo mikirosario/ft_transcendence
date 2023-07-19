@@ -10,6 +10,8 @@ import { Server, Socket } from 'socket.io';
 import { ConfigService } from "@nestjs/config";
 import { UserService } from "./user.service";
 import { WebSocketService } from '../auth/websocket/websocket.service';
+import { OnEvent } from '@nestjs/event-emitter';
+import { UserStateChangedEvent } from './user.events';
 
 @WebSocketGateway(8081, {
 	cors: {
@@ -80,4 +82,10 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async sendSocketMessageToAll(eventName: string, data: any) {
 		this.server.emit(eventName, data);
 	}
+
+	@OnEvent(UserStateChangedEvent.name)
+	handleUserStateChanged(event: UserStateChangedEvent) {
+		this.sendSocketMessageToAll('UPDATE_USER', event.user);
+	}
+	
 }
