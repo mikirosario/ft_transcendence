@@ -42,8 +42,6 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
     const [isBlockedHovered, setIsBlockedHovered] = useState(-1);
 
 
-
-
     useEffect(() => {
 
             if (!socketUserStatus) return undefined;
@@ -55,20 +53,21 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
                     return { ...friend, avatarFile: imageUrl };
                 }));
                 setFriendList(friendsWithImages);
+                // console.log(friendList);
             };
 
             const handleFriendListNew = async (data: { friends: [], friend_requests: [] }) => {
                 const newFriendsList = data.friends;
                 const newRequestList = data.friend_requests;
 
-                console.log(newFriendsList);
+                // console.log(newFriendsList);
                 const friendsWithImages = await Promise.all(newFriendsList.map(async (friend: Friend) => {
                     const imageUrl = await getUserImage(friend.avatarUri);
                     return { ...friend, avatarFile: imageUrl };
                 }));
                 setFriendList(friendsWithImages);
 
-                console.log(newRequestList);
+                // console.log(newRequestList);
                 const friendsWithImages2 = await Promise.all(newRequestList.map(async (friend: Friend) => {
                     const imageUrl = await getUserImage(friend.avatarUri);
                     return { ...friend, avatarFile: imageUrl };
@@ -77,16 +76,21 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
             };
 
             const handleFriendListStatus = async (newFriend: Friend) => {
-                let i = -1;
-                friendList.forEach((friend, index) => {
-                    if (friend.userId === newFriend.userId)
-                        i = index;
+                // obtener la imagen del usuario primero
+                const avatarFile = await getUserImage(newFriend.avatarUri);
+                
+                // luego actualizar el estado
+                setFriendList((oldFriendList) => {
+                  const i = oldFriendList.findIndex(friend => friend.userId === newFriend.userId);
+                
+                  if (i === -1) return oldFriendList;
+                
+                  const updatedFriendList = [...oldFriendList]; // Crear una copia del antiguo friendList
+                  updatedFriendList[i] = {...newFriend, avatarFile}; // actualizar la información del amigo en la nueva lista
+              
+                  return updatedFriendList; // devolver la nueva lista
                 });
-                if (i === -1) return;
-                friendList[i] = newFriend;
-                friendList[i].avatarFile = await getUserImage(newFriend.avatarUri);
-                setFriendList([...friendList]);
-            }
+              };
 
             // FriendPetition Functions
             const fetchFriendPetition = async () => {
@@ -150,23 +154,22 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
             fetchFriends();
             socket?.on("FRIEND_REQUEST_ACCEPTED", handleFriendListNew);
             socketUserStatus?.on("UPDATE_USER", handleFriendListStatus);
-
+            
             fetchFriendPetition();
             socket?.on("FRIEND_REQUEST_NEW", handleFriendRequestNew);
             socket?.on("FRIEND_REQUEST_REJECTED", handleFriendRequestReject);
-
+            
             fetchBlockedUsers();
             socket?.on("UPDATE_FRIEND_LIST", handleFriendListUpdate);
             socket?.on("UPDATE_BLOCKED_LIST", handleBlockedListUpdate);
 
-
             // // Función de limpieza
             // return () => {
-            //     socket.off("FRIEND_REQUEST_ACCEPTED", handleFriendListNew);
-            //     socket.off("FRIENDLIST_STATUS", handleFriendListStatus);
-            //     socket.off("FRIEND_REQUEST_NEW", handleFriendRequestNew);
-            //     socket.off("FRIEND_REQUEST_REJECTED", handleFriendRequestReject);
-            //     socket.off("USER_BLOCK_LSIT", handleUserBlocks);
+            //     socket?.off("FRIEND_REQUEST_ACCEPTED", handleFriendListNew);
+            //     socket?.off("FRIENDLIST_STATUS", handleFriendListStatus);
+            //     socket?.off("FRIEND_REQUEST_NEW", handleFriendRequestNew);
+            //     socket?.off("FRIEND_REQUEST_REJECTED", handleFriendRequestReject);
+            //     socket?.off("USER_BLOCK_LSIT", handleBlockedListUpdate);
             // };
     }, [socket]);
 
