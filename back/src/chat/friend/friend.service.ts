@@ -18,6 +18,19 @@ export class FriendService {
 		if (user.id == friend.id)
 			ThrowHttpException(new BadRequestException, 'You are already your friend! :)');
 
+		/*
+			Check if user is blocked to avoid sending friend request
+		*/
+		let blockedUser = await this.prisma.chatBlockedUser.findFirst({
+			where: {
+				userId: friend.id,
+				otherUserId: user.id
+			}
+		});
+
+		if (blockedUser != null)
+			ThrowHttpException(new BadRequestException, 'Estás bloqueado');
+
 		try {
 			const otherFriendship = await this.getFriendship(friend.id, user.id);
 			await this.updateFriendship(otherFriendship.id, {accepted: true});
