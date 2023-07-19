@@ -41,7 +41,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
       };
 
       const handleChannelsList = async (newChannelList: []) => {
-        setChannelList(newChannelList)
+        setChannelList(newChannelList);
       };
 
       const handleKickCommand = async (channelId: number) => {
@@ -52,7 +52,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
       fetchChannels();
       socket?.on("UPDATE_CHANNELS_LIST", handleChannelsList);
       socket?.on("KICK_FROM_CHANNEL", handleKickCommand);
-  }, []);
+  }, [socket]);
 
 
   // ------------------- BUTTON CHANNELS STYLES ------------------------------
@@ -230,8 +230,10 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
         const resp = await joinChannel(joinChannelName, JoinChannelPassword);
         setCreateChannelName('');
         setCreateChannelPassword('');
-        openChat(resp.channelId);
-        handleNotification(resp.notif);
+        if (resp.channelId >= 0) {
+          openChat(resp.channelId);
+          handleNotification(resp.notif);
+        }
       } catch (error) {
         handleNotification("No se ha podido unir al canal");
       }

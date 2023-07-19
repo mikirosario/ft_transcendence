@@ -13,7 +13,7 @@ export async function getChannelList() {
         'Authorization': 'Bearer ' + localStorage.getItem('token'),
       },
     });
-    
+
     const { channels } = response.data;
     return channels;
   } catch (error) {
@@ -92,24 +92,30 @@ export async function createChannel(channelName: string, password: string) {
 // }
 
 export async function joinChannel(name: string, password: string) {
-  const response = await axios.post('/chat/channels/join', {
-    name: name,
-    password: password
-  }, {
-    responseType: 'json',
-    headers: {
-      'Authorization': 'Bearer ' + localStorage.getItem('token'),
-    },
-  });
+
+  try {
+    const response = await axios.post('/chat/channels/join', {
+      name: name,
+      password: password
+    }, {
+      responseType: 'json',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+      },
+    });
 
 
-  // Errores para el caso de contrasena incorrecta o el canal no existe?
-  if (response.status !== 200 && response.status !== 201) {
-    throw new Error('Request failed with status ' + response.status);
+    // Errores para el caso de contrasena incorrecta o el canal no existe?
+    if (response.status !== 200 && response.status !== 201) {
+      throw new Error('Request failed with status ' + response.status);
+    }
+
+    const { channelId } = response.data;
+    return { channelId: channelId, notif: "Has entrado al canal!" };
+  } catch (error) {
+    console.log('Error: Could not create the channel', error);
+    return { channelId: -1, notif: "No has podido entrar al canal" };
   }
-
-  const { channelId } = response.data;
-  return {channelId: channelId, notif: "Has entrado al canal!"};
 }
 
 export async function leaveChannel(id: number) {
