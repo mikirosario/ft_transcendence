@@ -138,7 +138,7 @@ export async function getBlockedUsers() {
 
 export async function unblockUser(friendName: string) {
     try {
-        const response = await axios.delete('chat/blocks', {
+        const response = await axios.delete('users/blocks', {
             data: { nick: friendName },
             responseType: 'json',
             headers: {

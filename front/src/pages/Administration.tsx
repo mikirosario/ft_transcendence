@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { IoMdSend } from 'react-icons/io';
+import HomeButton from "../components/B_Home";
 import { useNavigate } from 'react-router-dom';
 import NotificationContext from '../NotificationContext';
 
@@ -85,6 +86,7 @@ function Administration() {
 
     return (
         <div style={MessagesContainerStyle}>
+            <HomeButton></HomeButton>
             {/* <div key={index} style={MessageStyle}>
                 Aqui deberia ir un mapa para recorrer el historial de operaciones tal que devolver la lista de usuarios/admins/lista de canales si se desea
                 o en vez de usar el NotificationContext para anunciar los cambios, tambien se podria poner aqui

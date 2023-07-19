@@ -57,10 +57,14 @@ export async function getChatChannel(chatId: number) {
             },
         });
 
+        if (response.status !== 200 && response.status !== 201) {
+            throw new Error('Could not join the channel ' + response.status);
+        }
+
         return response.data;
 
     } catch (error) {
-        console.log('Error: Could not remove that friend', error);
+        console.log('Error: Could not join that channel', error);
         return [];
     }
 }

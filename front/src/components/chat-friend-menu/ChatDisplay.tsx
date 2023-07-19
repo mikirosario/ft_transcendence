@@ -81,6 +81,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                 setMessagesList(oldMessageList => [...oldMessageList, msg]);
             };
 
+
             fetchData();
             if (isFriendChat)
                 socket?.on("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
