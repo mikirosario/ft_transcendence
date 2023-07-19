@@ -50,10 +50,10 @@ export class ChatChannelUserService {
 	async leaveChannel(userId: number, dto: ChatChannelLeaveDto) {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.chatChannelService.getChannel(dto.id);
-		
-		const channelUser = await this.chatChannelService.getChannelUser(channel.id, user.id);
 
 		try {
+			const channelUser = await this.chatChannelService.getChannelUser(channel.id, user.id);
+			
 			await this.prisma.chatChannelUser.delete({
 				where: {
 					id: channelUser.id

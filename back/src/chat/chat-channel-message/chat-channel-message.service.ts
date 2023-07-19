@@ -24,15 +24,17 @@ export class ChatChannelMessageService {
 
 		await this.chatChannelService.getChannelUser(channel.id, user.id);
 
-		const response: any = await this.chatCommandsService.executeCommand(userId, dto);
+		if (await this.chatChannelService.isUserBanned(channel.id, user.id))
+			ThrowHttpException(new UnauthorizedException, 'Not authorized to send message, you are blocked from channel.');
+
+
+		const response: any = await this.chatCommandsService.executeCommand(userId, {isDirect: false, chat_id: dto.channel_id, message: dto.message});
 		if (response.commandExecuted == true)
 		{
 			delete response.commandExecuted;
 			return response;
 		}
 
-		if (await this.chatChannelService.isUserBanned(channel.id, user.id))
-			ThrowHttpException(new UnauthorizedException, 'Not authorized to send message, you are blocked from channel.');
 
 		if (await this.chatChannelService.isUserMuted(channel.id, user.id))
 			ThrowHttpException(new UnauthorizedException, 'Not authorized to send message, you are muted on channel.');
