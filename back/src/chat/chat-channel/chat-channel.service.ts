@@ -254,14 +254,21 @@ export class ChatChannelService {
 		const myChannelsList = myChannels.map(channel => channel.id);
 
 		const publicChannels = await this.getAllPublicChannels(myChannelsList);
-		const publicChannelsFormatted = this.formatChannelsList(publicChannels, false);
+		const publicChannelsFiltered = [];
+		for (const channel of publicChannels) {
+			if (!await this.isUserBanned(channel.id, userId)) {
+				publicChannelsFiltered.push(channel);
+			}
+		}
+		
+		const publicChannelsFormatted = this.formatChannelsList(publicChannelsFiltered, false);
 
 		const myChannelsAndPublicChannelsList = [...myChannelsFormatted, ...publicChannelsFormatted];
 
 		return myChannelsAndPublicChannelsList;
 	}
 
-	private async sendUpdatedChannelListToAllUsersWithSocket() {
+	async sendUpdatedChannelListToAllUsersWithSocket() {
 
 		const allUsers = await this.prisma.user.findMany({
 			include: {
