@@ -23,7 +23,8 @@ function Menu() {
   const [selectedButton, setSelectedButton] = useState(initialSelectedButton);
   const [isMenuExpanded, setIsMenuExpanded] = useState(initialIsMenuExpanded);
   const [isFriendChat, setIsFriendChat] = useState(false);
-  const [selectedChat, setSelectedChat] = useState<number | null>(null);
+  const [selectedChat, setSelectedChat] = useState<number>(0);
+  const selectedChatRef = useRef<number>(0);
 
   const [notifications, setNotifications] = useState<Array<{ id: number; content: string }>>([]);
   const [showNotification, setShowNotification] = useState(false);
@@ -34,7 +35,7 @@ function Menu() {
     navigate('/settings');
   };
 
-  const previousSelectedButton = useRef(selectedButton);  // inicializar la ref
+  const previousSelectedButton = useRef(selectedButton);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -51,7 +52,7 @@ function Menu() {
 
     if (selectedChat) {
       setSelectedButton('');
-    } else if (selectedChat === null && selectedButton === '' && previousSelectedButton.current) {
+    } else if (selectedChat === 0 && selectedButton === '' && previousSelectedButton.current) {
       setSelectedButton(previousSelectedButton.current);
     }
 
@@ -62,7 +63,7 @@ function Menu() {
   useEffect(() => {
 
     if (selectedButton !== '') {
-      setSelectedChat(null);
+      setSelectedChat(0);
     }
   }, [selectedButton]);
 
@@ -76,10 +77,6 @@ function Menu() {
       setShowNotification(false);
     }
   }, [notifications]);
-
-  // useEffect(() => {
-  //   handleNotification("¡Esta es una notificación inicial!");
-  // }, []);
 
   const MenuStyle: React.CSSProperties = {
     height: '100vh',
@@ -196,10 +193,10 @@ function Menu() {
   const openChat = (id: number, isFriend: boolean) => {
     if (id !== 0) {
       previousSelectedButton.current = selectedButton;
+      setSelectedChat(id);
+      selectedChatRef.current = id; // También actualizas el ref
     }
-    setSelectedChat(id !== 0 ? id : null);
     setIsFriendChat(isFriend);
-    console.log(selectedChat);
   };
 
   const handleNotification = (message: string) => {
@@ -244,7 +241,7 @@ function Menu() {
               {selectedChat ? (
                 <ChatDisplay selectedChat={selectedChat} setSelectedChat={setSelectedChat} isFriendChat={isFriendChat} />
               ) : (
-                selectedButton === 'friend' ? <FriendDisplay openChat={(id) => openChat(id, true)} /> : <ChannelDisplay openChat={(id) => openChat(id, false)} chatId={selectedChat} />
+                selectedButton === 'friend' ? <FriendDisplay openChat={(id) => openChat(id, true)} /> : <ChannelDisplay openChat={(id) => openChat(id, false)} />
               )}
             </div>
           </div>
