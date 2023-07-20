@@ -36,7 +36,7 @@ export class ChatChannelUserService {
 
 			this.ws.sendSocketMessageToUser(user.id, 'UPDATE_CHANNELS_LIST',
 					await this.chatChannelService.getMyChannelsAndPublicChannels(user.id));
-			await this.sendUpdatedUserListToAllUsersWithSocket(channel.id);
+			await this.sendUpdatedUserListToAllUsersWithSocket(channel.id, 'JOIN');
 
 			return newChannelUser;
 
@@ -59,7 +59,7 @@ export class ChatChannelUserService {
 					id: channelUser.id
 				}
 			});
-			await this.sendUpdatedUserListToAllUsersWithSocket(channel.id);
+			await this.sendUpdatedUserListToAllUsersWithSocket(channel.id, 'LEAVE');
 			this.ws.leaveRoom(userId, "channel_" + String(channel.id));
 
 			return channelUser;
@@ -117,7 +117,7 @@ export class ChatChannelUserService {
 		await this.leaveChannel(otherUser.id, {id: channel.id});
 	}
 
-	async sendUpdatedUserListToAllUsersWithSocket(channelId: number) {
+	async sendUpdatedUserListToAllUsersWithSocket(channelId: number, event: string) {
 
 		let channelChatInfo = await this.prisma.chatChannel.findFirst({
 			where: {
@@ -132,7 +132,7 @@ export class ChatChannelUserService {
 			}
 		});
 
-		this.ws.sendSocketMessageToRoom("channel_" + String(channelId), 'UPDATE_CHANNEL_USERS_LIST',
+		this.ws.sendSocketMessageToRoom("channel_" + String(channelId), 'UPDATE_CHANNEL_USERS_LIST_' + event,
 				this.formatChannelUsers(channelChatInfo.chatChannelUser));
 	}
 
