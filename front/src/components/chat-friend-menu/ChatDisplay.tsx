@@ -12,7 +12,7 @@ import { leaveChannel } from '../../requests/Channel.Service';
 
 interface ChatDisplayProps {
     selectedChat: number;
-    setSelectedChat: (chat: number | null) => void;
+    setSelectedChat: (chat: number) => void;
     isFriendChat: boolean;
 }
 
@@ -42,7 +42,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
 
     useEffect(() => {
         const fetchData = async () => {
-            if (selectedChat !== null) {
+            if (selectedChat !== 0) {
                 let result;
                 if (isFriendChat)
                     result = await getChatDirect(selectedChat);
@@ -236,7 +236,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
     };
 
     const handleSend = async () => {
-        if (selectedChat !== null) {
+        if (selectedChat !== 0) {
             if (message.trim() != '') {
                 if (isFriendChat) {
                     const resp = await sendDirectMessage(selectedChat, message);
@@ -258,12 +258,12 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
             handleNotification('Has salido del canal')
         else
             handleNotification('No se ha podido salir del canal, puede que ya no exista!')
-        setSelectedChat(null)
+        setSelectedChat(0)
     }
 
     return (
         <div style={ChatWrapper}>
-            <button style={BackArrowStyle} onClick={() => setSelectedChat(null)}>
+            <button style={BackArrowStyle} onClick={() => setSelectedChat(0)}>
                 <IoMdArrowRoundBack size={26} color='grey' />
             </button>
 

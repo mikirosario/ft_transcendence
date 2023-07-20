@@ -11,7 +11,7 @@ interface Channel {
   imInside: boolean
 }
 
-function ChannelDisplay({ openChat, chatId }: { openChat: (chatId: number) => void; chatId: number | null }) {
+function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }) {
   const socket = useContext(SocketContext1);
 
   const { handleNotification } = useContext(NotificationContext);
@@ -44,11 +44,11 @@ function ChannelDisplay({ openChat, chatId }: { openChat: (chatId: number) => vo
         setChannelList(newChannelList);
       };
 
-      const handleKickCommand = async (channelId: number) => {
-        handleNotification('Te han echado/baneado del canal ' + channelList.find(channel => channel.id === channelId)?.name);
-        console.log(chatId);
-        console.log(channelId);
-        if (chatId === channelId)
+      const handleKickCommand = async (data: {channelId: number}) => {
+        handleNotification('Te han echado/baneado del canal' );
+        // console.log(selectedChat);
+        // console.log(data.channelId);
+        // if (selectedChat === data.channelId) FIX
           openChat(0);
       }
 
