@@ -47,6 +47,8 @@ export class ChatChannelBannedUserService {
 				this.chatChannelUserService.leaveChannel(victim.id, {id: channel.id});
 			}
 
+			this.chatChannelService.sendUpdatedChannelListToAllUsersWithSocket();
+
 			return bannedUser;
 
 		} catch (error) {
