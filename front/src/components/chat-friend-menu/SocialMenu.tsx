@@ -199,6 +199,7 @@ function Menu() {
     }
     setSelectedChat(id !== 0 ? id : null);
     setIsFriendChat(isFriend);
+    console.log(selectedChat);
   };
 
   const handleNotification = (message: string) => {
@@ -243,7 +244,7 @@ function Menu() {
               {selectedChat ? (
                 <ChatDisplay selectedChat={selectedChat} setSelectedChat={setSelectedChat} isFriendChat={isFriendChat} />
               ) : (
-                selectedButton === 'friend' ? <FriendDisplay openChat={(id) => openChat(id, true)} /> : <ChannelDisplay openChat={(id) => openChat(id, false)} />
+                selectedButton === 'friend' ? <FriendDisplay openChat={(id) => openChat(id, true)} /> : <ChannelDisplay openChat={(id) => openChat(id, false)} chatId={selectedChat} />
               )}
             </div>
           </div>

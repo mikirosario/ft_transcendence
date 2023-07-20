@@ -171,7 +171,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
             //     socket?.off("FRIEND_REQUEST_REJECTED", handleFriendRequestReject);
             //     socket?.off("USER_BLOCK_LSIT", handleBlockedListUpdate);
             // };
-    }, [socket]);
+    }, [socket, socketUserStatus]);
 
     useEffect(() => {
         localStorage.setItem("showFriends", String(showFriends));

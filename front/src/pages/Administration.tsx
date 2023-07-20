@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { IoMdSend } from 'react-icons/io';
 import HomeButton from "../components/B_Home";
+import SocialMenu from "../components/chat-friend-menu/SocialMenu";
 import { useNavigate } from 'react-router-dom';
 import NotificationContext from '../NotificationContext';
 
@@ -11,16 +12,24 @@ interface Message {
 };
 
 function Administration() {
-    const { handleNotification } = useContext(NotificationContext);
+    // const { handleNotification } = useContext(NotificationContext);
     const [messagesList, setMessagesList] = useState<Message[]>([]);
     const [message, setMessage] = useState('');
+
+
+    const Window: React.CSSProperties = {
+        height: '100%',
+        display: 'flex',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+    }
 
     const TextAreaWrapperStyle: React.CSSProperties = {
         position: 'absolute',
         bottom: '6%',
-        left: '50%',
+        left: '45%',
         transform: 'translate(-50%, 0)',
-        width: '90%',
+        width: '60%',
         borderRadius: '15px',
         overflow: 'hidden',
     };
@@ -42,8 +51,8 @@ function Administration() {
 
     const SendButtonStyle: React.CSSProperties = {
         position: 'absolute',
-        right: '190px',
-        bottom: '7.5%',
+        right: '120px',
+        bottom: '8%',
         background: 'transparent',
         border: 'none',
         color: 'gray',
@@ -85,28 +94,31 @@ function Administration() {
     }
 
     return (
-        <div style={MessagesContainerStyle}>
+        <div style={Window}>
             <HomeButton></HomeButton>
-            {/* <div key={index} style={MessageStyle}>
+            <SocialMenu></SocialMenu>
+            <div style={MessagesContainerStyle}>
+                {/* <div key={index} style={MessageStyle}>
                 Aqui deberia ir un mapa para recorrer el historial de operaciones tal que devolver la lista de usuarios/admins/lista de canales si se desea
                 o en vez de usar el NotificationContext para anunciar los cambios, tambien se podria poner aqui
             </div> */}
-            <div style={TextAreaWrapperStyle}>
-                <textarea
-                    style={MessageInputStyle}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Escribe un mensaje"
-                    onKeyPress={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSend();
-                        }
-                    }}
-                />
-                <button style={SendButtonStyle} onClick={handleSend}>
-                    <IoMdSend size={26} />
-                </button>
+                <div style={TextAreaWrapperStyle}>
+                    <textarea
+                        style={MessageInputStyle}
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder="Escribe un mensaje"
+                        onKeyPress={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSend();
+                            }
+                        }}
+                    />
+                    <button style={SendButtonStyle} onClick={handleSend}>
+                        <IoMdSend size={26} />
+                    </button>
+                </div>
             </div>
         </div>
 

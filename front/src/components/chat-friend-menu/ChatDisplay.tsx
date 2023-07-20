@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { IoMdArrowRoundBack, IoMdSend } from 'react-icons/io';
+import { FaSignOutAlt } from 'react-icons/fa';
 import { getChatDirect, sendDirectMessage, getChatChannel, sendChannelMessage } from '../../requests/Chat.Service';
 import { getUserImage } from "../../requests/User.Service";
 import { SocketContext1 } from '../../SocketContext';
 import NotificationContext from '../../NotificationContext';
+import { leaveChannel } from '../../requests/Channel.Service';
 
 //Opcion de usuario
 
@@ -35,69 +37,85 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
 
     const [messagesList, setMessagesList] = useState<Message[]>([]);
     const [usersMap, setUsersMap] = useState<{ [id: string]: User }>({});
+    const [userInChannelsMap, setUserInChannelsMap] = useState<{ [id: string]: User }>({});
     const [message, setMessage] = useState('');
 
     useEffect(() => {
-            const fetchData = async () => {
-                if (selectedChat !== null) {
-                    let result;
-                    if (isFriendChat)
-                        result = await getChatDirect(selectedChat);
-                    else
-                        result = await getChatChannel(selectedChat);
-                    if (result && result.members && result.messages) {
-                        const { members, messages } = result;
-                        const usersWithImages = await Promise.all(members.map(async (user: User) => {
-                            const imageUrl = await getUserImage(user.avatarUri);
-                            return { ...user, avatarFile: imageUrl ?? '' };
-                        }));
-                        setMessagesList(messages);
-                        const usersMap = usersWithImages.reduce((acc, currUser) => {
-                            acc[currUser.nick] = currUser;
-                            return acc;
-                        }, {} as { [key: string]: User });
-                        setUsersMap(usersMap);
-                    }
+        const fetchData = async () => {
+            if (selectedChat !== null) {
+                let result;
+                if (isFriendChat)
+                    result = await getChatDirect(selectedChat);
+                else
+                    result = await getChatChannel(selectedChat);
+                if (result && result.members && result.messages) {
+                    const { members, messages } = result;
+                    const usersWithImages = await Promise.all(members.map(async (user: User) => {
+                        const imageUrl = await getUserImage(user.avatarUri);
+                        return { ...user, avatarFile: imageUrl ?? '' };
+                    }));
+                    setMessagesList(messages);
+                    const usersMap = usersWithImages.reduce((acc, currUser) => {
+                        acc[currUser.nick] = currUser;
+                        return acc;
+                    }, {} as { [key: string]: User });
+                    setUsersMap(usersMap);
+                    setUserInChannelsMap(usersMap);
                 }
-            };
-
-            const handleNewDirectMessages = async (msg: Message) => {
-                setMessagesList(oldMessageList => [...oldMessageList, msg]);
-            };
-
-            const handleUpdateChannel = async (newUserList: []) => {
-                const usersWithImages = await Promise.all(newUserList.map(async (user: User) => {
-                    const imageUrl = await getUserImage(user.avatarUri);
-                    return { ...user, avatarFile: imageUrl ?? '' };
-                }));
-                const usersMap = usersWithImages.reduce((acc, currUser) => {
-                    acc[currUser.nick] = currUser;
-                    return acc;
-                }, {} as { [key: string]: User });
-                setUsersMap(usersMap);
             }
+        };
 
-            const handleNewChannelMessages = async (msg: Message) => {
-                setMessagesList(oldMessageList => [...oldMessageList, msg]);
-            };
+        const handleNewDirectMessages = async (msg: Message) => {
+            setMessagesList(oldMessageList => [...oldMessageList, msg]);
+        };
+
+        const handleUpdateChannelJoin = async (newUserList: []) => {
+            const usersWithImages = await Promise.all(newUserList.map(async (user: User) => {
+                const imageUrl = await getUserImage(user.avatarUri);
+                return { ...user, avatarFile: imageUrl ?? '' };
+            }));
+            const usersMap = usersWithImages.reduce((acc, currUser) => {
+                acc[currUser.nick] = currUser;
+                return acc;
+            }, {} as { [key: string]: User });
+            setUsersMap(usersMap);
+            setUserInChannelsMap(usersMap);
+        }
+
+        const handleUpdateChannelLeave = async (newUserList: []) => {
+            const usersWithImages = await Promise.all(newUserList.map(async (user: User) => {
+                const imageUrl = await getUserImage(user.avatarUri);
+                return { ...user, avatarFile: imageUrl ?? '' };
+            }));
+            const usersMap = usersWithImages.reduce((acc, currUser) => {
+                acc[currUser.nick] = currUser;
+                return acc;
+            }, {} as { [key: string]: User });
+            setUserInChannelsMap(usersMap);
+        }
+
+        const handleNewChannelMessages = async (msg: Message) => {
+            setMessagesList(oldMessageList => [...oldMessageList, msg]);
+        };
 
 
-            fetchData();
-            if (isFriendChat)
-                socket?.on("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
-            else {
-                socket?.on("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
-                socket?.on("UPDATE_CHANNEL_USERS_LIST", handleUpdateChannel);
-            }
+        fetchData();
+        if (isFriendChat)
+            socket?.on("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
+        else {
+            socket?.on("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
+            socket?.on("UPDATE_CHANNEL_USERS_LIST_JOIN", handleUpdateChannelJoin);
+            socket?.on("UPDATE_CHANNEL_USERS_LIST_LEAVE", handleUpdateChannelLeave);
+        }
 
-            // return () => {
-            //     if (isFriendChat) {
-            //         socket.off("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
-            //     } else {
-            //         socket.off("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
-            //         socket.off("UPDATE_CHANNEL_USERS_LIST", handleUpdateChannel);
-            //     }
-            // };
+        // return () => {
+        //     if (isFriendChat) {
+        //         socket.off("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
+        //     } else {
+        //         socket.off("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
+        //         socket.off("UPDATE_CHANNEL_USERS_LIST", handleUpdateChannel);
+        //     }
+        // };
     }, [selectedChat, socket]);
 
     const ChatWrapper: React.CSSProperties = {
@@ -115,6 +133,16 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         background: 'transparent',
         border: 'none'
     }
+
+    const LeaveIconStyle: React.CSSProperties = {
+        top: '1%',
+        left: '78%',
+        position: 'relative',
+        cursor: 'pointer',
+        background: 'transparent',
+        border: 'none'
+    }
+
     const TextAreaWrapperStyle: React.CSSProperties = {
         position: 'absolute',
         bottom: '6%',
@@ -224,11 +252,26 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         }
     }
 
+    const leaveChatChannel = async () => {
+        const resp = await leaveChannel(selectedChat);
+        if (resp)
+            handleNotification('Has salido del canal')
+        else
+            handleNotification('No se ha podido salir del canal, puede que ya no exista!')
+        setSelectedChat(null)
+    }
+
     return (
         <div style={ChatWrapper}>
             <button style={BackArrowStyle} onClick={() => setSelectedChat(null)}>
                 <IoMdArrowRoundBack size={26} color='grey' />
             </button>
+
+            {!isFriendChat &&
+                <button style={LeaveIconStyle} onClick={leaveChatChannel}>
+                    <FaSignOutAlt size={26} color='grey' />
+                </button>
+            }
             <div style={MessagesContainerStyle}>
                 {[...messagesList].reverse().map((messageItem, index) => {
                     const user = usersMap[messageItem.sender];
