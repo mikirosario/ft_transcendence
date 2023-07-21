@@ -8,8 +8,6 @@ import { SocketContext1 } from '../../SocketContext';
 import NotificationContext from '../../NotificationContext';
 import { leaveChannel } from '../../requests/Channel.Service';
 
-//Opcion de usuario
-
 interface ChatDisplayProps {
     selectedChat: number;
     setSelectedChat: (chat: number) => void;
@@ -22,6 +20,7 @@ interface Message {
     avatarUri: string
     sentAt: string,
     message: string,
+    isAdmin: string;
     avatarFile?: string;
 };
 
@@ -340,7 +339,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                                     e.stopPropagation();
                                 }}
                             />
-                            <div style={MessageInfoStyle}>
+                            <div style={{ ...UserNameStyle, color: messageItem.isAdmin ? 'red' : UserNameStyle.color }}>
                                 <span
                                     style={UserNameStyle}
                                     // as={Link}
