@@ -61,7 +61,9 @@ export class ChatChannelMessageService {
 				const blockedUserIds: number[] = await this.chatBlockedUserService.getMyBlockedUsersIdList(userId);
 				if (!blockedUserIds.includes(user.id)) {
 					this.ws.sendSocketMessageToUser(userId, 'NEW_CHANNEL_MESSAGE', {
+						userId: userId,
 						sender: user.nick,
+						avatarUri: user.avatarUri,
 						sentAt: newMessage.sentAt,
 						message: newMessage.message,
 					});
