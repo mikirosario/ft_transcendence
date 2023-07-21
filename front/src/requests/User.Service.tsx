@@ -43,6 +43,8 @@ export async function getUserProfile() {
     }
 
     const fetchedName = response.data.nick;
+    const fetchedAdminSite = response.data.isSiteAdmin;
+    const fetchedOwnerSite = response.data.isSiteOwner;
     let fetchedImage = response.data.avatarUri;
 
     let imageResponse;
@@ -78,7 +80,7 @@ export async function getUserProfile() {
 
     const imageURL = URL.createObjectURL(imageResponse.data);
 
-    return { username: fetchedName, userImage: imageURL };
+    return { username: fetchedName, userImage: imageURL, siteAdmin: fetchedAdminSite };
 }
 
 export async function deleteAvatarProfile() {

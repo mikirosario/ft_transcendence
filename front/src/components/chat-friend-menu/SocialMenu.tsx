@@ -4,7 +4,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { getUserProfile } from '../../requests/User.Service';
 import FriendDisplay from "./FriendDisplay";
 import ChannelDisplay from "./ChannelDisplay"
-import { FaAngleRight, FaAngleLeft } from 'react-icons/fa'; // SOLID ARROW
+import { FaAngleRight, FaAngleLeft, FaCrown } from 'react-icons/fa'; // SOLID ARROW
 import ChatDisplay from "./ChatDisplay";
 import { SocketContext1 } from '../../SocketContext';
 import NotificationContext from '../../NotificationContext';
@@ -20,6 +20,8 @@ function Menu() {
 
   const [username, setUsername] = useState('');
   const [userImage, setUserImage] = useState<string>('');
+  const [isSiteAdmin, setIsSiteAdmin] = useState(false);
+  const [isSiteOwner, setIsSiteOwner] = useState(false);
   const [selectedButton, setSelectedButton] = useState(initialSelectedButton);
   const [isMenuExpanded, setIsMenuExpanded] = useState(initialIsMenuExpanded);
   const [isFriendChat, setIsFriendChat] = useState(false);
@@ -35,6 +37,10 @@ function Menu() {
     navigate('/settings');
   };
 
+  const administrationLink= () => {
+    navigate('/administration');
+  };
+
   const previousSelectedButton = useRef(selectedButton);
 
   useEffect(() => {
@@ -43,7 +49,9 @@ function Menu() {
         const userProfile = await getUserProfile();
         setUsername(userProfile.username);
         setUserImage(userProfile.userImage);
+        setIsSiteAdmin(userProfile.siteAdmin);
       } catch (error) {
+        console.log("error");
         localStorage.removeItem('token'); // No te lleva en un solo reload
         navigate('/');
       }
@@ -56,9 +64,10 @@ function Menu() {
       setSelectedButton(previousSelectedButton.current);
     }
 
-
     fetchUserProfile();
   }, [socket, selectedChat]);
+
+
 
   useEffect(() => {
 
@@ -96,6 +105,16 @@ function Menu() {
     width: '75%',
     top: '4%',
     left: '12%',
+    position: 'absolute',
+    cursor: 'pointer',
+    // borderRadius: '25%',
+  };
+
+  const CrownIconStyle: React.CSSProperties = {
+    border: 'none',
+    background: 'none',
+    top: '0.5%',
+    left: '20%',
     position: 'absolute',
     cursor: 'pointer',
     borderRadius: '25%',
@@ -233,6 +252,9 @@ function Menu() {
         }}>
           <button style={ProfileButtonStyle} onClick={nickProfileLink}>
             <UserProfile image={userImage} name={username}></UserProfile>
+          </button>
+          <button style={CrownIconStyle} onClick={administrationLink}>
+            <FaCrown color="gold" size={30}/>
           </button>
           <div>
             <button style={FriendButtonStyle} onClick={handleFriendButtonClick}>
