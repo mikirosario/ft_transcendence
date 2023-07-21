@@ -38,7 +38,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
     const { handleNotification } = useContext(NotificationContext);
 
     const [messagesList, setMessagesList] = useState<Message[]>([]);
-    const [usersMap, setUsersMap] = useState<Message[]>([]);
+    const [usersMap, setUsersMap] = useState<User[]>([]);
     const [message, setMessage] = useState('');
     const [showCommands, setShowCommands] = useState(false);
 
