@@ -352,7 +352,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
       </div>
       {/* Channel List */}
       <div style={friendsListStyle}>
-        {channelList.map((channel, index) => (
+        {channelList && channelList.map((channel, index) => (
           <button
             key={index}
             style={friendContainerStyle}
