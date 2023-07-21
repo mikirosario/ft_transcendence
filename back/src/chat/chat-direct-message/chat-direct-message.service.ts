@@ -49,7 +49,9 @@ export class ChatDirectMessageService {
 			});
 
 			this.ws.sendSocketMessageToRoom("direct_" + String(directChat.id), 'NEW_DIRECT_MESSAGE', {
+				userId: user1.id,
 				sender: user1.nick,
+				avatarUri: user1.avatarUri,
 				sentAt: newMessage.sentAt,
 				message: newMessage.message,
 			});
@@ -122,7 +124,9 @@ export class ChatDirectMessageService {
 				include: {
 				  user: {
 					select: {
-					  nick: true
+						id: true,
+						nick: true,
+						avatarUri: true
 					}
 				  },
 				}
@@ -148,7 +152,9 @@ export class ChatDirectMessageService {
 		// Reestructuración de los datos para coincidir con el formato de JSON deseado
 		let messages = directChat.chatDirectMessageDirect.map(message => {
 			return {
+				userId: message.user.id,
 				sender: message.user.nick,
+				avatarUri: message.user.avatarUri,
 				sentAt: message.sentAt,
 				message: message.message,
 			}
