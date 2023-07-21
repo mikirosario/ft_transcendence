@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { IoMdArrowRoundBack, IoMdSend } from 'react-icons/io';
-import { FaSignOutAlt } from 'react-icons/fa';
+import { FaSignOutAlt, FaInfoCircle } from 'react-icons/fa';
 import { getChatDirect, sendDirectMessage, getChatChannel, sendChannelMessage } from '../../requests/Chat.Service';
 import { getUserImage } from "../../requests/User.Service";
 import { SocketContext1 } from '../../SocketContext';
@@ -136,7 +136,16 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
 
     const LeaveIconStyle: React.CSSProperties = {
         top: '1%',
-        left: '78%',
+        left: '66%',
+        position: 'relative',
+        cursor: 'pointer',
+        background: 'transparent',
+        border: 'none'
+    }
+
+    const InfoCommandsIconStyle: React.CSSProperties = {
+        top: '1%',
+        left: '62.5%',
         position: 'relative',
         cursor: 'pointer',
         background: 'transparent',
@@ -264,9 +273,12 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
     return (
         <div style={ChatWrapper}>
             <button style={BackArrowStyle} onClick={() => setSelectedChat(0)}>
-                <IoMdArrowRoundBack size={26} color='grey' />
+                <IoMdArrowRoundBack size={27} color='grey' />
             </button>
 
+            <button style={InfoCommandsIconStyle} >
+                <FaInfoCircle size={24} color='grey' />
+            </button>
             {!isFriendChat &&
                 <button style={LeaveIconStyle} onClick={leaveChatChannel}>
                     <FaSignOutAlt size={26} color='grey' />

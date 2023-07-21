@@ -24,7 +24,7 @@ function Menu() {
   const [isMenuExpanded, setIsMenuExpanded] = useState(initialIsMenuExpanded);
   const [isFriendChat, setIsFriendChat] = useState(false);
   const [selectedChat, setSelectedChat] = useState<number>(0);
-  const selectedChatRef = useRef<number>(0);
+  // const selectedChatRef = useRef<number>(0);
 
   const [notifications, setNotifications] = useState<Array<{ id: number; content: string }>>([]);
   const [showNotification, setShowNotification] = useState(false);
@@ -193,8 +193,11 @@ function Menu() {
   const openChat = (id: number, isFriend: boolean) => {
     if (id !== 0) {
       previousSelectedButton.current = selectedButton;
-      setSelectedChat(id);
-      selectedChatRef.current = id; // También actualizas el ref
+      if (id === selectedChat)    //---CHECK
+        setSelectedChat(0);
+      else
+        setSelectedChat(id);
+      // selectedChatRef.current = id; // También actualizas el ref
     }
     setIsFriendChat(isFriend);
   };
