@@ -100,17 +100,19 @@ export class UserService {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				id: userId,
+			},
+			select: {
+				nick: true,
+				avatarUri: true,
+				isSiteOwner: true,
+				isSiteAdmin: true
 			}
 		});
 		if (user === null) {
 			ThrowHttpException(new NotFoundException, 'User not found');
 		}
-
-		let profile = new UserProfileDto;
-		profile.nick = user.nick;
-		profile.avatarUri = user.avatarUri;
 		
-		return profile;
+		return user;
 	}
 
 	/*
