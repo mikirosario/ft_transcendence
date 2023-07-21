@@ -17,16 +17,18 @@ interface ChatDisplayProps {
 }
 
 interface Message {
+    userId: number;
     sender: string,
+    avatarUri: string
     sentAt: string,
     message: string,
+    avatarFile?: string;
 };
 
 interface User {
     userId: number;
     nick: string;
     avatarUri: string;
-    avatarFile?: string;
 }
 
 
@@ -36,9 +38,13 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
     const { handleNotification } = useContext(NotificationContext);
 
     const [messagesList, setMessagesList] = useState<Message[]>([]);
-    const [usersMap, setUsersMap] = useState<{ [id: string]: User }>({});
-    const [userInChannelsMap, setUserInChannelsMap] = useState<{ [id: string]: User }>({});
+    const [usersMap, setUsersMap] = useState<Message[]>([]);
     const [message, setMessage] = useState('');
+    const [showCommands, setShowCommands] = useState(false);
+
+    const toggleCommands = () => {
+        setShowCommands(!showCommands);
+    }
 
     useEffect(() => {
         const fetchData = async () => {
@@ -50,54 +56,42 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     result = await getChatChannel(selectedChat);
                 if (result && result.members && result.messages) {
                     const { members, messages } = result;
-                    const usersWithImages = await Promise.all(members.map(async (user: User) => {
-                        const imageUrl = await getUserImage(user.avatarUri);
-                        return { ...user, avatarFile: imageUrl ?? '' };
+                    setUsersMap(members);
+                    const messagesWithImages = await Promise.all(messages.map(async (msg: Message) => {
+                        const imageUrl = await getUserImage(msg.avatarUri);
+                        return { ...msg, avatarFile: imageUrl ?? '' };
                     }));
-                    setMessagesList(messages);
-                    const usersMap = usersWithImages.reduce((acc, currUser) => {
-                        acc[currUser.nick] = currUser;
-                        return acc;
-                    }, {} as { [key: string]: User });
-                    setUsersMap(usersMap);
-                    setUserInChannelsMap(usersMap);
+                    setMessagesList(messagesWithImages);
                 }
             }
         };
 
         const handleNewDirectMessages = async (msg: Message) => {
+            const imageUrl = await getUserImage(msg.avatarUri);
+            msg.avatarFile = imageUrl ? imageUrl : '';
+            setMessagesList(oldMessageList => [...oldMessageList, msg]);
+        };
+
+        const handleNewChannelMessages = async (msg: Message) => {
+            const imageUrl = await getUserImage(msg.avatarUri);
+            msg.avatarFile = imageUrl ? imageUrl : '';
             setMessagesList(oldMessageList => [...oldMessageList, msg]);
         };
 
         const handleUpdateChannelJoin = async (newUserList: []) => {
-            const usersWithImages = await Promise.all(newUserList.map(async (user: User) => {
-                const imageUrl = await getUserImage(user.avatarUri);
-                return { ...user, avatarFile: imageUrl ?? '' };
-            }));
-            const usersMap = usersWithImages.reduce((acc, currUser) => {
-                acc[currUser.nick] = currUser;
-                return acc;
-            }, {} as { [key: string]: User });
-            setUsersMap(usersMap);
-            setUserInChannelsMap(usersMap);
+            setUsersMap(newUserList);
         }
 
-        const handleUpdateChannelLeave = async (newUserList: []) => {
-            const usersWithImages = await Promise.all(newUserList.map(async (user: User) => {
-                const imageUrl = await getUserImage(user.avatarUri);
-                return { ...user, avatarFile: imageUrl ?? '' };
-            }));
-            const usersMap = usersWithImages.reduce((acc, currUser) => {
-                acc[currUser.nick] = currUser;
-                return acc;
-            }, {} as { [key: string]: User });
-            setUserInChannelsMap(usersMap);
+        // const handleUpdateChannelLeave = async (newUserList: []) => {
+        //     setUsersMap(newUserList);
+        // }
+
+
+        const handleKickCommand = async (data: { channelId: number }) => {
+            handleNotification('Te han echado/baneado del canal');
+            if (selectedChat === data.channelId)
+                setSelectedChat(0);
         }
-
-        const handleNewChannelMessages = async (msg: Message) => {
-            setMessagesList(oldMessageList => [...oldMessageList, msg]);
-        };
-
 
         fetchData();
         if (isFriendChat)
@@ -105,7 +99,8 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         else {
             socket?.on("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
             socket?.on("UPDATE_CHANNEL_USERS_LIST_JOIN", handleUpdateChannelJoin);
-            socket?.on("UPDATE_CHANNEL_USERS_LIST_LEAVE", handleUpdateChannelLeave);
+            socket?.on("UPDATE_CHANNEL_USERS_LIST_LEAVE", handleUpdateChannelJoin);
+            socket?.on("KICK_FROM_CHANNEL", handleKickCommand);
         }
 
         // return () => {
@@ -151,6 +146,29 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         background: 'transparent',
         border: 'none'
     }
+
+    const HelpCommandPopUpStyle: React.CSSProperties = {
+        position: 'absolute',
+        top: '21.5%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        background: 'rgba(185, 180, 195, 0.9)',
+        border: '1px solid #000',
+        borderRadius: '10px',
+        padding: '5px',
+        width: '300px',
+        zIndex: '1000'
+    };
+
+    const CloseButtonStyle: React.CSSProperties = {
+        position: 'absolute',
+        top: '5px',
+        right: '8px',
+        background: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        fontSize: '18px'
+    };
 
     const TextAreaWrapperStyle: React.CSSProperties = {
         position: 'absolute',
@@ -276,9 +294,32 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                 <IoMdArrowRoundBack size={27} color='grey' />
             </button>
 
-            <button style={InfoCommandsIconStyle} >
+            <button style={InfoCommandsIconStyle} onClick={toggleCommands}>
                 <FaInfoCircle size={24} color='grey' />
             </button>
+
+            {showCommands && (
+                <div style={HelpCommandPopUpStyle}>
+                    <h2>Lista de Comandos</h2>
+                    <button style={CloseButtonStyle} onClick={toggleCommands}>X</button>
+                    <ul>
+                        {isFriendChat ? (
+                            <>
+                                <li style={{ fontSize: '14px' }}>/duel: Reta a un usuario a un Pong</li>
+                                <li style={{ fontSize: '14px' }}>/spectate' Comienza a observar la partida de un usuario</li>
+                                <li style={{ fontSize: '14px' }}>/block: Bloquea a un usuario</li>
+                            </>
+                        ) : (
+
+                            <li style={{ fontSize: '14px' }}>/block: Bloquea a un usuario</li>
+                        )
+
+                        }
+                    </ul>
+                </div>
+            )}
+
+
             {!isFriendChat &&
                 <button style={LeaveIconStyle} onClick={leaveChatChannel}>
                     <FaSignOutAlt size={26} color='grey' />
@@ -286,12 +327,12 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
             }
             <div style={MessagesContainerStyle}>
                 {[...messagesList].reverse().map((messageItem, index) => {
-                    const user = usersMap[messageItem.sender];
+                    // const user = usersMap[messageItem.sender];
                     return (
                         <div key={index} style={MessageStyle}>
                             <img
-                                src={usersMap[user?.nick]?.avatarFile}
-                                alt={user?.nick}
+                                src={messageItem.avatarFile}
+                                alt={messageItem.sender}
                                 style={UserImageStyle}
                                 // as={Link}
                                 // to="/settings"       CHANGE TO USER PROFILEPAGE
