@@ -87,5 +87,4 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	handleUserStateChanged(event: UserStateChangedEvent) {
 		this.sendSocketMessageToAll('UPDATE_USER', event.user);
 	}
-	
 }

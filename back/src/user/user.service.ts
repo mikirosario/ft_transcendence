@@ -7,7 +7,7 @@ import { ConfigService } from "@nestjs/config";
 import { join } from 'path';
 import * as fs from 'fs';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { UserStateChangedEvent } from './user.events';
+import { UserStateChangedEvent, SelfUserStateChangedEvent } from './user.events';
 import { use } from 'passport';
 
 
@@ -55,7 +55,19 @@ export class UserService {
 				data: {
 					...dto,
 				},
+				select: {
+					id: true,
+					nick: true,
+					avatarUri: true,
+					isOnline: true,
+					isInGame: true,
+					isSiteOwner: true,
+					isSiteAdmin: true,
+					isBanned: true,
+				}
 			});
+			
+			await this.updateStateToUser(user);
 		}
 		catch (error) {
 			ThrowHttpException(new BadRequestException, 'Usuario no encontrado');
@@ -147,7 +159,7 @@ export class UserService {
 				},
 			});
 
-			this.updateUserState(userId);
+			await this.updateUserStateToAll(userId);
 
 			if (prevAvatar && prevAvatar !== fileName)
 			{
@@ -191,7 +203,7 @@ export class UserService {
 				},
 			});
 
-			this.updateUserState(userId);
+			await this.updateUserStateToAll(userId);
 
 			this.removeAvatar(avatar);
 
@@ -271,7 +283,7 @@ export class UserService {
 		}
 	}
 
-	async getUserStatus(userId: number): Promise<any> {
+	async getUserStatusFriendList(userId: number): Promise<any> {
 		try {
 			let user: any = await this.prisma.user.findFirst({
 				where: {
@@ -292,6 +304,24 @@ export class UserService {
 					avatarUri: user.avatarUri,
 					isOnline: user.isOnline,
 					isInGame: user.isInGame,
+				};
+		}
+		catch (error) {
+			return (null);
+		}
+	}
+
+	async getUserStatus(user: any): Promise<any> {
+		try {
+			return {
+					userId: user.id,
+					nick: user.nick,
+					avatarUri: user.avatarUri,
+					isOnline: user.isOnline,
+					isInGame: user.isInGame,
+					isSiteOwner: user.isSiteOwner,
+					isSiteAdmin: user.isSiteAdmin,
+					isBanned: user.isBanned
 				};
 		}
 		catch (error) {
@@ -358,9 +388,18 @@ export class UserService {
 		return user;
 	}
 
-	public async updateUserState(userId: number): Promise<void> {
+	public async updateUserStateToAll(userId: number): Promise<void> {
+		const user = await this.getUserStatusFriendList(userId);
+
+		if (user)
+			this.eventEmitter.emit(UserStateChangedEvent.name, new UserStateChangedEvent(user));
+	}
+
+	public async updateStateToUser(userId: any): Promise<void> {
 		const user = await this.getUserStatus(userId);
-		this.eventEmitter.emit(UserStateChangedEvent.name, new UserStateChangedEvent(user));
+		
+		if (user)
+			this.eventEmitter.emit(SelfUserStateChangedEvent.name, new SelfUserStateChangedEvent(user));
 	}
 }
 
