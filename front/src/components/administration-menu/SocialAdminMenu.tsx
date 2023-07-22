@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import UserProfile from "../chat-friend-menu/ProfileDisplay";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useLocation } from "react-router-dom";
 import { getUserProfile } from '../../requests/User.Service';
 import ChannelDisplay from "./ChannelAdminDisplay"
 import { FaAngleRight, FaAngleLeft, FaCrown } from 'react-icons/fa'; // SOLID ARROW
@@ -30,17 +30,14 @@ function AdminMenu() {
   const [showNotification, setShowNotification] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const previousSelectedButton = useRef(selectedButton);
 
+  
   const nickProfileLink = () => {
     navigate('/settings');
   };
-
-  const administrationLink = () => {
-    navigate('/administration');
-  };
-
-
+  
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -48,23 +45,44 @@ function AdminMenu() {
         setUsername(userProfile.username);
         setUserImage(userProfile.userImage);
         setIsSiteAdmin(userProfile.siteAdmin);
+        if (!userProfile.siteAdmin)
+          navigate('/homepage');
       } catch (error) {
         console.log("error");
         localStorage.removeItem('token'); // No te lleva en un solo reload
         navigate('/');
       }
-
+      
     };
-
+    
     if (selectedChat) {
       setSelectedButton('');
     } else if (selectedChat === 0 && selectedButton === '' && previousSelectedButton.current) {
       setSelectedButton(previousSelectedButton.current);
     }
-
+    
     fetchUserProfile();
-  }, [socket, selectedChat]);
 
+    const handleMyInfo = async (data: { isSiteAdmin: boolean, isBanned: boolean }) => {
+			if (data.isBanned) {
+				localStorage.removeItem('token');
+				navigate('/');
+			}
+ 
+			if (data.isSiteAdmin != isSiteAdmin) {
+				if (data.isSiteAdmin)
+					handleNotification('Te han ascendido a admin de la pagina!');
+				else
+					handleNotification('Ya no eres admin de la pagina :(');
+
+				setIsSiteAdmin(data.isSiteAdmin);
+			}
+		}
+
+		socket?.on("UPDATE_ME", handleMyInfo);
+
+  }, [socket, selectedChat, isSiteAdmin]);
+  
   useEffect(() => {
 
     if (selectedButton !== '') {
@@ -238,7 +256,7 @@ function AdminMenu() {
           <button style={ProfileButtonStyle} onClick={nickProfileLink}>
             <UserProfile image={userImage} name={username}></UserProfile>
           </button>
-          <button style={CrownIconStyle} onClick={administrationLink}>
+          <button style={CrownIconStyle}>
             <FaCrown color="gold" size={30} />
           </button>
           <div>

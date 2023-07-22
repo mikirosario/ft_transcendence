@@ -20,11 +20,29 @@ const useAuth = () => {
   const token = localStorage.getItem('token');
   return !!token;
 };
+const useAdmin = () => {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-// const useAdmin = () => {
-//   const token = localStorage.getItem('token');
-//   return !!token;
-// };
+  useEffect(() => {
+    const fetchAdminStatus = async () => {
+      try {
+        const userProfile = await getUserProfile();
+        console.log(userProfile.siteAdmin);
+        setIsAdmin(userProfile.siteAdmin);
+        setIsLoading(false);
+      } catch (error) {
+        console.log("error");
+        setIsAdmin(false);
+        setIsLoading(false);
+      }
+    };
+
+    fetchAdminStatus();
+  }, []);
+
+  return { isAdmin, isLoading };
+};
 
 function ProtectedComponent({ children }: { children: React.ReactElement }) {
   const isAuthenticated = useAuth();
@@ -36,11 +54,15 @@ function GuestComponent({ children }: { children: React.ReactElement }) {
   return !isAuthenticated ? children : <Navigate to="/homepage" replace />;
 }
 
-// function AdminComponent({ children }: { children: React.ReactElement }) {
-//   const isAdmin = useAadmin();
-//   return !isAdmin ? children : <Navigate to="/homepage" replace />;
-// }
+function AdminComponent({ children }: { children: React.ReactElement }) {
+  const { isAdmin, isLoading } = useAdmin();
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return isAdmin ? children : <Navigate to="/homepage" replace />;
+}
 function App() {
   return (
     <BrowserRouter>
@@ -57,15 +79,16 @@ function App() {
 
         {/* Falta alguna comprobacion para ver si le ha dado el boton para el login, si va por URL habria que bloquear */}
         <Route path="/register" element={<GuestComponent><Register /></GuestComponent>} /> 
+        <Route path="/denied" element={<GuestComponent><PermissionDenied /></GuestComponent>} /> 
 
         <Route path="/homepage" element={<ProtectedComponent><Home /></ProtectedComponent>} />
         <Route path="/settings" element={<ProtectedComponent><Options /></ProtectedComponent>} />
         <Route path="/pong" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
         <Route path="/gameSelector" element={<ProtectedComponent><GameSelector /></ProtectedComponent>} />
         <Route path="/verification" element={<ProtectedComponent><Verification2af /></ProtectedComponent>} />
-        
         <Route path="/perfil" element={<ProtectedComponent><Perfil /></ProtectedComponent>} />
-        <Route path="/administration" element={<ProtectedComponent><Administration /></ProtectedComponent>} />
+        
+        <Route path="/administration" element={<AdminComponent><Administration /></AdminComponent>} />
       </Routes>
     </BrowserRouter>
   );
