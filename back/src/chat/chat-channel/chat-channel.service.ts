@@ -195,12 +195,18 @@ export class ChatChannelService {
 	}
 
 	private async joinChannelOwner(channelId: number, userId: number, isOwner: boolean) {
+		let isAdmin: boolean = false;
+
+		if (isOwner)
+			isAdmin = true;
+
 		try {
 			await this.prisma.chatChannelUser.create({
 				data: {
 					channelId: channelId,
 					userId: userId,
-					isOwner: isOwner
+					isOwner: isOwner,
+					isAdmin: isAdmin
 				}
 			});
 		} catch (error) {
