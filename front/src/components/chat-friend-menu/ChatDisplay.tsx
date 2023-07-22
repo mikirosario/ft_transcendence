@@ -15,7 +15,8 @@ interface ChatDisplayProps {
 }
 
 interface Message {
-    channelId: number,
+    directId?: number,
+    channelId?: number,
     userId: number,
     sender: string,
     avatarUri: string,
@@ -67,9 +68,13 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         };
 
         const handleNewDirectMessages = async (msg: Message) => {
-            const imageUrl = await getUserImage(msg.avatarUri);
-            msg.avatarFile = imageUrl ? imageUrl : '';
-            setMessagesList(oldMessageList => [...oldMessageList, msg]);
+            console.log(selectedChat);
+            console.log(msg.directId);
+            if (selectedChat === msg.directId) {
+                const imageUrl = await getUserImage(msg.avatarUri);
+                msg.avatarFile = imageUrl ? imageUrl : '';
+                setMessagesList(oldMessageList => [...oldMessageList, msg]);
+            }
         };
 
         const handleNewChannelMessages = async (msg: Message) => {
@@ -79,6 +84,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                 setMessagesList(oldMessageList => [...oldMessageList, msg]);
             }
         };
+
 
         const handleUpdateChannelJoin = async (newUserList: []) => {
             setUsersMap(newUserList);
