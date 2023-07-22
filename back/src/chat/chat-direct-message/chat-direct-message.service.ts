@@ -48,13 +48,23 @@ export class ChatDirectMessageService {
 				}
 			});
 
-			this.ws.sendSocketMessageToRoom("direct_" + String(directChat.id), 'NEW_DIRECT_MESSAGE', {
+			this.ws.sendSocketMessageToUser(user1.id, 'NEW_DIRECT_MESSAGE', {
+				directId: user2.id,
 				userId: user1.id,
 				sender: user1.nick,
 				avatarUri: user1.avatarUri,
 				sentAt: newMessage.sentAt,
 				message: newMessage.message,
 			});
+
+			this.ws.sendSocketMessageToUser(user2.id, 'NEW_DIRECT_MESSAGE', {
+				directId: user1.id,
+				userId: user1.id,
+				sender: user1.nick,
+				avatarUri: user1.avatarUri,
+				sentAt: newMessage.sentAt,
+				message: newMessage.message,
+			})
 
 			return newMessage;
 
