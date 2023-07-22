@@ -11,6 +11,8 @@ import { ConfigService } from "@nestjs/config";
 import { UserService } from "../../user/user.service";
 import { WebSocketService } from '../../auth/websocket/websocket.service';
 import { Injectable } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
+import { SelfUserStateChangedEvent } from '../../user/user.events';
 import { use } from 'passport';
 
 
@@ -164,6 +166,13 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	handleRoomLeave(client: Socket, room:string) {
 		client.leave("room_admin_" + room);
 	}
+
+	@OnEvent(SelfUserStateChangedEvent.name)
+	handleSelfUserStateChanged(event: SelfUserStateChangedEvent) {
+		this.sendSocketMessageToUser(event.user.userId, 'UPDATE_ME', event.user);
+	}
+
+	
 
 	/*
 	@SubscribeMessage('event_message') //TODO Backend

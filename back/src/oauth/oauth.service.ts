@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { Injectable, BadRequestException, UnauthorizedException } from "@nestjs/common";
 import { AxiosResponse } from "axios";
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
@@ -108,6 +108,9 @@ export class OAuthService {
 					},
 				})
 			}
+
+			if (user.isBanned)
+				ThrowHttpException(new UnauthorizedException, 'Estás baneado de la página');
 
 			let jwtToken = await this.signToken(user.id, user.email);
 			console.log(jwtToken)

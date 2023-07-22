@@ -3,6 +3,7 @@ import { OAuthService} from "./oauth.service";
 import { ApiBody, ApiBearerAuth } from "@nestjs/swagger"
 import { OAuthDto } from "./dto";
 import { UserOAuthDto } from "../user/dto/user-oauth.dto";
+import { ThrowHttpException } from "src/utils/error-handler";
 
 @Controller('oauth')
 @ApiBearerAuth()
@@ -27,9 +28,13 @@ export class OAuthController {
             avatar: userInfo.image.versions.small,
         };
         
-        const jwt_token = await this.oAuthService.signup(user);
-        const jwt = jwt_token.access_token;
+        try {
+            const jwt_token = await this.oAuthService.signup(user);
+            const jwt = jwt_token.access_token;
 
-        return res.redirect('http://localhost:3001/register?token=' + jwt);
+            return res.redirect('http://localhost:3001/register?token=' + jwt);
+        } catch (error) {
+            return res.redirect('http://localhost:3001/denied');
+        }
     }
 }
