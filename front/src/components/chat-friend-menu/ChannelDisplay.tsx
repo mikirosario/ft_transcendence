@@ -243,9 +243,7 @@ function ChannelDisplay({ openChat }: { openChat: (id: number) => void }) {
     }
   }
 
-  const handleJoinByList = async (event: React.FormEvent, ch: Channel) => {
-    event.preventDefault();
-
+  const handleJoinByList = async (ch: Channel) => {
     if (!ch.imInside) {
       const resp = await joinChannel(ch.name, "");
       if (resp.channelId < 0) {
@@ -358,7 +356,7 @@ function ChannelDisplay({ openChat }: { openChat: (id: number) => void }) {
             style={friendContainerStyle}
             onMouseEnter={() => setIsChannelHovered(index)}
             onMouseLeave={() => setIsChannelHovered(-1)}
-            onClick={(event) => handleJoinByList(event, channel)}
+            onClick={() => handleJoinByList(channel)}
           >
             <div style={{
               transform: isChannelHovered === index ? 'scale(1.1)' : 'none',
