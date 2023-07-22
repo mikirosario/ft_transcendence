@@ -159,7 +159,7 @@ function Administration() {
                 <div style={Window}>
                     <HomeButton></HomeButton>
                     <SocialAdminMenu></SocialAdminMenu>
-                    <h1 style={AdministrationPanelStyle}> Panel de Administracion</h1>
+                    <h1 style={AdministrationPanelStyle}> Panel de Administración</h1>
                     <button style={InfoCommandsIconStyle} onClick={toggleCommands}>
                         <FaInfoCircle size={24} color='grey' />
                     </button>
