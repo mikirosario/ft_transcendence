@@ -231,8 +231,8 @@ function ChannelDisplay({ openChat }: { openChat: (id: number) => void }) {
       try {
 
         const resp = await joinChannel(joinChannelName, JoinChannelPassword);
-        setCreateChannelName('');
-        setCreateChannelPassword('');
+        setJoinChannelName('');
+        setJoinChannelPassword('');
         if (resp.channelId >= 0) {
           openChat(resp.channelId);
           handleNotification(resp.notif);
