@@ -15,7 +15,8 @@ interface ChatDisplayProps {
 }
 
 interface Message {
-    channelId: number,
+    directId?: number,
+    channelId?: number,
     userId: number,
     sender: string,
     avatarUri: string,
@@ -32,14 +33,13 @@ interface User {
 }
 
 
-const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat, isFriendChat }) => {
+const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat }) => {
     const socket = useContext(SocketContext1);
 
     const { handleNotification } = useContext(NotificationContext);
 
     const [messagesList, setMessagesList] = useState<Message[]>([]);
     const [usersMap, setUsersMap] = useState<User[]>([]);
-    const [message, setMessage] = useState('');
     const [showCommands, setShowCommands] = useState(false);
 
     const toggleCommands = () => {
@@ -49,11 +49,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
     useEffect(() => {
         const fetchData = async () => {
             if (selectedChat !== 0) {
-                let result;
-                if (isFriendChat)
-                    result = await getChatDirect(selectedChat);
-                else
-                    result = await getChatChannel(selectedChat);
+                const result = await getChatChannel(selectedChat);
                 if (result && result.members && result.messages) {
                     const { members, messages } = result;
                     setUsersMap(members);
@@ -64,12 +60,6 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     setMessagesList(messagesWithImages);
                 }
             }
-        };
-
-        const handleNewDirectMessages = async (msg: Message) => {
-            const imageUrl = await getUserImage(msg.avatarUri);
-            msg.avatarFile = imageUrl ? imageUrl : '';
-            setMessagesList(oldMessageList => [...oldMessageList, msg]);
         };
 
         const handleNewChannelMessages = async (msg: Message) => {
@@ -96,14 +86,11 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         }
 
         fetchData();
-        if (isFriendChat)
-            socket?.on("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
-        else {
             socket?.on("NEW_ADMIN_CHANNEL_MESSAGE", handleNewChannelMessages);
             socket?.on("UPDATE_CHANNEL_USERS_LIST_JOIN", handleUpdateChannelJoin);
             socket?.on("UPDATE_CHANNEL_USERS_LIST_LEAVE", handleUpdateChannelJoin);
             socket?.on("KICK_FROM_CHANNEL", handleKickCommand);
-        }
+
 
         // return () => {
         //     if (isFriendChat) {
@@ -129,82 +116,6 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         cursor: 'pointer',
         background: 'transparent',
         border: 'none'
-    }
-
-    const LeaveIconStyle: React.CSSProperties = {
-        top: '1%',
-        left: '66%',
-        position: 'relative',
-        cursor: 'pointer',
-        background: 'transparent',
-        border: 'none'
-    }
-
-    const InfoCommandsIconStyle: React.CSSProperties = {
-        top: '1%',
-        left: '62.5%',
-        position: 'relative',
-        cursor: 'pointer',
-        background: 'transparent',
-        border: 'none'
-    }
-
-    const HelpCommandPopUpStyle: React.CSSProperties = {
-        position: 'absolute',
-        top: '21.5%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        background: 'rgba(185, 180, 195, 0.9)',
-        border: '1px solid #000',
-        borderRadius: '10px',
-        padding: '5px',
-        width: '300px',
-        zIndex: '1000'
-    };
-
-    const CloseButtonStyle: React.CSSProperties = {
-        position: 'absolute',
-        top: '5px',
-        right: '8px',
-        background: 'transparent',
-        border: 'none',
-        cursor: 'pointer',
-        fontSize: '18px'
-    };
-
-    const TextAreaWrapperStyle: React.CSSProperties = {
-        position: 'absolute',
-        bottom: '6%',
-        left: '50%',
-        transform: 'translate(-50%, 0)',
-        width: '90%',
-        borderRadius: '15px',
-        overflow: 'hidden',
-    };
-
-    const MessageInputStyle: React.CSSProperties = {
-        width: '85%',
-        padding: '8px',
-        paddingRight: '40px',
-        borderRadius: '15px',
-        height: '50px',
-        resize: 'none',
-        border: 'none',
-        outline: 'none',
-        fontFamily: 'Quantico',
-        fontSize: '16px',
-        color: 'lightgray',
-        background: 'RGB(19, 29, 45)',
-    };
-
-    const SendButtonStyle: React.CSSProperties = {
-        position: 'absolute',
-        right: '28px',
-        bottom: '7.5%',
-        background: 'transparent',
-        border: 'none',
-        color: 'gray',
-        cursor: 'pointer'
     }
 
     // ----------- STYLOS DE MENSAJE ------------
@@ -258,43 +169,12 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         marginTop: '16px',
     };
 
-    const MessageInfoStyle: React.CSSProperties = {
-        display: 'flex',
-        flexDirection: 'column',
-        maxWidth: '80%'
-    };
-    
 
     return (
         <div style={ChatWrapper}>
             <button style={BackArrowStyle} onClick={() => setSelectedChat(0)}>
                 <IoMdArrowRoundBack size={27} color='grey' />
             </button>
-
-            <button style={InfoCommandsIconStyle} onClick={toggleCommands}>
-                <FaInfoCircle size={24} color='grey' />
-            </button>
-
-            {showCommands && (
-                <div style={HelpCommandPopUpStyle}>
-                    <h2>Lista de Comandos</h2>
-                    <button style={CloseButtonStyle} onClick={toggleCommands}>X</button>
-                    <ul>
-                        {isFriendChat ? (
-                            <>
-                                <li style={{ fontSize: '14px' }}>/duel: Reta a un usuario a un Pong</li>
-                                <li style={{ fontSize: '14px' }}>/spectate' Comienza a observar la partida de un usuario</li>
-                                <li style={{ fontSize: '14px' }}>/block: Bloquea a un usuario</li>
-                            </>
-                        ) : (
-
-                            <li style={{ fontSize: '14px' }}>/block: Bloquea a un usuario</li>
-                        )
-
-                        }
-                    </ul>
-                </div>
-            )}
 
             <div style={MessagesContainerStyle}>
                 {[...messagesList].reverse().map((messageItem, index) => {
