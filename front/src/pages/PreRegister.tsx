@@ -37,9 +37,11 @@ function PreRegister() {
     const AuthLoginLink = async () => {
         try{
             const response = await axios.get(getServerIP(3000) + 'oauth/generateAuthURL');
-            const authUrl = response.data.url;
-            console.log(authUrl);
-            window.location.href = authUrl;
+            if (response.status === 200 || response.status === 201) {
+                const authUrl = response.data.url;
+                console.log(authUrl);
+                window.location.href = authUrl;
+            }
         } catch (error){
             console.log('Failed to retrieve OAuth URL: ', error);
         }
