@@ -1,5 +1,4 @@
 import React from 'react';
-import { FaCrown } from 'react-icons/fa';
 
 interface Args {
   image: string;
