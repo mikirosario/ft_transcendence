@@ -2,7 +2,7 @@ import { Controller, Get, UseGuards, Patch, Body, Delete, Post, UseInterceptors,
 import { ApiBody, ApiBearerAuth } from "@nestjs/swagger"
 import { JwtGuard } from "../auth/guard";
 import { GetJwt } from "../auth/decorator";
-import { EditUserDto, UserProfileUpdateDto } from "./dto";
+import { UserProfileUpdateDto } from "./dto";
 import { UserService } from "./user.service";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { saveProfileImageToStorage } from "../utils/image-storage"
@@ -18,11 +18,13 @@ export class UserController {
 		return this.userService.getUserById(userId);
 	}
 
+	/*
 	@Patch('me')
 	@ApiBody({ type: EditUserDto })
 	async editUser(@GetJwt('sub') userId: number, @Body() dto: EditUserDto) {
 		return this.userService.editUser(userId, dto);
 	}
+	*/
 
 	/*
 	 * Delete user and all its data (avatar, ...)

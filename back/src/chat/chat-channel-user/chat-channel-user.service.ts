@@ -71,19 +71,21 @@ export class ChatChannelUserService {
 		}
 	}
 
-	async updateChannelUser(userId: number, dto: ChatChannelUserDto) {
-		const user = await this.userService.getUserById(userId);
-		const channel = await this.chatChannelService.getChannel(dto.id);
-		const otherUser = await this.userService.getUserByNick(dto.nick);
-
-		await this.chatChannelService.checkUserIsAuthorizedInChannnel(user.id, channel.id);
-
-		const channelUser = await this.chatChannelService.getChannelUser(channel.id, otherUser.id);
-
-		delete dto.id;
-		delete dto.nick;
-
+	async updateChannelUser(userId: number, dto: ChatChannelUserDto, isSiteAdmin: boolean = false) {
 		try {
+			const user = await this.userService.getUserById(userId);
+			const channel = await this.chatChannelService.getChannel(dto.id);
+			const otherUser = await this.userService.getUserByNick(dto.nick);
+
+			if (!isSiteAdmin)
+				await this.chatChannelService.checkUserIsAuthorizedInChannnel(user.id, channel.id);
+
+			const channelUser = await this.chatChannelService.getChannelUser(channel.id, otherUser.id);
+
+			delete dto.id;
+			delete dto.nick;
+
+		
 			const channelUserUpdated = await this.prisma.chatChannelUser.update({
 				where: {
 					id: channelUser.id
@@ -99,6 +101,7 @@ export class ChatChannelUserService {
 			if (error instanceof PrismaClientKnownRequestError) {
 				ThrowHttpException(error, 'Unknown error updating channel user');
 			}
+			ThrowHttpException(error, error.response.message);
 		}
 	}
 
