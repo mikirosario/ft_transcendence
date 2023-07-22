@@ -15,19 +15,20 @@ interface ChatDisplayProps {
 }
 
 interface Message {
-    userId: number;
+    channelId: number,
+    userId: number,
     sender: string,
-    avatarUri: string
+    avatarUri: string,
     sentAt: string,
     message: string,
-    isAdmin: string;
-    avatarFile?: string;
+    isAdmin?: string,
+    avatarFile?: string,
 };
 
 interface User {
-    userId: number;
-    nick: string;
-    avatarUri: string;
+    userId: number,
+    nick: string,
+    avatarUri: string,
 }
 
 
@@ -72,9 +73,11 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         };
 
         const handleNewChannelMessages = async (msg: Message) => {
-            const imageUrl = await getUserImage(msg.avatarUri);
-            msg.avatarFile = imageUrl ? imageUrl : '';
-            setMessagesList(oldMessageList => [...oldMessageList, msg]);
+            if (selectedChat === msg.channelId) {
+                const imageUrl = await getUserImage(msg.avatarUri);
+                msg.avatarFile = imageUrl ? imageUrl : '';
+                setMessagesList(oldMessageList => [...oldMessageList, msg]);
+            }
         };
 
         const handleUpdateChannelJoin = async (newUserList: []) => {
@@ -96,7 +99,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         if (isFriendChat)
             socket?.on("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
         else {
-            socket?.on("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
+            socket?.on("NEW_ADMIN_CHANNEL_MESSAGE", handleNewChannelMessages);
             socket?.on("UPDATE_CHANNEL_USERS_LIST_JOIN", handleUpdateChannelJoin);
             socket?.on("UPDATE_CHANNEL_USERS_LIST_LEAVE", handleUpdateChannelJoin);
             socket?.on("KICK_FROM_CHANNEL", handleKickCommand);

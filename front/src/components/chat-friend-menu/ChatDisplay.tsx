@@ -15,19 +15,20 @@ interface ChatDisplayProps {
 }
 
 interface Message {
-    userId: number;
+    channelId: number,
+    userId: number,
     sender: string,
-    avatarUri: string
+    avatarUri: string,
     sentAt: string,
     message: string,
-    isAdmin: string;
-    avatarFile?: string;
+    isAdmin?: string,
+    avatarFile?: string,
 };
 
 interface User {
-    userId: number;
-    nick: string;
-    avatarUri: string;
+    userId: number,
+    nick: string,
+    avatarUri: string,
 }
 
 
@@ -72,9 +73,11 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         };
 
         const handleNewChannelMessages = async (msg: Message) => {
-            const imageUrl = await getUserImage(msg.avatarUri);
-            msg.avatarFile = imageUrl ? imageUrl : '';
-            setMessagesList(oldMessageList => [...oldMessageList, msg]);
+            if (selectedChat === msg.channelId) {
+                const imageUrl = await getUserImage(msg.avatarUri);
+                msg.avatarFile = imageUrl ? imageUrl : '';
+                setMessagesList(oldMessageList => [...oldMessageList, msg]);
+            }
         };
 
         const handleUpdateChannelJoin = async (newUserList: []) => {
@@ -326,7 +329,6 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
             }
             <div style={MessagesContainerStyle}>
                 {[...messagesList].reverse().map((messageItem, index) => {
-                    // const user = usersMap[messageItem.sender];
                     return (
                         <div key={index} style={MessageStyle}>
                             <img
