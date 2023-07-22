@@ -154,18 +154,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 	*/
 
-	/*
+	
 	@SubscribeMessage('event_join')
 	handleJoinRoom(client: Socket, room: string) {
-		client.join(`room_${room}`);
+		client.join("room_admin_" + room);
 	}
 	
 	@SubscribeMessage('event_leave')
 	handleRoomLeave(client: Socket, room:string) {
-		console.log(`chao room_${room}`)
-		client.leave(`room_${room}`);
+		client.leave("room_admin_" + room);
 	}
-	*/
 
 	/*
 	@SubscribeMessage('event_message') //TODO Backend
