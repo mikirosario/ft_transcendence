@@ -1,18 +1,9 @@
-import axios from "axios";
+import axiosClient from "../axiosClient";
 
-axios.defaults.baseURL = 'http://localhost:3000';
-axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
-
-export async function getChatDirect(chatId: number) {
+export async function getChatDirect(chatId: number): Promise<any> {
     try {
-        const response = await axios.get('/chat/directs?userId=' + chatId, {
-            responseType: 'json',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-            },
-        });
+        const response = await axiosClient.get('/chat/directs?userId=' + chatId);
 
-        
         return response.data;
 
     } catch (error) {
@@ -21,16 +12,11 @@ export async function getChatDirect(chatId: number) {
     }
 }
 
-export async function sendDirectMessage(id: number, content: string) {
+export async function sendDirectMessage(id: number, content: string): Promise<boolean> {
     try {
-        const response = await axios.post('/chat/directs/message', {
+        const response = await axiosClient.post('/chat/directs/message', {
             user_id: id,
             message: content
-        }, {
-            responseType: 'json',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-            },
         });
 
         if (response.status !== 200 && response.status !== 201) {
@@ -47,14 +33,9 @@ export async function sendDirectMessage(id: number, content: string) {
 
 // -------------------- CHANNEL ---------------------------
 
-export async function getChatChannel(chatId: number) {
+export async function getChatChannel(chatId: number): Promise<any> {
     try {
-        const response = await axios.get('/chat/channels?channelId=' + chatId, {
-            responseType: 'json',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-            },
-        });
+        const response = await axiosClient.get('/chat/channels?channelId=' + chatId);
 
         return response.data;
 
@@ -64,16 +45,11 @@ export async function getChatChannel(chatId: number) {
     }
 }
 
-export async function sendChannelMessage(id: number, content: string) {
+export async function sendChannelMessage(id: number, content: string): Promise<boolean> {
     try {
-        const response = await axios.post('/chat/channels/message', {
+        const response = await axiosClient.post('/chat/channels/message', {
             channel_id: id,
             message: content
-        }, {
-            responseType: 'json',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-            },
         });
 
         if (response.status !== 200 && response.status !== 201) {

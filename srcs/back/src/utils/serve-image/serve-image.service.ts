@@ -4,7 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { Response } from "express";
 import { join } from 'path';
 import * as fs from 'fs';
-import { ThrowHttpException } from '../../utils/error-handler';
+import { ThrowHttpException } from '../error-handler';
 
 
 @Injectable()

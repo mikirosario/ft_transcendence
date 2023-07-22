@@ -1,9 +1,6 @@
-import axios from "axios";
+import axiosClient from "../axiosClient";
 
-axios.defaults.baseURL = 'http://localhost:3000';
-axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
-
-export async function updateUserProfile(username: string, image: File | null) {
+export async function updateUserProfile(username: string, image: File | null): Promise<boolean> {
   const formData = new FormData();
   formData.append('nick', username);
   if (image) {
@@ -11,11 +8,7 @@ export async function updateUserProfile(username: string, image: File | null) {
   }
 
   try {
-    const response = await axios.put('/users/profile', formData, {
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('token'),
-      },
-    });
+    const response = await axiosClient.put('/users/profile', formData);
 
     if (response.status === 200) {
       console.log('Changes applied successfully');
@@ -28,15 +21,11 @@ export async function updateUserProfile(username: string, image: File | null) {
     console.error('Error:', error);
     return false;
   }
-};
+}
 
-export async function getUserProfile() {
+export async function getUserProfile(): Promise<{ username: string; userImage: string }> {
   try {
-    const response = await axios.get('users/profile', {
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('token'),
-      },
-    });
+    const response = await axiosClient.get('users/profile');
 
     if (response.status !== 200) {
       throw new Error('Request failed with status ' + response.status);
@@ -48,27 +37,19 @@ export async function getUserProfile() {
     let imageResponse;
 
     if (fetchedImage.includes('https://cdn.intra.42.fr/users/')) {
-
-      const authorization = axios.defaults.headers.common["Authorization"];
-      delete axios.defaults.headers.common["Authorization"];
-
-      imageResponse = await axios.get(fetchedImage, {
+      // Handle the case when the image URI is from an external CDN
+      // In server-side rendering, the server won't access this block
+      imageResponse = await axiosClient.get(fetchedImage, {
         responseType: 'blob',
         headers: {
           'Accept': 'image/avif,image/webp,image/apng'
         },
       });
-
-      axios.defaults.headers.common["Authorization"] = authorization;
-
     } else {
-
+      // Handle the case when the image URI is local to your server
       fetchedImage = '/uploads/avatars/' + fetchedImage;
-      imageResponse = await axios.get(fetchedImage, {
+      imageResponse = await axiosClient.get(fetchedImage, {
         responseType: 'blob',
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem('token'),
-        },
       });
     }
 
@@ -79,20 +60,15 @@ export async function getUserProfile() {
     const imageURL = URL.createObjectURL(imageResponse.data);
 
     return { username: fetchedName, userImage: imageURL };
-
   } catch (error) {
     console.log('Error:', error);
     return { username: "", userImage: "" };
   }
 }
 
-export async function deleteAvatarProfile() {
+export async function deleteAvatarProfile(): Promise<string | null> {
   try {
-    const response = await axios.delete('users/profile', {
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('token'),
-      },
-    });
+    const response = await axiosClient.delete('users/profile');
 
     if (response.status !== 200) {
       console.log('Failed to delete avatar');
@@ -102,11 +78,8 @@ export async function deleteAvatarProfile() {
     console.log('Avatar deleted successfully');
     const fetchedImage = response.data.avatarUri;
 
-    const imageResponse = await axios.get('uploads/avatars/' + fetchedImage, {
+    const imageResponse = await axiosClient.get('uploads/avatars/' + fetchedImage, {
       responseType: 'blob',
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('token'),
-      },
     });
 
     if (imageResponse.status !== 200) {
@@ -122,34 +95,21 @@ export async function deleteAvatarProfile() {
   }
 }
 
-export async function getUserImage(URI: string) {
+export async function getUserImage(URI: string): Promise<string | null> {
   try {
     let fetchedImage = URI;
 
     let imageResponse;
 
     if (fetchedImage.includes('https://cdn.intra.42.fr/users/')) {
-
-      const authorization = axios.defaults.headers.common["Authorization"];
-      delete axios.defaults.headers.common["Authorization"];
-
-      imageResponse = await axios.get(fetchedImage, {
-        responseType: 'blob',
-        headers: {
-          'Accept': 'image/avif,image/webp,image/apng'
-        },
-      });
-
-      axios.defaults.headers.common["Authorization"] = authorization;
-
+      // This block won't be executed on the server-side
+      // Use a different approach for server-side image fetching
+      // Since there's no direct server access to this URL, return null
+      return null;
     } else {
-
       fetchedImage = '/uploads/avatars/' + fetchedImage;
-      imageResponse = await axios.get(fetchedImage, {
+      imageResponse = await axiosClient.get(fetchedImage, {
         responseType: 'blob',
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem('token'),
-        },
       });
     }
 

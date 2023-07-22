@@ -1,159 +1,120 @@
-import axios from "axios";
+// Friend.Service.tsx
 
-axios.defaults.baseURL = 'http://localhost:3000';
-axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
+import axiosClient from "../axiosClient";
 
-// Obtiene la solicitud de los amigos
-export async function getFriendList() {
-    try {
-        const response = await axios.get('users/friends', {
-            headers: {
-                responseType: 'json',
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-            },
-        });
+export async function getFriendList(): Promise<{ friends: any[] }> {
+  try {
+    const response = await axiosClient.get('users/friends');
 
-        if (response.status !== 200) {
-            throw new Error('Request failed with status ' + response.status);
-        }
-
-        const friendList = response.data;
-
-        return { friends: friendList };
-
-    } catch (error) {
-        console.log('Error:', error);
-        return { friends: [] };
+    if (response.status !== 200) {
+      throw new Error('Request failed with status ' + response.status);
     }
+
+    const friendList = response.data;
+
+    return { friends: friendList };
+
+  } catch (error) {
+    console.log('Error:', error);
+    return { friends: [] };
+  }
 }
 
-// Manda la solicitud de amigo
-export async function addFriend(friendName: string) {
-    try {
-        const response = await axios.post('users/friends', { nick: friendName }, {
-            responseType: 'json',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-            },
-        });
+export async function addFriend(friendName: string): Promise<boolean> {
+  try {
+    const response = await axiosClient.post('users/friends', { nick: friendName });
 
-        if (response.status !== 200 && response.status !== 201) {
-            throw new Error('Request failed with status ' + response.status);
-        }
-
-        return true;
-
-    } catch (error) {
-        console.log('Error: Could not add the friend', error);
-        return false;
+    if (response.status !== 200 && response.status !== 201) {
+      throw new Error('Request failed with status ' + response.status);
     }
+
+    return true;
+
+  } catch (error) {
+    console.log('Error: Could not add the friend', error);
+    return false;
+  }
 }
 
-// Borra a un amigo
-export async function deleteFriend(friendName: string) {
-    try {
-        const response = await axios.delete('users/friends', {
-            data: { nick: friendName },
-            responseType: 'json',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-            },
-        });
+export async function deleteFriend(friendName: string): Promise<boolean> {
+  try {
+    const response = await axiosClient.delete('users/friends', {
+      data: { nick: friendName },
+    });
 
-        if (response.status !== 200 && response.status !== 201) {
-            throw new Error('Request failed with status ' + response.status);
-        }
-
-        return true;
-
-    } catch (error) {
-        console.log('Error: Could not remove that friend', error);
-        return false;
+    if (response.status !== 200 && response.status !== 201) {
+      throw new Error('Request failed with status ' + response.status);
     }
+
+    return true;
+
+  } catch (error) {
+    console.log('Error: Could not remove that friend', error);
+    return false;
+  }
 }
 
 // ----------------- PETICIONES AMIGO ------------------------------------
 
-// Obtiene la lista de solicitudes de amigo
-export async function getFriendRequests() {
-    try {
-        const response = await axios.get('users/friends/requests', {
-            responseType: 'json',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-            },
-        });
+export async function getFriendRequests(): Promise<{ friends: any[] }> {
+  try {
+    const response = await axiosClient.get('users/friends/requests');
 
-        const friendList = response.data;
+    const friendList = response.data;
 
-        return { friends: friendList };
+    return { friends: friendList };
 
-    } catch (error) {
-        console.log('Error: Could not remove that friend', error);
-        return  { friends: [] };
-    }
+  } catch (error) {
+    console.log('Error: Could not remove that friend', error);
+    return  { friends: [] };
+  }
 }
 
-// Accepta la request de friendName
-export async function updateFriendList(friendName: string) {
-    try {
-        const response = await axios.put('users/friends', { nick: friendName }, {
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-            },
-        });
+export async function updateFriendList(friendName: string): Promise<boolean> {
+  try {
+    const response = await axiosClient.put('users/friends', { nick: friendName });
 
-        if (response.status !== 200) {
-            throw new Error('Request failed with status ' + response.status);
-        }
-
-        return true;
-
-    } catch (error) {
-        console.log('Error: Could not remove that friend', error);
-        return false;
+    if (response.status !== 200) {
+      throw new Error('Request failed with status ' + response.status);
     }
+
+    return true;
+
+  } catch (error) {
+    console.log('Error: Could not remove that friend', error);
+    return false;
+  }
 }
 
 // --------------------- Canales/Directos/Bloqueados --------------------------
 
-export async function getBlockedUsers() {
-    try {
-        const response = await axios.get('chats', {
-            responseType: 'json',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-            },
-        });
+export async function getBlockedUsers(): Promise<string[]> {
+  try {
+    const response = await axiosClient.get('chats');
 
-        const { blocked_users } = response.data;
-        return blocked_users;
+    const { blocked_users } = response.data;
+    return blocked_users;
 
-    } catch (error) {
-        console.log('Error: Could not remove that friend', error);
-        return  [];
-    }
+  } catch (error) {
+    console.log('Error: Could not remove that friend', error);
+    return  [];
+  }
 }
 
-export async function unblockUser(friendName: string) {
-    try {
-        const response = await axios.delete('chat/blocks', {
-            data: { nick: friendName },
-            responseType: 'json',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-            },
-        });
+export async function unblockUser(friendName: string): Promise<boolean> {
+  try {
+    const response = await axiosClient.delete('chat/blocks', {
+      data: { nick: friendName },
+    });
 
-        if (response.status !== 200 && response.status !== 201) {
-            throw new Error('Request failed with status ' + response.status);
-        }
-
-        return true;
-
-    } catch (error) {
-        console.log('Error: Could not remove that user', error);
-        return false;
+    if (response.status !== 200 && response.status !== 201) {
+      throw new Error('Request failed with status ' + response.status);
     }
-}
 
+    return true;
+
+  } catch (error) {
+    console.log('Error: Could not remove that user', error);
+    return false;
+  }
+}

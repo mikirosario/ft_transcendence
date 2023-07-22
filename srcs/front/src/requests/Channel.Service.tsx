@@ -1,16 +1,10 @@
-import axios from "axios";
+// Channel.Service.tsx
 
-axios.defaults.baseURL = 'http://localhost:3000';
-axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
+import axiosClient from "../axiosClient";
 
-export async function getChannelList() {
+export async function getChannelList(): Promise<string[]> {
   try {
-    const response = await axios.get('/chats/', {
-      responseType: 'json',
-      headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('token'),
-      },
-    });
+    const response = await axiosClient.get('/chats/');
 
     const { channels } = response.data;
     return channels;
@@ -21,16 +15,11 @@ export async function getChannelList() {
   }
 }
 
-export async function createChannel(channelName: string, password: string) {
+export async function createChannel(channelName: string, password: string): Promise<boolean> {
   try {
-    const response = await axios.post('/chat/channels', {
+    const response = await axiosClient.post('/chat/channels', {
       name: channelName,
       password: password
-    }, {
-      responseType: 'json',
-      headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('token'),
-      },
     });
 
     if (response.status !== 200 && response.status !== 201) {
@@ -45,17 +34,12 @@ export async function createChannel(channelName: string, password: string) {
   }
 }
 
-export async function editChannel(id: number, newChannelName: string, newPassword: string) {
+export async function editChannel(id: number, newChannelName: string, newPassword: string): Promise<boolean> {
   try {
-    const response = await axios.put('/chat/channels', {
+    const response = await axiosClient.put('/chat/channels', {
       id: id,
       name: newChannelName,
       password: newPassword
-    }, {
-      responseType: 'json',
-      headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('token'),
-      },
     });
 
     if (response.status !== 200 && response.status !== 201) {
@@ -70,46 +54,15 @@ export async function editChannel(id: number, newChannelName: string, newPasswor
   }
 }
 
-export async function deleteChannel(id: number, password: string) {
+export async function deleteChannel(id: number, password: string): Promise<boolean> {
   try {
-    const response = await axios.delete('/chat/channels', {
+    const response = await axiosClient.delete('/chat/channels', {
       data: {
           id: id,
           password: password
       },
-      responseType: 'json',
-      headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token'),
-      },
-  });
-
-    // Errores para el caso de contrasena incorrecta
-    if (response.status !== 200 && response.status !== 201) {
-      throw new Error('Request failed with status ' + response.status);
-    }
-
-    return true;
-
-  } catch (error) {
-    console.log('Error: Could not create the channel', error);
-    return false;
-  }
-}
-
-export async function joinChannel(name: string, password: string) {
-  try {
-    const response = await axios.post('/chat/channels/join', {
-      name: name,
-      password: password
-    }, {
-      responseType: 'json',
-      headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('token'),
-      },
     });
 
-
-    // Errores para el caso de contrasena incorrecta o el canal no existe?
     if (response.status !== 200 && response.status !== 201) {
       throw new Error('Request failed with status ' + response.status);
     }
@@ -122,17 +75,32 @@ export async function joinChannel(name: string, password: string) {
   }
 }
 
-export async function leaveChannel(id: number) {
+export async function joinChannel(name: string, password: string): Promise<boolean> {
   try {
-    const response = await axios.delete('/chat/channels/leave', {
+    const response = await axiosClient.post('/chat/channels/join', {
+      name: name,
+      password: password
+    });
+
+    if (response.status !== 200 && response.status !== 201) {
+      throw new Error('Request failed with status ' + response.status);
+    }
+
+    return true;
+
+  } catch (error) {
+    console.log('Error: Could not create the channel', error);
+    return false;
+  }
+}
+
+export async function leaveChannel(id: number): Promise<boolean> {
+  try {
+    const response = await axiosClient.delete('/chat/channels/leave', {
       data: {
           id: id
       },
-      responseType: 'json',
-      headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token'),
-      },
-  });
+    });
 
     if (response.status !== 200 && response.status !== 201) {
       throw new Error('Request failed with status ' + response.status);
@@ -146,22 +114,16 @@ export async function leaveChannel(id: number) {
   }
 }
 
-// No puedo usar user_id por que no tengo forma de mirar los user ids solamente los nombres
-export async function editPermsChannel(id: number, name: string, setOwner: boolean, setAdmin: boolean) {
+export async function editPermsChannel(id: number, name: string, setOwner: boolean, setAdmin: boolean): Promise<boolean> {
   try {
-    // Tengo que obtener la lista y editar los datos? O funciona como un mapa y lo puedo editar directamente?
-    const response = await axios.put('/chat/channels/users', {
+    const response = await axiosClient.put('/chat/channels/users', {
       data: {
           id: id,
           user_id: name,
           isOwner: setOwner,
           isAdmin: setAdmin
       },
-      responseType: 'json',
-      headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token'),
-      },
-  });
+    });
 
     if (response.status !== 200 && response.status !== 201) {
       throw new Error('Request failed with status ' + response.status);
@@ -175,18 +137,11 @@ export async function editPermsChannel(id: number, name: string, setOwner: boole
   }
 }
 
-// delete /chat/channels/users ?????
-
-export async function sendDirectMessage(id: number , content: string) {
+export async function sendDirectMessage(id: number, content: string): Promise<boolean> {
   try {
-      const response = await axios.post('/chat/channels/message', {
+      const response = await axiosClient.post('/chat/channels/message', {
           channel_id: id,
           message: content
-      }, {
-          responseType: 'json',
-          headers: {
-              'Authorization': 'Bearer ' + localStorage.getItem('token'),
-          },
       });
 
       if (response.status !== 200 && response.status !== 201) {
@@ -201,22 +156,16 @@ export async function sendDirectMessage(id: number , content: string) {
   }
 }
 
-// No necesito un /block y un /mute puedo controlar los 2 con un solo put (harea inputs que si no son rellenables no tengan valor)
-
-export async function modChannel(id: number, name: string, setBan: boolean, setMute: number) {
+export async function modChannel(id: number, name: string, setBan: boolean, setMute: number): Promise<boolean> {
   try {
-    const response = await axios.put('/chat/channels/leave', {
+    const response = await axiosClient.put('/chat/channels/leave', {
       data: {
           id: id,
           user_id: name,
           isBanned: setBan,
           isMuteSecs: setMute
       },
-      responseType: 'json',
-      headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token'),
-      },
-  });
+    });
 
     if (response.status !== 200 && response.status !== 201) {
       throw new Error('Request failed with status ' + response.status);

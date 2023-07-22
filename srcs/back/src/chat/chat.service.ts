@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChatBlockedUserService } from './chat-blocked-user/chat-blocked-user.service';
-import { ChatChannelService } from '../chat/chat-channel/chat-channel.service';
+import { ChatChannelService } from './chat-channel/chat-channel.service';
 
 
 @Injectable()
