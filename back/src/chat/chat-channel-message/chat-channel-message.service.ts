@@ -61,7 +61,8 @@ export class ChatChannelMessageService {
 				const blockedUserIds: number[] = await this.chatBlockedUserService.getMyBlockedUsersIdList(userId);
 				if (!blockedUserIds.includes(user.id)) {
 					this.ws.sendSocketMessageToUser(userId, 'NEW_CHANNEL_MESSAGE', {
-						userId: userId,
+						channelId: channel.id,
+						userId: user.id,
 						sender: user.nick,
 						avatarUri: user.avatarUri,
 						sentAt: newMessage.sentAt,
@@ -69,6 +70,15 @@ export class ChatChannelMessageService {
 					});
 				}
 			}
+
+			this.ws.sendSocketMessageToRoom("admin_" + channel.name, "NEW_ADMIN_CHANNEL_MESSAGE", {
+				channelId: channel.id,
+				userId: user.id,
+				sender: user.nick,
+				avatarUri: user.avatarUri,
+				sentAt: newMessage.sentAt,
+				message: newMessage.message,
+			});
 			
 			return newMessage;
 
