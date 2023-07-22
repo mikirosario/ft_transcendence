@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from '../prisma/prisma.service';
 import { ThrowHttpException } from '../utils/error-handler';
-import { EditUserDto, UserProfileDto, UserProfileUpdateDto } from "./dto";
+import { EditUserByAdminDto, UserProfileDto, UserProfileUpdateDto } from "./dto";
 import { ConfigService } from "@nestjs/config";
 import { join } from 'path';
 import * as fs from 'fs';
@@ -46,26 +46,19 @@ export class UserService {
 		return user;
 	}
 
-	async editUser(userId: number, dto: EditUserDto) {
+	async editUserBySiteAdmin(adminUser: any, dto: EditUserByAdminDto) {
 		try {
 			const user = await this.prisma.user.update({
 				where: {
-					id: userId
+					nick: dto.nick
 				},
 				data: {
 					...dto,
 				},
 			});
-
-			delete user.hash;
-			return user;
 		}
 		catch (error) {
-			if (error instanceof PrismaClientKnownRequestError) {
-				// https://www.prisma.io/docs/reference/api-reference/error-reference
-				// P2025 Record not found
-				ThrowHttpException(error, 'User not found');
-			}
+			ThrowHttpException(new BadRequestException, 'Usuario no encontrado');
 		}
 	}
 

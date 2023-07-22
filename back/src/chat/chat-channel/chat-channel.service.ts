@@ -19,7 +19,7 @@ export class ChatChannelService {
 			const channel = await this.getChannelChatInfo(userId, channelId);
 			return this.formatChannel(channel);
 		} catch (error) {
-			ThrowHttpException(new NotFoundException, 'Channel not found');
+			ThrowHttpException(new NotFoundException, 'Ese canal no existe');
 		}
 		
 	}
@@ -101,22 +101,36 @@ export class ChatChannelService {
 		}
 	}
 
-	async deleteChannel(userId: number, dto: ChatChannelUpdateDto) {
+	async deleteChannel(userId: number, dto: ChatChannelUpdateDto, isSiteAdmin: boolean = false) {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.getChannel(dto.id);
 
-		await this.checkUserIsAuthorizedInChannnel(user.id, channel.id);
+		if (!isSiteAdmin)
+			await this.checkUserIsAuthorizedInChannnel(user.id, channel.id);
 
-		await this.prisma.chatChannel.delete({
-			where: {
-				id: channel.id
+		await this.kickAllUsersFromChannelWithSocket(dto.id);
+
+		try {
+			await this.prisma.chatChannel.delete({
+				where: {
+					id: channel.id
+				}
+			});
+		} catch (error) {
+			if (error instanceof PrismaClientKnownRequestError) {
+				ThrowHttpException(error, 'Unknown channel');
 			}
-		});
+		}
 
 		this.sendUpdatedChannelListToAllUsersWithSocket();
 		
 		delete channel.hash;
 		return channel;
+	}
+
+	async kickAllUsersFromChannelWithSocket(channelId: number) {
+		this.ws.sendSocketMessageToRoom("channel_" + String(channelId), 'KICK_FROM_CHANNEL',
+											{channelId: channelId});
 	}
 
 	async getChannel(channelId: number) {
@@ -130,7 +144,7 @@ export class ChatChannelService {
 		});
 
 		if (channel === null) {
-			ThrowHttpException(new NotFoundException, 'Channel not found');
+			ThrowHttpException(new NotFoundException, 'Ese canal no existe');
 		}
 
 		return channel;
@@ -138,7 +152,7 @@ export class ChatChannelService {
 
 	async getChannelByName(name: string) {
 		if (!name)
-			ThrowHttpException(new BadRequestException, 'You must provide channel id');
+			ThrowHttpException(new BadRequestException, 'You must provide channel name');
 
 		const channel = await this.prisma.chatChannel.findFirst({
 			where: {
@@ -147,7 +161,7 @@ export class ChatChannelService {
 		});
 
 		if (channel === null) {
-			ThrowHttpException(new NotFoundException, 'Channel not found');
+			ThrowHttpException(new NotFoundException, 'Ese canal no existe');
 		}
 
 		return channel;
@@ -161,10 +175,9 @@ export class ChatChannelService {
 			if (channelUser.isOwner || channelUser.isAdmin)
 				return true;
 		} catch (error) {
-			ThrowHttpException(new UnauthorizedException, 'You must be channel owner or admin to do this action');
+			ThrowHttpException(new UnauthorizedException, 'Necesitas ser propietario o admin del canal para realizar esta acción');
 		}
 		
-		ThrowHttpException(new UnauthorizedException, 'You must be channel owner or admin to do this action');
 	}
 
 	async getChannelUser(channel_id: number, user_id: number) {

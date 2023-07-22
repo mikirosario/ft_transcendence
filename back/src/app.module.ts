@@ -9,13 +9,15 @@ import { PongModule } from './pong/pong.module';
 import { SecondAuthFactorModule } from './auth/second-auth-factor/second-auth-factor.module'
 import { ChatModule } from './chat/chat.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { AdminModule } from './admin/admin.module';
+
 
 @Module({
 	imports: [AuthModule, UserModule, PrismaModule, ServeImageModule,
 		PongModule, ChatModule,
 		ConfigModule.forRoot({ isGlobal: true }),
 		EventEmitterModule.forRoot(),
-		OAuthModule, SecondAuthFactorModule
+		OAuthModule, SecondAuthFactorModule, AdminModule
 	]
 })
 export class AppModule { }

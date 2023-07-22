@@ -71,7 +71,7 @@ export class ChatCommandsService {
 	private handleCommand(userId: number, chatCommandMessageDto: ChatCommandMessageDto, command: string, args: string[]) {
 		console.log('User ID: ' + userId);
 		console.log('Command: ' + command);
-		console.log('Args: ' + args[0]);
+		console.log('Args: ' + String(args[0]));
 
 		const commandNotExecuted = { commandExecuted: false, response: '', error: false };
 
@@ -85,11 +85,11 @@ export class ChatCommandsService {
 				break;
 
 			case '/block':
-				const blockUserDto: ChatBlockedDto = { 'nick': args[0] };
+				const blockUserDto: ChatBlockedDto = { 'nick': String(args[0]) };
 				return this.blockUser(userId, blockUserDto);
 
 			case '/unblock':
-				const unblockUserDto: ChatBlockedDto = { 'nick': args[0] };
+				const unblockUserDto: ChatBlockedDto = { 'nick': String(args[0]) };
 				return this.unBlockUser(userId, unblockUserDto);
 
 			case '/mute':
@@ -98,7 +98,7 @@ export class ChatCommandsService {
 
 				const mutedUserDto: ChatChannelBannedUserDto = {
 					channel_id: chatCommandMessageDto.chat_id,
-					nick: args[0],
+					nick: String(args[0]),
 					isMutedSecs: Number(args[1]),
 				};
 				return this.muteUserInChannel(userId, mutedUserDto);
@@ -109,7 +109,7 @@ export class ChatCommandsService {
 
 				const unmutedUserDto: ChatChannelBannedUserDto = {
 					channel_id: chatCommandMessageDto.chat_id,
-					nick: args[0],
+					nick: String(args[0]),
 					isMutedSecs: 0,
 				};
 				return this.unmuteUserInChannel(userId, unmutedUserDto);
@@ -120,7 +120,7 @@ export class ChatCommandsService {
 
 				const kickUserDto: ChatChannelBannedUserDto = {
 					channel_id: chatCommandMessageDto.chat_id,
-					nick: args[0]
+					nick: String(args[0])
 				};
 				return this.kickUserInChannel(userId, kickUserDto);
 
@@ -130,7 +130,7 @@ export class ChatCommandsService {
 
 				const bannedUserDto: ChatChannelBannedUserDto = {
 					channel_id: chatCommandMessageDto.chat_id,
-					nick: args[0],
+					nick: String(args[0]),
 					isBanned: true
 				};
 				return this.banUserInChannel(userId, bannedUserDto);
@@ -141,7 +141,7 @@ export class ChatCommandsService {
 
 				const unbannedUserDto: ChatChannelBannedUserDto = {
 					channel_id: chatCommandMessageDto.chat_id,
-					nick: args[0],
+					nick: String(args[0]),
 					isBanned: false
 				};
 				return this.unbanUserInChannel(userId, unbannedUserDto);
@@ -152,7 +152,7 @@ export class ChatCommandsService {
 
 				const setAdminUserDto: ChatChannelUserDto = {
 					id: chatCommandMessageDto.chat_id,
-					nick: args[0],
+					nick: String(args[0]),
 					isAdmin: true
 				};
 				return this.setAdminInChannel(userId, setAdminUserDto);
@@ -163,7 +163,7 @@ export class ChatCommandsService {
 
 				const unsetAdminUserDto: ChatChannelUserDto = {
 					id: chatCommandMessageDto.chat_id,
-					nick: args[0],
+					nick: String(args[0]),
 					isAdmin: false
 				};
 				return this.unsetAdminInChannel(userId, unsetAdminUserDto);
@@ -174,7 +174,7 @@ export class ChatCommandsService {
 
 				const updatePassword: ChatChannelUpdateDto = {
 					id: chatCommandMessageDto.chat_id,
-					password: args[0]
+					password: String(args[0])
 				}
 				return this.changePasswordInChannel(userId, updatePassword);
 				

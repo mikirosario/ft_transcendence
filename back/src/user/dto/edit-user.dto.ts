@@ -1,9 +1,20 @@
-import { IsEmail, IsString, IsOptional } from "class-validator";
+import { IsOptional, IsBoolean, IsNumber } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger"
 
-export class EditUserDto {
+export class EditUserByAdminDto {
+
 	@ApiProperty()
-	@IsEmail()
+	@IsNumber()
 	@IsOptional()
-	email?: string
+	nick?: string
+
+	@ApiProperty()
+	@IsBoolean()
+	@IsOptional()
+	isSiteAdmin?: boolean
+
+	@ApiProperty()
+	@IsBoolean()
+	@IsOptional()
+	isBanned?: boolean
 }
