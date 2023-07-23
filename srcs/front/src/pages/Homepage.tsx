@@ -56,7 +56,6 @@ function Home() {
         navigate('/pong');
     };
 
-
     const GoGameSelector = () => {
         navigate('/gameSelector');
     };
