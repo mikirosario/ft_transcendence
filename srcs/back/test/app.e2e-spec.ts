@@ -4,7 +4,7 @@ import * as pactum from 'pactum';
 import { AppModule } from '../src/app.module';
 import { AuthDto } from '../src/auth/dto';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { EditUserDto, UserProfileUpdateDto } from '../src/user/dto';
+import { EditUserByAdminDto, UserProfileUpdateDto } from '../src/user/dto';
 import { readFileSync } from "fs";
 import { File } from "buffer";
 
@@ -223,7 +223,7 @@ describe('App e2e', () => {
 			});
 		})
 		describe('EditUser', () => {
-			const dto: EditUserDto = {
+			const dto: EditUserByAdminDto = {
 				email: "miki@42mars.com"
 			}
 			it('should edit user', () => {

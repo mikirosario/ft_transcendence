@@ -20,8 +20,8 @@ export class UserController {
 
 	/*
 	@Patch('me')
-	@ApiBody({ type: EditUserDto })
-	async editUser(@GetJwt('sub') userId: number, @Body() dto: EditUserDto) {
+	@ApiBody({ type: EditUserByAdminDto })
+	async editUser(@GetJwt('sub') userId: number, @Body() dto: EditUserByAdminDto) {
 		return this.userService.editUser(userId, dto);
 	}
 	*/
