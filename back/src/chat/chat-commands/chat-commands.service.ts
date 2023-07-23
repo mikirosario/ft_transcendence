@@ -34,9 +34,7 @@ export class ChatCommandsService {
 		'/kick': 'Expulsa a un <usuario> de un canal de forma inmediata',
 		'/ban': 'Expulsa y deniega el acceso a un <usuario> del canal presente <n> minutos o indefinidamente',
 		'/unban': 'Revoca el acceso a un <usuario> de un canal presente',
-		'/setmod': 'Agrega un <usuario> como moderador del canal',
 		'/setadmin': 'Agrega un <usuario> como administrador del canal',
-		'/unmod': 'Elimina un <usuario> como moderador del canal',
 		'/unadmin': 'Elimina un <usuario> como administrador del canal',
 		'/changepwd': 'Cambia la <contrasena actual> por una <contrasena nueva>'
 
