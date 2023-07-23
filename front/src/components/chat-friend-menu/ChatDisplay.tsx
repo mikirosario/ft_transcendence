@@ -34,6 +34,10 @@ interface User {
 
 
 const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat, isFriendChat }) => {
+    const usuario = '<usuario>';
+    const tiempo = '<tiempo>';
+    const oldPWD = '<antigua contraseña>';
+    const newPWD = '<nueva contraseña>';
     const socket = useContext(SocketContext1);
 
     const { handleNotification } = useContext(NotificationContext);
@@ -311,13 +315,22 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     <ul>
                         {isFriendChat ? (
                             <>
-                                <li style={{ fontSize: '14px' }}>/duel: Reta a un usuario a un Pong</li>
-                                <li style={{ fontSize: '14px' }}>/spectate' Comienza a observar la partida de un usuario</li>
-                                <li style={{ fontSize: '14px' }}>/block: Bloquea a un usuario</li>
+                                <li style={{ fontSize: '14px' }}>/duel {usuario}: Reta a un usuario a un Pong</li>
+                                <li style={{ fontSize: '14px' }}>/spectate {usuario}: Comienza a observar la partida de un usuario</li>
+                                <li style={{ fontSize: '14px' }}>/block {usuario}: Bloquea a un usuario</li>
+                                <li style={{ fontSize: '14px' }}>/unblock {usuario}: Desbloquea a un usuario</li>
                             </>
                         ) : (
-
-                            <li style={{ fontSize: '14px' }}>/block: Bloquea a un usuario</li>
+                            <>
+                                <li style={{ fontSize: '14px' }}>/mute {usuario} {tiempo}: Silencia a un usuario un determinado tiempo en segundos</li>
+                                <li style={{ fontSize: '14px' }}>/unmute {usuario}: Desilencia a un usuario</li>
+                                <li style={{ fontSize: '14px' }}>/kick {usuario}: Echa a un usuario del canal</li>
+                                <li style={{ fontSize: '14px' }}>/ban {usuario}: Expulsa a un usuario del canal de manera indefinida</li>
+                                <li style={{ fontSize: '14px' }}>/unban {usuario}: Revoca el acceso a un usuario al canal presente</li>
+                                <li style={{ fontSize: '14px' }}>/setadmin {usuario}: Da el permiso de admin a un usuario en el canal presente</li>
+                                <li style={{ fontSize: '14px' }}>/unsetadmin {usuario}: Quita el persmiso de admin a un usuario en el canal presente</li>
+                                <li style={{ fontSize: '14px' }}>/changepwd {oldPWD} {newPWD}: Actualiza la contraseña del canal a una nueva especificada</li>
+                            </>
                         )
 
                         }

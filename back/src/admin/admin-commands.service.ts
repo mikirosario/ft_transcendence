@@ -20,13 +20,13 @@ export class AdminCommandsService {
 	private commands = {
 		'/help': 'Usa /help para mostrar esta lista de comandos',
 
-		'/setsiteadmin <nick>': 'sadfsfadfsadsfadfasdfads',
-		'/unsetsiteadmin <nick>': 'adasdasdsadasd',
-		'/siteban <nick>': 'adwadadasdads',
-		'/siteunban <nick>': 'adsasdasdsadasd',
-		'/setchanneladmin <channel> <nick>': 'aadsasdadsasd',
-		'/unsetchanneladmin <channel> <nick>': 'adasdasdasd',
-		'/destroychannel <channel>': 'asdasdasdasd'
+		'/setsiteadmin <nick>': 'Da permisos de administador en todo la pagina a un usuario',
+		'/unsetsiteadmin <nick>': 'Quita los permisos de administrador en toda la pagina',
+		'/siteban <nick>': 'Banea a un usuario de toda la pagina de forma inminente',
+		'/siteunban <nick>': 'Desbanea a un usuario de toda la pagina de forma inminente',
+		'/setchanneladmin <channel> <nick>': 'Agrega permisos de administrador a un usuario en el canal especificado',
+		'/unsetchanneladmin <channel> <nick>': 'Elimina permisos de administrador a un usuario en el canal especificado',
+		'/destroychannel <channel>': 'Elimina un canal de chat del servidor'
 	};
 
 	

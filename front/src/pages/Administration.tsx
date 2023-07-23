@@ -12,6 +12,9 @@ import { SocketProvider1, SocketProvider2 } from "../SocketContext";
 
 function Administration() {
     // const { handleNotification } = useContext(NotificationContext);
+    const usuario = '<usuario>';
+    const canal = '<canal>';
+
     const [messagesList, setMessagesList] = useState<String[]>([]);
     const [message, setMessage] = useState('');
     const [showCommands, setShowCommands] = useState(false);
@@ -170,9 +173,14 @@ function Administration() {
                             <button style={CloseButtonStyle} onClick={toggleCommands}>X</button>
                             <ul>
                                 <>
-                                    <li style={{ fontSize: '14px' }}>/duel: Reta a un usuario a un Pong</li>
-                                    <li style={{ fontSize: '14px' }}>/spectate: Comienza a observar la partida de un usuario</li>
-                                    <li style={{ fontSize: '14px' }}>/block: Bloquea a un usuario</li>
+                                    <li style={{ fontSize: '14px' }}>/setsiteadmin {usuario}: Da permisos de administador en todo la pagina a un usuario</li>
+                                    <li style={{ fontSize: '14px' }}>/unsiteadmin {usuario}: Quita los permisos de administrador en toda la pagina</li>
+                                    <li style={{ fontSize: '14px' }}>/siteban {usuario}: Banea a un usuario de toda la pagina de forma inminente</li>
+                                    <li style={{ fontSize: '14px' }}>/siteunban {usuario}: Desbanea a un usuario de toda la pagina de forma inminente</li>
+                                    <li style={{ fontSize: '14px' }}>/setchanneladmin {canal} {usuario}: Agrega permisos de administrador a un usuario en el canal especificado</li>
+                                    <li style={{ fontSize: '14px' }}>/unsetchanneladmin {canal} {usuario}: Elimina permisos de administrador a un usuario en el canal especificado</li>
+                                    <li style={{ fontSize: '14px' }}>/destroychannel {canal}: Elimina un canal de chat del servidor</li>
+
                                 </>
                             </ul>
                         </div>
