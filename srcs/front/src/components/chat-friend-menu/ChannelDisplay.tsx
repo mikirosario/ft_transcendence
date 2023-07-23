@@ -1,14 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { MdSend } from 'react-icons/md';
 import { createChannel, getChannelList, joinChannel } from '../../requests/Channel.Service';
+import { SocketContext1 } from '../../SocketContext';
+import NotificationContext from '../../NotificationContext';
 
 interface Channel {
   id: number
   name: string
   isPrivate: boolean
+  imInside: boolean
 }
 
-function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }) {
+function ChannelDisplay({ openChat }: { openChat: (id: number) => void }) {
+  const socket = useContext(SocketContext1);
+
+  const { handleNotification } = useContext(NotificationContext);
+
   const [channelList, setChannelList] = useState<Channel[]>([]);
 
   const [createChannelName, setCreateChannelName] = useState('');
@@ -21,14 +28,35 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
   const [isHoveredCreate, setIsHoveredCreate] = useState(false);
   const [isHoveredJoin, setIsHoveredJoin] = useState(false);
 
+  const socketRef = useRef(socket);
   useEffect(() => {
-    const fetchChannels = async () => {
-      const channels = await getChannelList();
-      setChannelList(channels);
-    };
+    socketRef.current = socket;
+  }, [socket]);
 
-    fetchChannels();
-  }, []);
+  useEffect(() => {
+
+      const fetchChannels = async () => {
+        const channels = await getChannelList();
+        setChannelList(channels);
+      };
+
+      const handleChannelsList = async (newChannelList: []) => {
+        setChannelList(newChannelList);
+      };
+
+      // const handleKickCommand = async (data: {channelId: number}) => {
+      //   handleNotification('Te han echado/baneado del canal' );
+      //   // console.log(selectedChat);
+      //   // console.log(data.channelId);
+      //   // if (selectedChat === data.channelId) FIX
+      //     openChat(0);
+      // }
+
+      fetchChannels();
+      socket?.on("UPDATE_CHANNELS_LIST", handleChannelsList);
+      // socket?.on("KICK_FROM_CHANNEL", handleKickCommand);
+  }, [socket]);
+
 
   // ------------------- BUTTON CHANNELS STYLES ------------------------------
 
@@ -161,7 +189,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
   };
 
   const friendContainerStyle: React.CSSProperties = {
-    left:'12.5%',
+    left: '12.5%',
     top: '10px',
     width: '38%',
     borderRadius: '8px',
@@ -175,7 +203,7 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
     alignItems: 'center',
     justifyContent: 'flex-start',
     scale: '0.9',
-};
+  };
 
   const nameStyle: React.CSSProperties = {
     fontSize: '16px',
@@ -183,20 +211,48 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
     color: '#c0c0c0',
   }
 
-  const handleCreateChannel = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    await createChannel(createChannelName, createChannelPassword);
-    setCreateChannelName('');
-    setCreateChannelPassword('');
+  const handleCreateChannel = async () => {
+    if (createChannelName !== '') {
+      try {
+        const resp = await createChannel(createChannelName, createChannelPassword);
+        setCreateChannelName('');
+        setCreateChannelPassword('');
+        openChat(resp.id);
+        handleNotification(resp.notif);
+      } catch (error) {
+        handleNotification("Hubo un error al crear el canal");
+      }
+    }
   }
 
-  const handleJoinChannel = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleJoinChannel = async () => {
 
-    await joinChannel(joinChannelName, JoinChannelPassword);
-    setCreateChannelName('');
-    setCreateChannelPassword('');
+    if (joinChannelName !== '') {
+      try {
+
+        const resp = await joinChannel(joinChannelName, JoinChannelPassword);
+        setJoinChannelName('');
+        setJoinChannelPassword('');
+        if (resp.channelId >= 0) {
+          openChat(resp.channelId);
+          handleNotification(resp.notif);
+        }
+      } catch (error) {
+        handleNotification("No se ha podido unir al canal");
+      }
+    }
+  }
+
+  const handleJoinByList = async (ch: Channel) => {
+    if (!ch.imInside) {
+      const resp = await joinChannel(ch.name, "");
+      if (resp.channelId < 0) {
+        handleNotification("No se ha podido unir al canal");
+        return;
+      }
+      handleNotification(resp.notif);
+    }
+    openChat(ch.id)
   }
 
   return (
@@ -214,12 +270,18 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
                 placeholder='Canal'
                 maxLength={10}
                 style={InputStyleCreate}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleCreateChannel();
+                  }
+                }}
               />
             ) : (
               <p style={{ fontFamily: "'Press Start 2P'", fontSize: '11px' }}>Crear Canal</p>
             )}
             {isHoveredCreate && <MdSend size={20} style={SendIconStyle}
-            onClick={handleCreateChannel} 
+              onClick={handleCreateChannel}
             />}
           </div>
 
@@ -230,6 +292,12 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
               placeholder='Contraseña'
               maxLength={10}
               style={PasswordInputStyleCreate}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleCreateChannel();
+                }
+              }}
             />
           </div>
         </div>
@@ -248,12 +316,18 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
                 placeholder='Canal'
                 maxLength={10}
                 style={InputStyleJoin}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleJoinChannel();
+                  }
+                }}
               />
             ) : (
               <p style={{ fontFamily: "'Press Start 2P'", fontSize: '11px' }}>Unirse Canal</p>
             )}
             {isHoveredJoin && <MdSend size={20} style={SendIconStyle}
-            onClick={handleJoinChannel} 
+              onClick={handleJoinChannel}
             />}
           </div>
 
@@ -264,38 +338,44 @@ function ChannelDisplay({ openChat }: { openChat: (friendName: number) => void }
               placeholder='Contraseña'
               maxLength={10}
               style={PasswordInputStyleJoin}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleJoinChannel();
+                }
+              }}
             />
           </div>
         </div>
       </div>
       {/* Channel List */}
-        <div style={friendsListStyle}>
-          {channelList.map((channel, index) => (
-            <button
-              key={index}
-              style={friendContainerStyle}
-              onMouseEnter={() => setIsChannelHovered(index)}
-              onMouseLeave={() => setIsChannelHovered(-1)}
-            onClick={() => openChat(channel.id)}
-            >
-              <div style={{
-                transform: isChannelHovered === index ? 'scale(1.1)' : 'none',
-                transition: 'transform 0.3s ease-in-out',
+      <div style={friendsListStyle}>
+        {channelList && channelList.map((channel, index) => (
+          <button
+            key={index}
+            style={friendContainerStyle}
+            onMouseEnter={() => setIsChannelHovered(index)}
+            onMouseLeave={() => setIsChannelHovered(-1)}
+            onClick={() => handleJoinByList(channel)}
+          >
+            <div style={{
+              transform: isChannelHovered === index ? 'scale(1.1)' : 'none',
+              transition: 'transform 0.3s ease-in-out',
+            }}>
+
+              <p style={{
+                ...nameStyle,
+                fontWeight: isChannelHovered === index ? 'bold' : 'normal'
               }}>
+                {channel.isPrivate ? '🔒' : '🌐'}
+                {channel.name}
+              </p>
+            </div>
 
-                <p style={{
-                  ...nameStyle,
-                  fontWeight: isChannelHovered === index ? 'bold' : 'normal'
-                }}>
-                  {channel.isPrivate ? '🔒' : '🌐'}
-                  {channel.name}
-                </p>
-              </div>
-
-            </button>
-          ))}
-        </div>
+          </button>
+        ))}
       </div>
+    </div>
   );
 }
 

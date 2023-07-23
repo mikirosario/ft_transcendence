@@ -1,16 +1,20 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from '../prisma/prisma.service';
 import { ThrowHttpException } from '../utils/error-handler';
-import { EditUserDto, UserProfileDto, UserProfileUpdateDto } from "./dto";
+import { EditUserByAdminDto, UserProfileDto, UserProfileUpdateDto } from "./dto";
 import { ConfigService } from "@nestjs/config";
 import { join } from 'path';
 import * as fs from 'fs';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UserStateChangedEvent, SelfUserStateChangedEvent } from './user.events';
+import { use } from 'passport';
 
 
 @Injectable()
 export class UserService {
-	constructor(private prisma: PrismaService, private config: ConfigService) { }
+	constructor(private prisma: PrismaService, private config: ConfigService,
+				private eventEmitter: EventEmitter2) { }
 
 	async getUserById(userId: number) {
 		const user = await this.prisma.user.findUnique({
@@ -42,26 +46,31 @@ export class UserService {
 		return user;
 	}
 
-	async editUser(userId: number, dto: EditUserDto) {
+	async editUserBySiteAdmin(adminUser: any, dto: EditUserByAdminDto) {
 		try {
 			const user = await this.prisma.user.update({
 				where: {
-					id: userId
+					nick: dto.nick
 				},
 				data: {
 					...dto,
 				},
+				select: {
+					id: true,
+					nick: true,
+					avatarUri: true,
+					isOnline: true,
+					isInGame: true,
+					isSiteOwner: true,
+					isSiteAdmin: true,
+					isBanned: true,
+				}
 			});
-
-			delete user.hash;
-			return user;
+			
+			await this.updateStateToUser(user);
 		}
 		catch (error) {
-			if (error instanceof PrismaClientKnownRequestError) {
-				// https://www.prisma.io/docs/reference/api-reference/error-reference
-				// P2025 Record not found
-				ThrowHttpException(error, 'User not found');
-			}
+			ThrowHttpException(new BadRequestException, 'Usuario no encontrado');
 		}
 	}
 
@@ -96,17 +105,19 @@ export class UserService {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				id: userId,
+			},
+			select: {
+				nick: true,
+				avatarUri: true,
+				isSiteOwner: true,
+				isSiteAdmin: true
 			}
 		});
 		if (user === null) {
 			ThrowHttpException(new NotFoundException, 'User not found');
 		}
-
-		let profile = new UserProfileDto;
-		profile.nick = user.nick;
-		profile.avatarUri = user.avatarUri;
 		
-		return profile;
+		return user;
 	}
 
 	/*
@@ -147,6 +158,8 @@ export class UserService {
 					avatarUri: fileName
 				},
 			});
+
+			await this.updateUserStateToAll(userId);
 
 			if (prevAvatar && prevAvatar !== fileName)
 			{
@@ -190,6 +203,8 @@ export class UserService {
 				},
 			});
 
+			await this.updateUserStateToAll(userId);
+
 			this.removeAvatar(avatar);
 
 			delete user.hash;
@@ -205,13 +220,10 @@ export class UserService {
 	/*
 	 * Remove avatar file
 	*/
-	async removeAvatar(fileName: string) {
+	private async removeAvatar(fileName: string) {
 		if (fileName && fileName !== this.config.get('DEFAULT_AVATAR'))
 		{
-			fs.unlink(join(__dirname, '../../', this.config.get('PATH_AVATARS'), fileName), (err) => {
-				if (err)
-					console.log(err);
-			})
+			fs.unlink(join(__dirname, '../../', this.config.get('PATH_AVATARS'), fileName), (err) => {});
 		}
 	}
 
@@ -220,17 +232,29 @@ export class UserService {
 	*/
 	async setUserStatus(userId: number, isOnline: boolean): Promise<any> {
 		try {
-			const user = await this.prisma.user.update({
+			let user: any = await this.prisma.user.update({
 				where: {
 					id: userId
 				},
 				data: {
 					isOnline: isOnline
 				},
+				select: {
+					id: true,
+					nick: true,
+					avatarUri: true,
+					isOnline: true,
+					isInGame: true,
+				}
 			});
-			
-			delete user.hash;
-			return user;
+
+			return {
+					userId: user.id,
+					nick: user.nick,
+					avatarUri: user.avatarUri,
+					isOnline: user.isOnline,
+					isInGame: user.isInGame,
+				};
 		}
 		catch (error) {
 			return (null);
@@ -238,7 +262,7 @@ export class UserService {
 	}
 
 	/*
-	 * Set user status (online / offline)
+	 * Set user status (ingame)
 	*/
 	async setUserInGame(userId: number, isInGame: boolean): Promise<any> {
 		try {
@@ -253,6 +277,52 @@ export class UserService {
 			
 			delete user.hash;
 			return user;
+		}
+		catch (error) {
+			return (null);
+		}
+	}
+
+	async getUserStatusFriendList(userId: number): Promise<any> {
+		try {
+			let user: any = await this.prisma.user.findFirst({
+				where: {
+					id: userId
+				},
+				select: {
+					id: true,
+					nick: true,
+					avatarUri: true,
+					isOnline: true,
+					isInGame: true,
+				}
+			});
+
+			return {
+					userId: user.id,
+					nick: user.nick,
+					avatarUri: user.avatarUri,
+					isOnline: user.isOnline,
+					isInGame: user.isInGame,
+				};
+		}
+		catch (error) {
+			return (null);
+		}
+	}
+
+	async getUserStatus(user: any): Promise<any> {
+		try {
+			return {
+					userId: user.id,
+					nick: user.nick,
+					avatarUri: user.avatarUri,
+					isOnline: user.isOnline,
+					isInGame: user.isInGame,
+					isSiteOwner: user.isSiteOwner,
+					isSiteAdmin: user.isSiteAdmin,
+					isBanned: user.isBanned
+				};
 		}
 		catch (error) {
 			return (null);
@@ -284,6 +354,52 @@ export class UserService {
 			delete user.hash;
 
 		return user;
+	}
+
+	async getUserAndChatsById(userId: number) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: userId,
+			},
+			include: {
+				chatDirectUser1: {
+					select: {
+						id: true
+					}
+				},
+				chatDirectUser2: {
+					select: {
+						id: true
+					}
+				},
+				chatChannelUser: {
+					select: {
+						channelId: true
+					}
+				}
+			}
+		});
+
+		if (user === null) {
+			ThrowHttpException(new NotFoundException, 'User not found');
+		}
+
+		delete user.hash;
+		return user;
+	}
+
+	public async updateUserStateToAll(userId: number): Promise<void> {
+		const user = await this.getUserStatusFriendList(userId);
+
+		if (user)
+			this.eventEmitter.emit(UserStateChangedEvent.name, new UserStateChangedEvent(user));
+	}
+
+	public async updateStateToUser(userId: any): Promise<void> {
+		const user = await this.getUserStatus(userId);
+		
+		if (user)
+			this.eventEmitter.emit(SelfUserStateChangedEvent.name, new SelfUserStateChangedEvent(user));
 	}
 }
 

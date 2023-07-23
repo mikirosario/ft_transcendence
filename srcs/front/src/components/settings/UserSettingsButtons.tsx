@@ -75,12 +75,16 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 
 	useEffect(() => {
 		const fetchUserProfile = async () => {
-			const userProfile = await getUserProfile();
-			setUsername(userProfile.username);
-			setUserImage(userProfile.userImage);
+			try {
+				const userProfile = await getUserProfile();
+				setUsername(userProfile.username);
+				setUserImage(userProfile.userImage);
+			} catch (error) {
+				// throw error
+			}
 		  };
 		  
-		  fetchUserProfile();
+		   fetchUserProfile();
 	}, []);
 
 	// -------------------------- STYLES ---------------------------------

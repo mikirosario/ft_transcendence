@@ -1,6 +1,7 @@
 import axios from "axios";
+import { getServerIP } from '../utils/utils';
 
-axios.defaults.baseURL = 'http://localhost:3000';
+axios.defaults.baseURL = getServerIP(3000);
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
 
 export async function getChatDirect(chatId: number) {
@@ -56,10 +57,14 @@ export async function getChatChannel(chatId: number) {
             },
         });
 
+        if (response.status !== 200 && response.status !== 201) {
+            throw new Error('Could not join the channel ' + response.status);
+        }
+
         return response.data;
 
     } catch (error) {
-        console.log('Error: Could not remove that friend', error);
+        console.log('Error: Could not join that channel', error);
         return [];
     }
 }

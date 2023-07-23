@@ -10,7 +10,7 @@ const UserProfile: React.FC<Args> = (args) => {
   const avatarStyle: React.CSSProperties = {
     width: '100px',
     height: '100px',
-    right: '35%',
+    right: '33%',
     top: '0%',
     position: 'relative',
     borderRadius: '50%',

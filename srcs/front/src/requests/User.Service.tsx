@@ -1,6 +1,7 @@
 import axios from "axios";
+import { getServerIP } from '../utils/utils';
 
-axios.defaults.baseURL = 'http://localhost:3000';
+axios.defaults.baseURL = getServerIP(3000);
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
 
 export async function updateUserProfile(username: string, image: File | null) {
@@ -31,7 +32,6 @@ export async function updateUserProfile(username: string, image: File | null) {
 };
 
 export async function getUserProfile() {
-  try {
     const response = await axios.get('users/profile', {
       headers: {
         Authorization: 'Bearer ' + localStorage.getItem('token'),
@@ -43,6 +43,8 @@ export async function getUserProfile() {
     }
 
     const fetchedName = response.data.nick;
+    const fetchedAdminSite = response.data.isSiteAdmin;
+    const fetchedOwnerSite = response.data.isSiteOwner;
     let fetchedImage = response.data.avatarUri;
 
     let imageResponse;
@@ -78,12 +80,7 @@ export async function getUserProfile() {
 
     const imageURL = URL.createObjectURL(imageResponse.data);
 
-    return { username: fetchedName, userImage: imageURL };
-
-  } catch (error) {
-    console.log('Error:', error);
-    return { username: "", userImage: "" };
-  }
+    return { username: fetchedName, userImage: imageURL, siteAdmin: fetchedAdminSite };
 }
 
 export async function deleteAvatarProfile() {

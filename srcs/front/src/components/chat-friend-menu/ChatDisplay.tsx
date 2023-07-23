@@ -1,36 +1,59 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { IoMdArrowRoundBack, IoMdSend } from 'react-icons/io';
+import { FaSignOutAlt, FaInfoCircle } from 'react-icons/fa';
 import { getChatDirect, sendDirectMessage, getChatChannel, sendChannelMessage } from '../../requests/Chat.Service';
 import { getUserImage } from "../../requests/User.Service";
+import { SocketContext1 } from '../../SocketContext';
+import NotificationContext from '../../NotificationContext';
+import { leaveChannel } from '../../requests/Channel.Service';
 
 interface ChatDisplayProps {
     selectedChat: number;
-    setSelectedChat: (chat: number | null) => void;
+    setSelectedChat: (chat: number) => void;
     isFriendChat: boolean;
 }
 
 interface Message {
+    directId?: number,
+    channelId?: number,
+    userId: number,
     sender: string,
+    avatarUri: string,
     sentAt: string,
     message: string,
+    isAdmin?: string,
+    avatarFile?: string,
 };
 
 interface User {
-    userId: number;
-    nick: string;
-    avatarUri: string;
-    avatarFile?: string;
+    userId: number,
+    nick: string,
+    avatarUri: string,
 }
 
 
 const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat, isFriendChat }) => {
+    const usuario = '<usuario>';
+    const tiempo = '<tiempo>';
+    const oldPWD = '<antigua contraseña>';
+    const newPWD = '<nueva contraseña>';
+    const socket = useContext(SocketContext1);
+
+    const { handleNotification } = useContext(NotificationContext);
+
     const [messagesList, setMessagesList] = useState<Message[]>([]);
-    const [usersMap, setUsersMap] = useState<{ [id: string]: User }>({});
+    const [usersMap, setUsersMap] = useState<User[]>([]);
     const [message, setMessage] = useState('');
+    const [showCommands, setShowCommands] = useState(false);
+
+    const toggleCommands = () => {
+        setShowCommands(!showCommands);
+    }
 
     useEffect(() => {
         const fetchData = async () => {
-            if (selectedChat !== null) {
+            if (selectedChat !== 0) {
                 let result;
                 if (isFriendChat)
                     result = await getChatDirect(selectedChat);
@@ -38,24 +61,67 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     result = await getChatChannel(selectedChat);
                 if (result && result.members && result.messages) {
                     const { members, messages } = result;
-                    const usersWithImages = await Promise.all(members.map(async (user: User) => {
-                        const imageUrl = await getUserImage(user.avatarUri);
-                        console.log('getUserImage imageUrl:', imageUrl);
-                        return { ...user, avatarFile: imageUrl ?? '' };
+                    setUsersMap(members);
+                    const messagesWithImages = await Promise.all(messages.map(async (msg: Message) => {
+                        const imageUrl = await getUserImage(msg.avatarUri);
+                        return { ...msg, avatarFile: imageUrl ?? '' };
                     }));
-                    setMessagesList(messages);
-                    const usersMap = usersWithImages.reduce((acc, currUser) => {
-                        acc[currUser.nick] = currUser;
-                        return acc;
-                    }, {} as { [key: string]: User });
-                    setUsersMap(usersMap);
+                    setMessagesList(messagesWithImages);
                 }
             }
-
         };
 
+        const handleNewDirectMessages = async (msg: Message) => {
+            if (selectedChat === msg.directId) {
+                const imageUrl = await getUserImage(msg.avatarUri);
+                msg.avatarFile = imageUrl ? imageUrl : '';
+                setMessagesList(oldMessageList => [...oldMessageList, msg]);
+            }
+        };
+
+        const handleNewChannelMessages = async (msg: Message) => {
+            if (selectedChat === msg.channelId) {
+                const imageUrl = await getUserImage(msg.avatarUri);
+                msg.avatarFile = imageUrl ? imageUrl : '';
+                setMessagesList(oldMessageList => [...oldMessageList, msg]);
+            }
+        };
+
+
+        const handleUpdateChannelJoin = async (newUserList: []) => {
+            setUsersMap(newUserList);
+        }
+
+        // const handleUpdateChannelLeave = async (newUserList: []) => {
+        //     setUsersMap(newUserList);
+        // }
+
+
+        const handleKickCommand = async (data: { channelId: number }) => {
+            handleNotification('Te han echado/baneado del canal');
+            if (selectedChat === data.channelId)
+                setSelectedChat(0);
+        }
+
         fetchData();
-    }, [selectedChat]);
+        if (isFriendChat)
+            socket?.on("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
+        else {
+            socket?.on("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
+            socket?.on("UPDATE_CHANNEL_USERS_LIST_JOIN", handleUpdateChannelJoin);
+            socket?.on("UPDATE_CHANNEL_USERS_LIST_LEAVE", handleUpdateChannelJoin);
+            socket?.on("KICK_FROM_CHANNEL", handleKickCommand);
+        }
+
+        // return () => {
+        //     if (isFriendChat) {
+        //         socket.off("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
+        //     } else {
+        //         socket.off("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
+        //         socket.off("UPDATE_CHANNEL_USERS_LIST", handleUpdateChannel);
+        //     }
+        // };
+    }, [selectedChat, socket]);
 
     const ChatWrapper: React.CSSProperties = {
         height: '80vh',
@@ -72,6 +138,48 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         background: 'transparent',
         border: 'none'
     }
+
+    const LeaveIconStyle: React.CSSProperties = {
+        top: '1%',
+        left: '66%',
+        position: 'relative',
+        cursor: 'pointer',
+        background: 'transparent',
+        border: 'none'
+    }
+
+    const InfoCommandsIconStyle: React.CSSProperties = {
+        top: '1%',
+        left: '62.5%',
+        position: 'relative',
+        cursor: 'pointer',
+        background: 'transparent',
+        border: 'none'
+    }
+
+    const HelpCommandPopUpStyle: React.CSSProperties = {
+        position: 'absolute',
+        top: '21.5%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        background: 'rgba(185, 180, 195, 0.9)',
+        border: '1px solid #000',
+        borderRadius: '10px',
+        padding: '5px',
+        width: '300px',
+        zIndex: '1000'
+    };
+
+    const CloseButtonStyle: React.CSSProperties = {
+        position: 'absolute',
+        top: '5px',
+        right: '8px',
+        background: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        fontSize: '18px'
+    };
+
     const TextAreaWrapperStyle: React.CSSProperties = {
         position: 'absolute',
         bottom: '6%',
@@ -141,9 +249,11 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
     };
 
     const MessageContentStyle: React.CSSProperties = {
+        whiteSpace: 'pre-wrap',
         color: '#A9A9A9',
         fontSize: '14px',
         fontWeight: 'bold',
+        fontFamily: 'Quantico',
         wordBreak: 'break-word',
         overflowWrap: 'break-word',
     };
@@ -163,28 +273,102 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
     };
 
     const handleSend = async () => {
-        if (selectedChat !== null) {
-            if (isFriendChat)
-                await sendDirectMessage(selectedChat, message);
-            else 
-                await sendChannelMessage(selectedChat, message);
-            setMessage('');
+        if (selectedChat !== 0) {
+            if (message.trim() != '') {
+                if (isFriendChat) {
+                    const resp = await sendDirectMessage(selectedChat, message);
+                    if (!resp)
+                        handleNotification('El mensaje no se ha podido mandar');
+                } else {
+                    const resp = await sendChannelMessage(selectedChat, message);
+                    if (!resp)
+                        handleNotification('El mensaje no se ha podido mandar');
+                }
+                setMessage('');
+            }
         }
+    }
+
+    const leaveChatChannel = async () => {
+        const resp = await leaveChannel(selectedChat);
+        if (resp)
+            handleNotification('Has salido del canal')
+        else
+            handleNotification('No se ha podido salir del canal, puede que ya no exista!')
+        setSelectedChat(0)
     }
 
     return (
         <div style={ChatWrapper}>
-            <button style={BackArrowStyle} onClick={() => setSelectedChat(null)}>
-                <IoMdArrowRoundBack size={26} color='grey' />
+            <button style={BackArrowStyle} onClick={() => setSelectedChat(0)}>
+                <IoMdArrowRoundBack size={27} color='grey' />
             </button>
+
+            <button style={InfoCommandsIconStyle} onClick={toggleCommands}>
+                <FaInfoCircle size={24} color='grey' />
+            </button>
+
+            {showCommands && (
+                <div style={HelpCommandPopUpStyle}>
+                    <h2>Lista de Comandos</h2>
+                    <button style={CloseButtonStyle} onClick={toggleCommands}>X</button>
+                    <ul>
+                        {isFriendChat ? (
+                            <>
+                                <li style={{ fontSize: '14px' }}>/duel {usuario}: Reta a un usuario a un Pong</li>
+                                <li style={{ fontSize: '14px' }}>/spectate {usuario}: Comienza a observar la partida de un usuario</li>
+                                <li style={{ fontSize: '14px' }}>/block {usuario}: Bloquea a un usuario</li>
+                                <li style={{ fontSize: '14px' }}>/unblock {usuario}: Desbloquea a un usuario</li>
+                            </>
+                        ) : (
+                            <>
+                                <li style={{ fontSize: '14px' }}>/mute {usuario} {tiempo}: Silencia a un usuario un determinado tiempo en segundos</li>
+                                <li style={{ fontSize: '14px' }}>/unmute {usuario}: Desilencia a un usuario</li>
+                                <li style={{ fontSize: '14px' }}>/kick {usuario}: Echa a un usuario del canal</li>
+                                <li style={{ fontSize: '14px' }}>/ban {usuario}: Expulsa a un usuario del canal de manera indefinida</li>
+                                <li style={{ fontSize: '14px' }}>/unban {usuario}: Revoca el acceso a un usuario al canal presente</li>
+                                <li style={{ fontSize: '14px' }}>/setadmin {usuario}: Da el permiso de admin a un usuario en el canal presente</li>
+                                <li style={{ fontSize: '14px' }}>/unsetadmin {usuario}: Quita el persmiso de admin a un usuario en el canal presente</li>
+                                <li style={{ fontSize: '14px' }}>/changepwd {oldPWD} {newPWD}: Actualiza la contraseña del canal a una nueva especificada</li>
+                            </>
+                        )
+
+                        }
+                    </ul>
+                </div>
+            )}
+
+
+            {!isFriendChat &&
+                <button style={LeaveIconStyle} onClick={leaveChatChannel}>
+                    <FaSignOutAlt size={26} color='grey' />
+                </button>
+            }
             <div style={MessagesContainerStyle}>
                 {[...messagesList].reverse().map((messageItem, index) => {
-                    const user = usersMap[messageItem.sender];
                     return (
                         <div key={index} style={MessageStyle}>
-                            <img src={usersMap[user?.nick]?.avatarFile} alt={user?.nick} style={UserImageStyle} />
-                            <div style={MessageInfoStyle}>
-                                <span style={UserNameStyle}>{messageItem.sender}</span>
+                            <img
+                                src={messageItem.avatarFile}
+                                alt={messageItem.sender}
+                                style={UserImageStyle}
+                                // as={Link}
+                                // to="/settings"       CHANGE TO USER PROFILEPAGE
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                }}
+                            />
+                            <div style={{ ...UserNameStyle, color: messageItem.isAdmin ? 'red' : UserNameStyle.color }}>
+                                <span
+                                    style={UserNameStyle}
+                                    // as={Link}
+                                    // to="/settings"   CHANGE TO USER PROFILEPAGE
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                    }}
+                                >
+                                    {messageItem.sender}
+                                </span>
                                 <p style={MessageContentStyle}>
                                     {messageItem.message}
                                 </p>
@@ -199,6 +383,12 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Escribe un mensaje"
+                    onKeyPress={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSend();
+                        }
+                    }}
                 />
             </div>
             <button style={SendButtonStyle} onClick={handleSend}>

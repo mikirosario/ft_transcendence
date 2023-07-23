@@ -5,18 +5,24 @@ import { ChatBlockedUserService } from '../chat-blocked-user/chat-blocked-user.s
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ChatDirectMessageDto } from './dto';
+import { ChatGateway } from '../chat-socket/chat.gateway';
+import { ChatCommandsService } from '../chat-commands/chat-commands.service';
+
 
 @Injectable()
 export class ChatDirectMessageService {
 
 	constructor(private prisma: PrismaService, private userService: UserService,
-				private chatBlockedUserService: ChatBlockedUserService) { }
+				private chatBlockedUserService: ChatBlockedUserService,
+				private chatCommandsService: ChatCommandsService,
+				private ws: ChatGateway) { }
 
 	async sendDirectMessage(userId: number, dto: ChatDirectMessageDto) {
 		const user1 = await this.userService.getUserById(userId);
 		const user2 = await this.userService.getUserById(dto.user_id);
 
 		const directChat = await this.getDirectChatByUserIds(user1.id, user2.id);
+		
 		if (!directChat)
 			ThrowHttpException(new BadRequestException, 'Some error occurred creating direct chat.');
 
@@ -25,6 +31,13 @@ export class ChatDirectMessageService {
 
 		if (await this.chatBlockedUserService.isUserBlocked(user2.id, user1.id))
 			ThrowHttpException(new BadRequestException, 'You cant send a message, you are blocked by the other user.');
+
+			const response: any = await this.chatCommandsService.executeCommand(userId, {isDirect: true, chat_id: directChat.id, message: dto.message});
+			if (response.commandExecuted == true)
+			{
+				delete response.commandExecuted;
+				return response;
+			}
 		
 		try {
 			const newMessage = await this.prisma.chatDirectMessage.create({
@@ -34,6 +47,24 @@ export class ChatDirectMessageService {
 					message: dto.message
 				}
 			});
+
+			this.ws.sendSocketMessageToUser(user1.id, 'NEW_DIRECT_MESSAGE', {
+				directId: user2.id,
+				userId: user1.id,
+				sender: user1.nick,
+				avatarUri: user1.avatarUri,
+				sentAt: newMessage.sentAt,
+				message: newMessage.message,
+			});
+
+			this.ws.sendSocketMessageToUser(user2.id, 'NEW_DIRECT_MESSAGE', {
+				directId: user1.id,
+				userId: user1.id,
+				sender: user1.nick,
+				avatarUri: user1.avatarUri,
+				sentAt: newMessage.sentAt,
+				message: newMessage.message,
+			})
 
 			return newMessage;
 
@@ -49,7 +80,6 @@ export class ChatDirectMessageService {
 
 		return await this.getDirectChatAndMessages(directChat.id);
 	}
-
 
 
 
@@ -84,6 +114,11 @@ export class ChatDirectMessageService {
 					userId2: userId2,
 				}
 			});
+
+			this.ws.joinRoom(userId1, "direct_" + String(directChat.id));
+			this.ws.joinRoom(userId2, "direct_" + String(directChat.id));
+
+
 			return directChat;
 
 		} catch (error) {
@@ -99,7 +134,9 @@ export class ChatDirectMessageService {
 				include: {
 				  user: {
 					select: {
-					  nick: true
+						id: true,
+						nick: true,
+						avatarUri: true
 					}
 				  },
 				}
@@ -125,7 +162,9 @@ export class ChatDirectMessageService {
 		// Reestructuración de los datos para coincidir con el formato de JSON deseado
 		let messages = directChat.chatDirectMessageDirect.map(message => {
 			return {
+				userId: message.user.id,
 				sender: message.user.nick,
+				avatarUri: message.user.avatarUri,
 				sentAt: message.sentAt,
 				message: message.message,
 			}

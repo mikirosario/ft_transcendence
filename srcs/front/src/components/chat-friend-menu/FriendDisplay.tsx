@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { addFriend, deleteFriend, getBlockedUsers, getFriendList, getFriendRequests, unblockUser, updateFriendList } from '../../requests/Friend.Service';
 import { getUserImage } from "../../requests/User.Service";
 import { FaCaretDown, FaCaretUp, FaCheck, FaTimes } from 'react-icons/fa';
 import { MdSend } from 'react-icons/md';
+import { SocketContext1, SocketContext2 } from '../../SocketContext';
+import NotificationContext from '../../NotificationContext';
 
 interface Friend {
     userId: number;
@@ -10,79 +12,175 @@ interface Friend {
     avatarUri: string;
     isOnline: boolean;
     isInGame: boolean;
-    avatarFile?: string;
+    avatarFile?: string | null;
 }
 
 function FriendDisplay({ openChat }: { openChat: (friendName: number) => void }) {
+    const socket = useContext(SocketContext1);
+    const socketUserStatus = useContext(SocketContext2);
+
+    const { handleNotification } = useContext(NotificationContext);
+
     const initialFriendsExpanded = localStorage.getItem("showFriends") === "true";
     const initialPetitionsExpanded = localStorage.getItem("showRequests") === "true";
     const initialBlocksExpanded = localStorage.getItem("showBlocked") === "true";
-    
+
     const [isHovered, setIsHovered] = useState(false);
     const [friendName, setFriendName] = useState('');
-    
+
     const [friendList, setFriendList] = useState<Friend[]>([]);
     const [showFriends, setShowFriends] = useState(initialFriendsExpanded);
     const [isFriendHovered, setIsFriendHovered] = useState(-1);
-    
-    const [friendPetitionList, setFriendLPetitionList] = useState<Friend[]>([]);
+    const [friendPetitionList, setFriendPetitionList] = useState<Friend[]>([]);
     const [showRequests, setShowRequests] = useState(initialPetitionsExpanded);
     const [isRequestHovered, setIsRequestHovered] = useState(-1);
     const [isAcceptHovered, setIsAcceptHovered] = useState(false);
     const [isRejectHovered, setIsRejectHovered] = useState(false);
-    
+
     const [blockedUsersList, setBlockedUsersList] = useState<Friend[]>([]);
     const [showBlocked, setShowBlocked] = useState(initialBlocksExpanded);
     const [isBlockedHovered, setIsBlockedHovered] = useState(-1);
 
+
     useEffect(() => {
-        const fetchFriends = async () => {
-            const friendsRequest = await getFriendList();
-            const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
-                const imageUrl = await getUserImage(friend.avatarUri);
-                return { ...friend, avatarFile: imageUrl };
-            }));
-            setFriendList(friendsWithImages);
-        };
 
-        const fetchFriendPetition = async () => {
-            const friendsRequest = await getFriendRequests();
-            const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
-                const imageUrl = await getUserImage(friend.avatarUri);
-                return { ...friend, avatarFile: imageUrl };
-            }));
-            setFriendLPetitionList(friendsWithImages);
-        };
+            if (!socketUserStatus) return undefined;
+            // FriendList Functions
+            const fetchFriends = async () => {
+                const friendsRequest = await getFriendList();
+                const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setFriendList(friendsWithImages);
+                // console.log(friendList);
+            };
 
-        const fetchBlockedUsers = async () => {
-            const blockedUsersRequest = await getBlockedUsers();
-            const blockedUsersWithImages = await Promise.all(blockedUsersRequest.map(async (blockedUser: { avatarUri: string; nick: string; userId: number}) => {
-                const imageUrl = await getUserImage(blockedUser.avatarUri);
-                return {
-                    userId: blockedUser.userId,
-                    nick: blockedUser.nick,
-                    avatarFile: imageUrl,
-                    isOnline: false,
-                    isInGame: false,
-                };
-            }));
-            setBlockedUsersList(blockedUsersWithImages);
-        };
+            const handleFriendListNew = async (data: { friends: [], friend_requests: [] }) => {
+                const newFriendsList = data.friends;
+                const newRequestList = data.friend_requests;
 
-        fetchFriends();
-        fetchFriendPetition();
-        fetchBlockedUsers();
+                // console.log(newFriendsList);
+                const friendsWithImages = await Promise.all(newFriendsList.map(async (friend: Friend) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setFriendList(friendsWithImages);
 
-    }, []);
+                // console.log(newRequestList);
+                const friendsWithImages2 = await Promise.all(newRequestList.map(async (friend: Friend) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setFriendPetitionList(friendsWithImages2);
+            };
+
+            const handleFriendListStatus = async (newFriend: Friend) => {
+                // obtener la imagen del usuario primero
+                const avatarFile = await getUserImage(newFriend.avatarUri);
+                
+                // luego actualizar el estado
+                setFriendList((oldFriendList) => {
+                  const i = oldFriendList.findIndex(friend => friend.userId === newFriend.userId);
+                
+                  if (i === -1) return oldFriendList;
+                
+                  const updatedFriendList = [...oldFriendList]; // Crear una copia del antiguo friendList
+                  updatedFriendList[i] = {...newFriend, avatarFile}; // actualizar la información del amigo en la nueva lista
+              
+                  return updatedFriendList; // devolver la nueva lista
+                });
+              };
+
+            // FriendPetition Functions
+            const fetchFriendPetition = async () => {
+                const friendsRequest = await getFriendRequests();
+                const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setFriendPetitionList(friendsWithImages);
+            };
+
+            const handleFriendRequestNew = async (newFriendsRequest: Friend[]) => {
+                const friendsWithImages = await Promise.all(newFriendsRequest.map(async (friend: Friend) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setFriendPetitionList(friendsWithImages);
+            };
+
+            const handleFriendRequestReject = async (newFriendsRequest: Friend[]) => {
+                const friendsWithImages = await Promise.all(newFriendsRequest.map(async (friend: Friend) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setFriendPetitionList(friendsWithImages);
+            };
+
+            // BlockList Functions
+            const fetchBlockedUsers = async () => {
+                const blockedUsersRequest = await getBlockedUsers();
+                const blockedUsersWithImages = await Promise.all(blockedUsersRequest.map(async (blockedUser: { avatarUri: string; nick: string; userId: number }) => {
+                    const imageUrl = await getUserImage(blockedUser.avatarUri);
+                    return {
+                        userId: blockedUser.userId,
+                        nick: blockedUser.nick,
+                        avatarFile: imageUrl,
+                        isOnline: false,
+                        isInGame: false,
+                    };
+                }));
+                setBlockedUsersList(blockedUsersWithImages);
+            };
+
+            const handleFriendListUpdate = async (newFriendList: []) => {
+                const friendsWithImages = await Promise.all(newFriendList.map(async (friend: Friend) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setFriendList(friendsWithImages);
+            };
+
+            const handleBlockedListUpdate = async (newBlockedList: []) => {
+                const friendsWithImages = await Promise.all(newBlockedList.map(async (friend: Friend) => {
+                    const imageUrl = await getUserImage(friend.avatarUri);
+                    return { ...friend, avatarFile: imageUrl };
+                }));
+                setBlockedUsersList(friendsWithImages);
+            };
+
+
+            fetchFriends();
+            socket?.on("FRIEND_REQUEST_ACCEPTED", handleFriendListNew);
+            socketUserStatus?.on("UPDATE_USER", handleFriendListStatus);
+            
+            fetchFriendPetition();
+            socket?.on("FRIEND_REQUEST_NEW", handleFriendRequestNew);
+            socket?.on("FRIEND_REQUEST_REJECTED", handleFriendRequestReject);
+            
+            fetchBlockedUsers();
+            socket?.on("UPDATE_FRIEND_LIST", handleFriendListUpdate);
+            socket?.on("UPDATE_BLOCKED_LIST", handleBlockedListUpdate);
+
+            // // Función de limpieza
+            // return () => {
+            //     socket?.off("FRIEND_REQUEST_ACCEPTED", handleFriendListNew);
+            //     socket?.off("FRIENDLIST_STATUS", handleFriendListStatus);
+            //     socket?.off("FRIEND_REQUEST_NEW", handleFriendRequestNew);
+            //     socket?.off("FRIEND_REQUEST_REJECTED", handleFriendRequestReject);
+            //     socket?.off("USER_BLOCK_LSIT", handleBlockedListUpdate);
+            // };
+    }, [socket, socketUserStatus]);
 
     useEffect(() => {
         localStorage.setItem("showFriends", String(showFriends));
     }, [showFriends]);
-    
+
     useEffect(() => {
         localStorage.setItem("showRequests", String(showRequests));
     }, [showRequests]);
-    
+
     useEffect(() => {
         localStorage.setItem("showBlocked", String(showBlocked));
     }, [showBlocked]);
@@ -201,7 +299,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
         width: '50px',
         height: '50px',
         borderRadius: '50%',
-        backgroundColor: 'blue', // if offline gris
+        backgroundColor: 'blue',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -209,10 +307,10 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
         position: 'relative',
         transition: 'transform 0.3s ease-in-out, background-color 0.8s ease',
     };
-    
+
     const avatarStyle: React.CSSProperties = {
-        width: '45px',
-        height: '45px',
+        width: '44px',
+        height: '44px',
         borderRadius: '50%',
         position: 'absolute',
         top: '50%',
@@ -270,25 +368,36 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
         const newState = !showFriends;
         setShowFriends(newState);
         localStorage.setItem("showFriends", JSON.stringify(newState));
-      };
-      
-      const handleRequestsClick = () => {
+    };
+
+    const handleRequestsClick = () => {
         const newState = !showRequests;
         setShowRequests(newState);
         localStorage.setItem("showRequests", JSON.stringify(newState));
-      };
-      
-      const handleBlockedClick = () => {
+    };
+
+    const handleBlockedClick = () => {
         const newState = !showBlocked;
         setShowBlocked(newState);
         localStorage.setItem("showBlocked", JSON.stringify(newState));
-      };
+    };
 
-    const handleFriendSumbit = async (event: React.FormEvent) => {
-        event.preventDefault();
+    const handleFriendSumbit = async () => {
 
-        await addFriend(friendName);
+        const resp = await addFriend(friendName);
+        if (resp)
+            handleNotification('Se ha enviado la peticion a ' + friendName);
+        else
+            handleNotification('No se ha podido enviar la peticion a ' + friendName);
         setFriendName('');
+    }
+
+    const handleUnblockUser = async (blockedUser: Friend) => {
+        const resp = await unblockUser(blockedUser.nick);
+        if (resp)
+            handleNotification('Se ha desbloqueado a ' + blockedUser.nick);
+        else
+            handleNotification('No se ha podido desbloquear a ' + blockedUser.nick);
     }
 
     return (
@@ -309,7 +418,14 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
                             type="text"
                             value={friendName}
                             onChange={(e) => setFriendName(e.target.value)}
-                            maxLength={10} />
+                            maxLength={10}
+                            onKeyPress={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleFriendSumbit();
+                                }
+                            }}
+                        />
                         <button
                             style={{ backgroundColor: 'transparent', border: 'none' }}
                             onClick={handleFriendSumbit}
@@ -343,15 +459,19 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
                                 }}>
                                     <div style={{
                                         ...avatarWrapperStyle,
-                                        backgroundColor: isFriendHovered === index ? 'lightgreen' : 'green'
+                                        backgroundColor: friend.isInGame ?
+                                            (isFriendHovered === index ? 'orange' : 'darkorange') :
+                                            friend.isOnline ?
+                                                (isFriendHovered === index ? 'lightgreen' : 'green') :
+                                                (isFriendHovered === index ? 'lightred' : 'red')
                                     }}>
                                         <img
                                             className='FriendAvatar'
                                             alt={'Avatar de' + friend.nick}
-                                            src={friend.avatarFile}
+                                            src={friend.avatarFile || ''}
                                             style={avatarStyle}
                                         />
-                                        
+
                                     </div>
                                     <p style={nameStyle}>{friend.nick}</p>
                                 </div>
@@ -386,7 +506,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
                                         <img
                                             className='FriendAvatar'
                                             alt={'Avatar de' + request.nick}
-                                            src={request.avatarFile}
+                                            src={request.avatarFile || ''}
                                             style={avatarStyle}
                                         />
                                     </div>
@@ -415,7 +535,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
                         ))}
                     </div>
                 </div>
-                 {/* BLOQUEADOS */}
+                {/* BLOQUEADOS */}
                 <div style={{ ...dropDownContainerStyle, maxHeight: showBlocked ? '500px' : '15px' }}>
                     <button onClick={handleBlockedClick} style={dropDownStyle}>
                         Bloqueados
@@ -429,7 +549,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
                                 style={friendContainerStyle}
                                 onMouseEnter={() => setIsBlockedHovered(index)}
                                 onMouseLeave={() => setIsBlockedHovered(-1)}
-                                onClick={async () => await unblockUser(blockedUser.nick)}
+                                onClick={(event) => handleUnblockUser(blockedUser)}
                             >
                                 <div style={{
                                     transform: isBlockedHovered === index ? 'scale(1.1)' : 'none',
@@ -442,7 +562,7 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
                                         <img
                                             className='FriendAvatar'
                                             alt={'Avatar de' + blockedUser.nick}
-                                            src={blockedUser.avatarFile}
+                                            src={blockedUser.avatarFile || ''}
                                             style={avatarStyle}
                                         />
                                     </div>

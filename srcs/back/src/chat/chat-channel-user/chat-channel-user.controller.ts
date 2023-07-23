@@ -25,6 +25,7 @@ export class ChatChannelUserController {
 		return this.chatChannelUserService.leaveChannel(userId, dto);
 	}
 
+	/*
 	@Put('users')
 	@ApiBody({ type: ChatChannelUserDto })
 	async updateChannelUser(@GetJwt('sub') userId: number, @Body() dto: ChatChannelUserDto) {
@@ -36,4 +37,5 @@ export class ChatChannelUserController {
 	async deleteChannelUser(@GetJwt('sub') userId: number, @Body() dto: ChatChannelUserDto) {
 		return this.chatChannelUserService.deleteChannelUser(userId, dto);
 	}
+	*/
 }

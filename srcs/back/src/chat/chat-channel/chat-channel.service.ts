@@ -4,15 +4,24 @@ import { ChatChannelCreateDto, ChatChannelUpdateDto } from "./dto";
 import { UserService } from '../../user/user.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { ChatGateway } from '../chat-socket/chat.gateway'
 import * as argon from "argon2";
+import { ChatBlockedUserService } from '../chat-blocked-user/chat-blocked-user.service';
+
 
 @Injectable()
 export class ChatChannelService {
-	constructor(private prisma: PrismaService, private userService: UserService) { }
+	constructor(private prisma: PrismaService, private userService: UserService,
+		private ws: ChatGateway, private chatBlockedUserService: ChatBlockedUserService) { }
 
 	async getChannelChat(userId: number, channelId: number) {
-		const channel = await this.getChannelChatInfo(userId, channelId);
-		return this.formatChannel(channel);
+		try {
+			const channel = await this.getChannelChatInfo(userId, channelId);
+			return this.formatChannel(channel);
+		} catch (error) {
+			ThrowHttpException(new NotFoundException, 'Ese canal no existe');
+		}
+		
 	}
 	
 	async createChannel(userId: number, dto: ChatChannelCreateDto) {
@@ -37,7 +46,9 @@ export class ChatChannelService {
 				}
 			});
 			
-			await this.joinChannel(newChannel.id, user.id, true);
+			await this.joinChannelOwner(newChannel.id, user.id, true);
+
+			this.ws.joinRoom(userId, "channel_" + String(newChannel.id));
 			
 			this.sendUpdatedChannelListToAllUsersWithSocket();
 
@@ -90,22 +101,36 @@ export class ChatChannelService {
 		}
 	}
 
-	async deleteChannel(userId: number, dto: ChatChannelUpdateDto) {
+	async deleteChannel(userId: number, dto: ChatChannelUpdateDto, isSiteAdmin: boolean = false) {
 		const user = await this.userService.getUserById(userId);
 		const channel = await this.getChannel(dto.id);
 
-		await this.checkUserIsAuthorizedInChannnel(user.id, channel.id);
+		if (!isSiteAdmin)
+			await this.checkUserIsAuthorizedInChannnel(user.id, channel.id);
 
-		await this.prisma.chatChannel.delete({
-			where: {
-				id: channel.id
+		await this.kickAllUsersFromChannelWithSocket(dto.id);
+
+		try {
+			await this.prisma.chatChannel.delete({
+				where: {
+					id: channel.id
+				}
+			});
+		} catch (error) {
+			if (error instanceof PrismaClientKnownRequestError) {
+				ThrowHttpException(error, 'Unknown channel');
 			}
-		});
+		}
 
 		this.sendUpdatedChannelListToAllUsersWithSocket();
 		
 		delete channel.hash;
 		return channel;
+	}
+
+	async kickAllUsersFromChannelWithSocket(channelId: number) {
+		this.ws.sendSocketMessageToRoom("channel_" + String(channelId), 'KICK_FROM_CHANNEL',
+											{channelId: channelId});
 	}
 
 	async getChannel(channelId: number) {
@@ -119,7 +144,7 @@ export class ChatChannelService {
 		});
 
 		if (channel === null) {
-			ThrowHttpException(new NotFoundException, 'Channel not found');
+			ThrowHttpException(new NotFoundException, 'Ese canal no existe');
 		}
 
 		return channel;
@@ -127,7 +152,7 @@ export class ChatChannelService {
 
 	async getChannelByName(name: string) {
 		if (!name)
-			ThrowHttpException(new BadRequestException, 'You must provide channel id');
+			ThrowHttpException(new BadRequestException, 'You must provide channel name');
 
 		const channel = await this.prisma.chatChannel.findFirst({
 			where: {
@@ -136,7 +161,7 @@ export class ChatChannelService {
 		});
 
 		if (channel === null) {
-			ThrowHttpException(new NotFoundException, 'Channel not found');
+			ThrowHttpException(new NotFoundException, 'Ese canal no existe');
 		}
 
 		return channel;
@@ -150,10 +175,9 @@ export class ChatChannelService {
 			if (channelUser.isOwner || channelUser.isAdmin)
 				return true;
 		} catch (error) {
-			ThrowHttpException(new UnauthorizedException, 'You must be channel owner or admin to do this action');
+			ThrowHttpException(new UnauthorizedException, 'Necesitas ser propietario o admin del canal para realizar esta acción');
 		}
 		
-		ThrowHttpException(new UnauthorizedException, 'You must be channel owner or admin to do this action');
 	}
 
 	async getChannelUser(channel_id: number, user_id: number) {
@@ -170,13 +194,19 @@ export class ChatChannelService {
 		return channelUser;
 	}
 
-	private async joinChannel(channelId: number, userId: number, isOwner: boolean) {
+	private async joinChannelOwner(channelId: number, userId: number, isOwner: boolean) {
+		let isAdmin: boolean = false;
+
+		if (isOwner)
+			isAdmin = true;
+
 		try {
 			await this.prisma.chatChannelUser.create({
 				data: {
 					channelId: channelId,
 					userId: userId,
-					isOwner: isOwner
+					isOwner: isOwner,
+					isAdmin: isAdmin
 				}
 			});
 		} catch (error) {
@@ -212,7 +242,7 @@ export class ChatChannelService {
 		}
 	}
 
-	async isUserBlocked(channelId: number, userId: number) {
+	async isUserBanned(channelId: number, userId: number) {
 		const channelBannedUser = await this.getBannedUser(channelId, userId);
 
 		if (!channelBannedUser)
@@ -238,19 +268,26 @@ export class ChatChannelService {
 
 	async getMyChannelsAndPublicChannels(userId: number) {
 		const myChannels = await this.getMyChannels(userId);
+		const myChannelsFormatted = this.formatChannelsList(myChannels, true);
 
 		const myChannelsList = myChannels.map(channel => channel.id);
 
 		const publicChannels = await this.getAllPublicChannels(myChannelsList);
+		const publicChannelsFiltered = [];
+		for (const channel of publicChannels) {
+			if (!await this.isUserBanned(channel.id, userId)) {
+				publicChannelsFiltered.push(channel);
+			}
+		}
+		
+		const publicChannelsFormatted = this.formatChannelsList(publicChannelsFiltered, false);
 
-		const myChannelsAndPublicChannelsList = [...myChannels, ...publicChannels];
+		const myChannelsAndPublicChannelsList = [...myChannelsFormatted, ...publicChannelsFormatted];
 
-		const formattedChannelsList = this.formatChannelsList(myChannelsAndPublicChannelsList);
-
-		return formattedChannelsList;
+		return myChannelsAndPublicChannelsList;
 	}
 
-	private async sendUpdatedChannelListToAllUsersWithSocket() {
+	async sendUpdatedChannelListToAllUsersWithSocket() {
 
 		const allUsers = await this.prisma.user.findMany({
 			include: {
@@ -262,11 +299,10 @@ export class ChatChannelService {
 			},
 		});
 
-		/*
 		for (const user of allUsers) {
-			this.ws.sendSocketMessageToUser(user.id, 'UPDATE_CHANNELS_LIST', await this.getMyChannelsAndPublicChannels(user.id));
+			this.ws.sendSocketMessageToUser(user.id, 'UPDATE_CHANNELS_LIST',
+					await this.getMyChannelsAndPublicChannels(user.id));
 		}
-		*/
 	}
 
 
@@ -314,21 +350,20 @@ export class ChatChannelService {
 		if (!channelChatInfo)
 			return {};
 
-		let userInChannel = false;
-		channelChatInfo.chatChannelUser.forEach((item) => {
-			if (item.userId == userId) {
-				userInChannel = true;
-			}
-		});
+		/*
+		Evitamos que el usuario reciba los mensajes de usuarios que tiene bloqueados
+		*/
+		const blockedUserIds: number[] = await this.chatBlockedUserService.getMyBlockedUsersIdList(userId);
 
-		if (userInChannel) {
-			return channelChatInfo;
+		let newMessageList: any[] = [];
+		for (const msg of channelChatInfo.chatChannelMessage) {
+			if (!blockedUserIds.includes(msg.userId))
+				newMessageList = [...newMessageList, msg];
 		}
-		else {
-			await this.joinChannel(channelId, userId, false);
-			return await this.getChannelChatInfo(userId, channelId);
-		}
+
+		channelChatInfo.chatChannelMessage = newMessageList;
 		
+		return channelChatInfo;
 	}
 
 	private async getAllPublicChannels(myChannels: number[]) {
@@ -369,10 +404,12 @@ export class ChatChannelService {
 		return channelFormatted;
 	}
 
-	private formatChannelsList(channelsList: any) {
+	private formatChannelsList(channelsList: any, imInside: boolean) {
 		const channelsListFormatted: any[] = channelsList.map((channel) => ({
 			id: channel.id,
-			name: channel.name
+			name: channel.name,
+			isPrivate: channel.isPrivate,
+			imInside: imInside
 		}));
 
 		return channelsListFormatted;
@@ -395,12 +432,33 @@ export class ChatChannelService {
 
 	private formatChannelMessages(messageList: any) {
 		const messageListFormatted: any[] = messageList.map((msg) => ({
+			userId: msg.user.id,
 			sender: msg.user.nick,
+			avatarUri: msg.user.avatarUri,
 			sentAt: msg.sentAt,
 			message: msg.message
 		}));
 
 		return messageListFormatted;
+	}
+
+	async getChannelUserList(channelId: number): Promise<number[]> {
+		let channelChatInfo = await this.prisma.chatChannel.findFirst({
+			where: {
+				id: channelId
+			},
+			include: {
+				chatChannelUser: {
+					include: {
+						user: true,
+					},
+				},
+			}
+		});
+
+		const userIds = channelChatInfo.chatChannelUser.map((chatChannelUser) => chatChannelUser.user.id);
+
+		return userIds;
 	}
 
 }

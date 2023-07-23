@@ -5,20 +5,33 @@ import { ChatChannelService } from '../chat-channel/chat-channel.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ChatChannelBannedUserDto } from './dto'
+import { ChatChannelUserService } from '../chat-channel-user/chat-channel-user.service';
+
 
 @Injectable()
 export class ChatChannelBannedUserService {
 
 	constructor(private prisma: PrismaService, private userService: UserService,
-				private chatChannelService: ChatChannelService) { }
+				private chatChannelService: ChatChannelService,
+				private chatChannelUserService: ChatChannelUserService) { }
 
-	async blockUserInChannel(userId: number, dto: ChatChannelBannedUserDto) {
+	async banUserInChannel(userId: number, dto: ChatChannelBannedUserDto) {
 		const user = await this.userService.getUserById(userId);
+		const victim = await this.userService.getUserByNick(dto.nick);
 		const channel = await this.chatChannelService.getChannel(dto.channel_id);
 
 		await this.chatChannelService.checkUserIsAuthorizedInChannnel(user.id, channel.id);
 
-		let bannedUser = await this.chatChannelService.getBannedUser(channel.id, dto.user_id);
+		let victimChannelUser = null;
+		try {
+			victimChannelUser = await this.chatChannelService.getChannelUser(channel.id, victim.id);
+		} catch (error) {
+		}
+		if (victimChannelUser != null && victimChannelUser.isOwner)
+			ThrowHttpException(new UnauthorizedException, 'No tienes permiso para banear / desbanear al propietario del canal');
+		
+
+		let bannedUser = await this.chatChannelService.getBannedUser(channel.id, victim.id);
 
 		try {
 			bannedUser = await this.prisma.chatChannelBannedUser.update({
@@ -29,6 +42,12 @@ export class ChatChannelBannedUserService {
 					isBanned: dto.isBanned
 				}
 			});
+
+			if (dto.isBanned == true) {
+				this.chatChannelUserService.leaveChannel(victim.id, {id: channel.id});
+			}
+
+			this.chatChannelService.sendUpdatedChannelListToAllUsersWithSocket();
 
 			return bannedUser;
 
@@ -42,11 +61,17 @@ export class ChatChannelBannedUserService {
 
 	async muteUserInChannel(userId: number, dto: ChatChannelBannedUserDto) {
 		const user = await this.userService.getUserById(userId);
+		const victim = await this.userService.getUserByNick(dto.nick);
 		const channel = await this.chatChannelService.getChannel(dto.channel_id);
 
 		await this.chatChannelService.checkUserIsAuthorizedInChannnel(user.id, channel.id);
 
-		let bannedUser = await this.chatChannelService.getBannedUser(channel.id, dto.user_id);
+		const victimChannelUser = await this.chatChannelService.getChannelUser(channel.id, victim.id);
+
+		if (victimChannelUser.isOwner)
+			ThrowHttpException(new UnauthorizedException, 'No tienes permiso para silenciar / desilenciar al propietario del canal');
+
+		let bannedUser = await this.chatChannelService.getBannedUser(channel.id, victim.id);
 
 		let currentTime = new Date().getTime();
 		let mutedUntil = new Date(currentTime + (dto.isMutedSecs * 1000));

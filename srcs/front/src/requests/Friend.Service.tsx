@@ -1,6 +1,7 @@
 import axios from "axios";
+import { getServerIP } from '../utils/utils';
 
-axios.defaults.baseURL = 'http://localhost:3000';
+axios.defaults.baseURL = getServerIP(3000);
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
 
 // Obtiene la solicitud de los amigos
@@ -137,7 +138,7 @@ export async function getBlockedUsers() {
 
 export async function unblockUser(friendName: string) {
     try {
-        const response = await axios.delete('chat/blocks', {
+        const response = await axios.delete('users/blocks', {
             data: { nick: friendName },
             responseType: 'json',
             headers: {

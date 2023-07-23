@@ -1,6 +1,21 @@
 import React, { useEffect, useState } from "react";
 import UserSettingsButtons from "../components/settings/UserSettingsButtons";
 import { useSearchParams } from 'react-router-dom';
+import { getUserProfile } from "../requests/User.Service";
+
+
+const hasValidToken = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        await getUserProfile();
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+    return false;
+  };
 
 function Register() {
     const [ready, setReady] = useState(false);
@@ -15,9 +30,26 @@ function Register() {
                 setSearchParams(searchParams);
                 setReady(true);
             }
+        } else {
+            setReady(true);
         }
-        setReady(true);
     }, [searchParams, setSearchParams]);
+
+    useEffect(() => {
+        const handlePopState = async () => {
+          const isValid = await hasValidToken();
+          if (!isValid) {
+            window.location.replace("/");
+          }
+        };
+    
+        window.addEventListener('popstate', handlePopState);
+    
+        // Asegurarte de limpiar el evento al desmontar el componente
+        return () => {
+          window.removeEventListener('popstate', handlePopState);
+        };
+      }, []);
 
     const NicknamePositionStyle: React.CSSProperties = {
         height: '320px',
@@ -66,7 +98,8 @@ function Register() {
     };
 
     return (
-            <div style={NicknamePositionStyle}>
+        ready 
+            ? <div style={NicknamePositionStyle}>
                 <div style={NicknameTapeStyle}>
                     <div style={TitleStyle}>CHOOSE A NICKNAME</div>
                     <div style={SubtitleStyle}>Nick rules</div>
@@ -77,6 +110,7 @@ function Register() {
                     </div>
                 </div>
             </div>
+            : <div>Loading...</div> // Mostrar algún spinner de carga o mensaje.
     );
 }
 

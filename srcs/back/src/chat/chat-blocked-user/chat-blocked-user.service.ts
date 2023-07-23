@@ -5,11 +5,13 @@ import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ChatBlockedDto } from './dto'
 import { FriendService } from '../friend/friend.service';
+import { ChatGateway } from '../chat-socket/chat.gateway';
 
 @Injectable()
 export class ChatBlockedUserService {
 
-	constructor(private prisma: PrismaService, private userService: UserService, private friendService: FriendService) { }
+	constructor(private prisma: PrismaService, private userService: UserService, private friendService: FriendService,
+				private ws: ChatGateway) { }
 
 	async chatBlockUser(userId: number, dto: ChatBlockedDto) {
 		const me = await this.userService.getUserById(userId);
@@ -25,6 +27,8 @@ export class ChatBlockedUserService {
 
 			await this.friendService.deleteFriendship(me.id, otherUser.id);
 			await this.friendService.deleteFriendship(otherUser.id, me.id);
+
+			this.ws.sendSocketMessageToUser(otherUser.id, 'UPDATE_FRIEND_LIST', await this.friendService.getFriends(otherUser.id));
 
 			return blockedUser;
 
@@ -54,6 +58,8 @@ export class ChatBlockedUserService {
 				id: blockedUser.id
 			}
 		});
+
+		this.ws.sendSocketMessageToUser(userId, 'UPDATE_BLOCKED_LIST', await this.getMyBlockedUsersList(userId));
 
 		return blockedUser;
 	}
@@ -93,6 +99,33 @@ export class ChatBlockedUserService {
 			nick: blockedUser.otherUser.nick,
 			avatarUri: blockedUser.otherUser.avatarUri,
 		}));
+
+		return blockedUsersList;
+	}
+
+	async getMyBlockedUsersIdList(userId: number) {
+		const user = await this.prisma.user.findUnique({
+			where: { id: userId, },
+			include: {
+				chatBlockedUser: {
+					include: {
+						otherUser: {
+							select: {
+								id: true
+							}
+						}
+					},
+				} 
+			},
+		});
+
+		if (user === null) {
+			return [];
+		}
+
+		const blockedUsersList: number[] = user.chatBlockedUser.map(
+			(blockedUser) => blockedUser.otherUser.id,
+		);
 
 		return blockedUsersList;
 	}
