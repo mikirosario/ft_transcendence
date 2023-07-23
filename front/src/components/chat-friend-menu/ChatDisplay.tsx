@@ -68,8 +68,6 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         };
 
         const handleNewDirectMessages = async (msg: Message) => {
-            console.log(selectedChat);
-            console.log(msg.directId);
             if (selectedChat === msg.directId) {
                 const imageUrl = await getUserImage(msg.avatarUri);
                 msg.avatarFile = imageUrl ? imageUrl : '';
