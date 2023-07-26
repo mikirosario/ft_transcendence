@@ -1,0 +1,26 @@
+import axios from "axios";
+import { getServerIP } from '../utils/utils';
+
+axios.defaults.baseURL = getServerIP(3000);
+axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
+
+export async function getUserMatches(nickname: string) {
+    try {
+        const response = await axios.get('/profile/matches?nick=' + nickname, {
+            responseType: 'json',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            },
+        });
+
+        if (response.status !== 200 && response.status !== 201) {
+            return { msg: response.data.response, error: response.data.error}
+        }
+
+        return { data: response.data, msg: response.data.response, error: response.data.error}
+
+    } catch (error) {
+        console.log('Error', error);
+        return { data: {}, msg: 'Usuario no encontrado', error: true}
+    }
+}
