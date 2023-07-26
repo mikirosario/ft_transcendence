@@ -87,6 +87,7 @@ function App() {
         <Route path="/gameSelector" element={<ProtectedComponent><GameSelector /></ProtectedComponent>} />
         <Route path="/verification" element={<ProtectedComponent><Verification2af /></ProtectedComponent>} />
         <Route path="/perfil" element={<ProtectedComponent><Perfil /></ProtectedComponent>} />
+        <Route path="/perfil/:username" element={<ProtectedComponent><Perfil /></ProtectedComponent>} />
         
         <Route path="/administration" element={<AdminComponent><Administration /></AdminComponent>} />
       </Routes>
