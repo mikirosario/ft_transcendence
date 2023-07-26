@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { getUserProfile } from "../requests/User.Service";
 import SocialMenu from "../components/chat-friend-menu/SocialMenu";
-import { useParams } from "react-router-dom";
+import HomeButton from "../components/B_Home";
 
 interface User {
     nick: string,
@@ -47,7 +48,7 @@ function Perfil() {
                         setActualUsername(userProfile.username);
                         setUserImage(userProfile.userImage);
                     });
-                } 
+                }
                 // else {
                 //     getUser(username).then(userProfile => {
                 //         setActualUsername(username);
@@ -173,7 +174,7 @@ function Perfil() {
 
     return (
         <div style={ContainerStyle}>
-
+            <HomeButton></HomeButton>
             <div style={ProfileStyle}>
                 <img style={AvatarStyle} src={userImage} alt={`Profile of ${actualUsername}`} />
                 <h1 style={NameStyle}>{actualUsername}</h1>
