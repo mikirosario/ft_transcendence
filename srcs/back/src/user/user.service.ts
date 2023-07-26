@@ -31,12 +31,28 @@ export class UserService {
 		return user;
 	}
 
-	async getUserByNick(nick: string) {
-		const user = await this.prisma.user.findUnique({
-			where: {
-				nick: nick,
-			}
-		});
+	async getUserByNick(nick: string, select: any = {}) {
+
+		let user;
+
+		/*
+			If 'select' is given, it can get only the necessary info.
+			If not, returns full user.
+		*/
+		if (Object.keys(select).length === 0) {
+			user = await this.prisma.user.findUnique({
+				where: {
+					nick: nick,
+				}
+			});
+		} else {
+			user = await this.prisma.user.findUnique({
+				where: {
+					nick: nick,
+				},
+				select: select
+			});
+		}
 
 		if (user === null) {
 			ThrowHttpException(new NotFoundException, 'User not found');
