@@ -7,14 +7,21 @@ import { PongGameMatchDto } from './dto'
 
 
 @UseGuards(JwtGuard)
-@Controller('profile/matches')
+@Controller('')
 @ApiBearerAuth()
 export class PongGameMatchController {
 	
 	constructor(private pongGameMatchService: PongGameMatchService) { }
 
-	@Get()
+	@Get('profile/matches')
 	async getProfileMatches(@GetJwt('sub') userId: number, @Query('nick') nick: string) {
 		return this.pongGameMatchService.getProfileMatches(userId, String(nick));
 	}
+
+	@Get('game/ranking')
+	async getGameRanking(@GetJwt('sub') userId: number) {
+		return this.pongGameMatchService.getGameRanking(userId);
+	}
+
+
 }

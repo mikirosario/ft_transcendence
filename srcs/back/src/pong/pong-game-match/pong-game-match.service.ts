@@ -11,6 +11,13 @@ export class PongGameMatchService {
 
 	constructor(private prisma: PrismaService, private userService: UserService) { }
 
+	async getGameRanking(userId: number) {
+
+		const ranking = await this.userService.getGameRanking();
+
+		return ranking;
+	}
+
 	async getProfileMatches(userId: number, nick: string) {
 
 		const user = await this.userService.getUserByNick(nick, {
@@ -92,19 +99,15 @@ export class PongGameMatchService {
 	}
 
 	private async getUserRank(nick: string) {
-		const users = await this.prisma.user.findMany();
-		
-		// Calcular el ratio para cada usuario
-		const usersWithRatio = users.map(user => ({
-			...user,
-			ratio: user.gamesWon / user.gamesLost,
-		}));
-	
-		const sortedUsers = usersWithRatio.sort((a, b) => b.ratio - a.ratio);
+		const gameRanking = await this.userService.getGameRanking();
 
-		const rank = sortedUsers.findIndex(user => user.nick === nick) + 1;
-	
-		return rank;
-	  }
+		const user = gameRanking.find(user => user.nick === nick);
+
+		if (user === null) {
+			ThrowHttpException(new NotFoundException, 'User not found');
+		}
+
+		return user.rank;
+	}
 
 }

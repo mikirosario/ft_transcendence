@@ -417,5 +417,46 @@ export class UserService {
 		if (user)
 			this.eventEmitter.emit(SelfUserStateChangedEvent.name, new SelfUserStateChangedEvent(user));
 	}
+
+
+	public async getGameRanking() {
+		const users = await this.prisma.user.findMany({
+			select: {
+				id: true,
+				nick: true,
+				avatarUri: true,
+				gamesWon: true,
+				gamesLost: true,
+				gamesPlayed: true
+			}
+		});
+		
+		const usersWithRatio = users.map(user => ({
+			...user,
+			ratio: user.gamesWon / user.gamesLost,
+		}));
+	
+		const gameRankingUsers = usersWithRatio.sort((a, b) => b.ratio - a.ratio);
+
+		const gameRankingUsersFormatted = this.formatGameRankingUsers(gameRankingUsers);
+
+		console.log(gameRankingUsersFormatted);
+
+		return gameRankingUsersFormatted;
+	}
+
+	private formatGameRankingUsers(gameRankingUsers: any) {
+		const gameRankingUsersFormatted: any[] = gameRankingUsers.map((userRank, index) => ({
+			userId: userRank.id,
+			nick: userRank.nick,
+			avatarUri: userRank.avatarUri,
+			wins: userRank.gamesWon,
+			losses: userRank.gamesLost,
+			played: userRank.gamesPlayed,
+			rank: index + 1
+		}));
+
+		return gameRankingUsersFormatted;
+	}
 }
 
