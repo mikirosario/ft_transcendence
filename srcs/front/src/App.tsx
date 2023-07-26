@@ -8,9 +8,6 @@ import PongPage from './pages/Pong';
 import Register from './pages/Register';
 import PreRegister from './pages/PreRegister';
 import Verification2af from './pages/Verification2AF';
-import { io, Socket } from 'socket.io-client';
-import { getServerIP } from './utils/utils';
-import NoPermissionPage from './pages/PermissionDenied';
 import { getUserProfile } from './requests/User.Service';
 import PermissionDenied from './pages/PermissionDenied';
 import Administration from './pages/Administration';
@@ -79,13 +76,16 @@ function App() {
 
         {/* Falta alguna comprobacion para ver si le ha dado el boton para el login, si va por URL habria que bloquear */}
         <Route path="/register" element={<GuestComponent><Register /></GuestComponent>} /> 
-        <Route path="/denied" element={<GuestComponent><PermissionDenied /></GuestComponent>} /> 
+        <Route path="/denied" element={<GuestComponent><PermissionDenied /></GuestComponent>} />
+
+        {/* New Protected Route  */}
+        <Route path="/verification" element={<ProtectedComponent><Verification2af /></ProtectedComponent>} />
 
         <Route path="/homepage" element={<ProtectedComponent><Home /></ProtectedComponent>} />
         <Route path="/settings" element={<ProtectedComponent><Options /></ProtectedComponent>} />
         <Route path="/pong" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
         <Route path="/gameSelector" element={<ProtectedComponent><GameSelector /></ProtectedComponent>} />
-        <Route path="/verification" element={<ProtectedComponent><Verification2af /></ProtectedComponent>} />
+        <Route path="/leaderboard" element={<ProtectedComponent><GameSelector /></ProtectedComponent>} />
         <Route path="/perfil" element={<ProtectedComponent><Perfil /></ProtectedComponent>} />
         <Route path="/perfil/:username" element={<ProtectedComponent><Perfil /></ProtectedComponent>} />
         
