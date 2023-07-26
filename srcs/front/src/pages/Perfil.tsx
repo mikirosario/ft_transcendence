@@ -2,9 +2,28 @@ import React, { useEffect, useState } from "react";
 import { getUserProfile } from "../requests/User.Service";
 import SocialMenu from "../components/chat-friend-menu/SocialMenu";
 
+interface Match {
+    oponentName: string,
+    oponentURI: string,
+    // oponentRank: number,
+    score: string,
+    oponentImage?: string,
+};
+
+const defaultMatches: Match[] = [
+    { oponentName: "Player 1", oponentURI: "", score: "5-3", oponentImage: "https://via.placeholder.com/50" },
+    { oponentName: "Player 2", oponentURI: "", score: "2-5", oponentImage: "https://via.placeholder.com/50" },
+    { oponentName: "Player 3", oponentURI: "", score: "4-4", oponentImage: "https://via.placeholder.com/50" },
+    { oponentName: "Player 4", oponentURI: "", score: "6-2", oponentImage: "https://via.placeholder.com/50" },
+    { oponentName: "Player 5", oponentURI: "", score: "5-5", oponentImage: "https://via.placeholder.com/50" },
+];
+
+
+
 function Perfil() {
     const [username, setUsername] = useState('');
     const [userImage, setUserImage] = useState<string>('');
+    const [matchInfo, setMatchInfo] = useState<Match[]>(defaultMatches);
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -13,7 +32,7 @@ function Perfil() {
                 setUsername(userProfile.username);
                 setUserImage(userProfile.userImage);
             } catch (error) {
-                // throw error
+                console.log(error);
             }
         };
 
@@ -32,9 +51,9 @@ function Perfil() {
 
     const ProfileStyle: React.CSSProperties = {
         border: 'none',
-        background: 'black',
+        background: 'transparent',
         width: '16vw',
-        height: '38vw', // Aumentar el tamaño para acomodar el contenido adicional
+        height: '38vw',
         top: '100px',
         right: '0px',
         position: 'relative',
@@ -62,8 +81,8 @@ function Perfil() {
     };
 
     const RankStyle: React.CSSProperties = {
-        ...NameStyle, // Utiliza los mismos estilos base que NameStyle
-        fontSize: '1.2vw', // ajustar según sea necesario
+        ...NameStyle,
+        fontSize: '1.2vw',
         color: 'gold',
     };
 
@@ -71,7 +90,7 @@ function Perfil() {
         display: 'flex',
         justifyContent: 'space-around',
         width: '100%',
-        fontSize: '1.0vw', // ajustar según sea necesario
+        fontSize: '1.0vw',
     }
 
     const WinStyle: React.CSSProperties = {
@@ -84,11 +103,11 @@ function Perfil() {
         color: 'red',
     }
 
-    const HistoryMatch: React.CSSProperties = {
+    const HistoryMatchStyle: React.CSSProperties = {
         border: 'none',
-        background: 'black',
+        background: 'transparent',
         width: '40vw',
-        height: '38vw', // Aumentar el tamaño para acomodar el contenido adicional
+        height: '38vw',
         top: '100px',
         right: '150px',
         position: 'relative',
@@ -97,6 +116,36 @@ function Perfil() {
         justifyContent: 'center',
         alignItems: 'center',
         color: 'white',
+    };
+
+    const MatchStyle: React.CSSProperties = {
+        border: '1px solid white',
+        background: 'grey',
+        width: '100%',
+        height: '20%',
+        margin: '0.5%',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        color: 'white',
+    };
+    
+    const MatchImageStyle: React.CSSProperties = {
+        width: '5vw',
+        height: '5vw',
+        objectFit: 'cover',
+        borderRadius: '50%',
+        marginLeft: '5%',
+        marginRight: '3%'
+    };
+    
+    const MatchInfoStyle: React.CSSProperties = {
+        fontFamily: 'Quantico',
+        fontWeight: 'bold',
+        textAlign: 'left',
+        fontSize: '1vw',
+        maxWidth: '75%',
     };
 
     return (
@@ -111,9 +160,17 @@ function Perfil() {
                     <h3 style={LossStyle}>Losses: 5</h3>
                 </div>
             </div>
-            <div style={HistoryMatch}>
-
-            </div>
+            <div style={HistoryMatchStyle}>
+            {matchInfo && matchInfo.map((match, index) => (
+                <div key={index} style={MatchStyle}>
+                    <img style={MatchImageStyle} src={userImage} alt={`User: ${username}`} />
+                    <p style={MatchInfoStyle}>{username} </p>
+                    <p style={MatchInfoStyle}>{match.score}</p>
+                    <p style={MatchInfoStyle}>{match.oponentName} </p>
+                    <img style={MatchImageStyle} src={match.oponentImage} alt={`Opponent: ${match.oponentName}`} />
+                </div>
+            ))}
+        </div>
             <SocialMenu></SocialMenu>
         </div>
     );
