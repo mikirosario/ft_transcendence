@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { getUserProfile } from "../requests/User.Service";
+import { useParams, useNavigate } from "react-router-dom";
+import { getUserImage, getUserProfile } from "../requests/User.Service";
 import SocialMenu from "../components/chat-friend-menu/SocialMenu";
 import HomeButton from "../components/B_Home";
+import { getUserMatches } from "../requests/Perfil.Service";
 
 interface User {
     nick: string,
     avatarUri: string,
     rank: number,
+    avatarFile?: string
+}
+interface Match {
+    user1: MatchUser;
+    user2: MatchUser;
+}
+interface MatchUser extends User {
+    score: number;
+    isWinner: boolean;
 }
 
 interface ProfileUser extends User {
@@ -15,46 +25,38 @@ interface ProfileUser extends User {
     losses: number,
 }
 
-interface MatchUser extends User {
-    score: number;
-    isWinner: boolean;
-}
-
-interface Match {
-    user1: MatchUser;
-    user2: MatchUser;
-}
-
-// const defaultMatches: Match[] = [
-//     { oponentName: "Player 1", oponentURI: "", score: "5-3", oponentImage: "https://via.placeholder.com/50" },
-//     { oponentName: "Player 2", oponentURI: "", score: "2-5", oponentImage: "https://via.placeholder.com/50" },
-//     { oponentName: "Player 3", oponentURI: "", score: "4-4", oponentImage: "https://via.placeholder.com/50" },
-//     { oponentName: "Player 4", oponentURI: "", score: "6-2", oponentImage: "https://via.placeholder.com/50" },
-//     { oponentName: "Player 5", oponentURI: "", score: "5-5", oponentImage: "https://via.placeholder.com/50" },
-// ];
-
 function Perfil() {
-
+    
     const { username } = useParams();
-    const [actualUsername, setActualUsername] = useState('');
-    const [userImage, setUserImage] = useState<string>('');
-    const [matchInfo, setMatchInfo] = useState<Match[]>();
+    const [userProfile, setUserProfile] = useState<ProfileUser>();
+    const [matches, setMatches] = useState<Match[]>();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
                 if (!username) {
-                    getUserProfile().then(userProfile => {
-                        setActualUsername(userProfile.username);
-                        setUserImage(userProfile.userImage);
+                    getUserProfile().then(userProf => {
+                        navigate('/perfil/' + userProf.username);
                     });
                 }
-                // else {
-                //     getUser(username).then(userProfile => {
-                //         setActualUsername(username);
-                //         setUserImage(userProfile.userImage);
-                //     })
-                // }
+                else {
+                    getUserMatches(username).then(async userProf => {
+                        setUserProfile(userProf.data.user);
+                        const imageUrl = await getUserImage(userProf.data.user.avatarUri);
+                        setUserProfile(prevUserProfile => prevUserProfile ? { ...prevUserProfile, avatarFile: imageUrl ?? undefined } : undefined);
+                        const matchesWithImages = await Promise.all(userProf.data.matches.map(async (match: Match) => {
+                            const imageUrl1 = await getUserImage(match.user1.avatarUri);
+                            const imageUrl2 = await getUserImage(match.user2.avatarUri);
+                            return {
+                                ...match,
+                                user1: { ...match.user1, avatarFile: imageUrl1 ?? '' },
+                                user2: { ...match.user2, avatarFile: imageUrl2 ?? '' },
+                            };
+                        }));
+                        setMatches(matchesWithImages);
+                    })
+                }
             } catch (error) {
                 console.log(error);
             }
@@ -164,7 +166,7 @@ function Perfil() {
         marginRight: '3%'
     };
 
-    const MatchInfoStyle: React.CSSProperties = {
+    const matchesStyle: React.CSSProperties = {
         fontFamily: 'Quantico',
         fontWeight: 'bold',
         textAlign: 'left',
@@ -172,29 +174,33 @@ function Perfil() {
         maxWidth: '75%',
     };
 
+    const handleAvatarMatches = async (MatchAvatarUri: string) => {
+        return await getUserImage(MatchAvatarUri);
+    }
+
     return (
         <div style={ContainerStyle}>
             <HomeButton></HomeButton>
             <div style={ProfileStyle}>
-                <img style={AvatarStyle} src={userImage} alt={`Profile of ${actualUsername}`} />
-                <h1 style={NameStyle}>{actualUsername}</h1>
-                <h2 style={RankStyle}>Rank: #2</h2>
+                <img style={AvatarStyle} src={userProfile?.avatarFile} alt={`Profile of ${userProfile?.avatarFile}`} />
+                <h1 style={NameStyle}>{userProfile?.nick}</h1>
+                <h2 style={RankStyle}>Rank: #{userProfile?.rank}</h2>
                 <div style={WinLossContainerStyle}>
-                    <h3 style={WinStyle}>Wins: 10</h3>
-                    <h3 style={LossStyle}>Losses: 5</h3>
+                    <h3 style={WinStyle}>Wins: {userProfile?.wins}</h3>
+                    <h3 style={LossStyle}>Losses: {userProfile?.losses}</h3>
                 </div>
             </div>
-            {/* <div style={HistoryMatchStyle}>
-                {matchInfo && matchInfo.map((match, index) => (
+            <div style={HistoryMatchStyle}>
+                {matches && matches.map((match, index) => (
                     <div key={index} style={MatchStyle}>
-                        <img style={MatchImageStyle} src={userImage} alt={`User: ${actualUsername}`} />
-                        <p style={MatchInfoStyle}>{actualUsername} </p>
-                        <p style={MatchInfoStyle}>{match.score}</p>
-                        <p style={MatchInfoStyle}>{match.oponentName} </p>
-                        <img style={MatchImageStyle} src={match.oponentImage} alt={`Opponent: ${match.oponentName}`} />
+                        <img style={MatchImageStyle} src={match.user1.avatarFile} alt={`User: ${match.user1.nick}`} />
+                        <p style={matchesStyle}>{match.user1.nick} </p>
+                        <p style={matchesStyle}>{match.user1.score} - {match.user2.score}</p>
+                        <p style={matchesStyle}>{match.user2.nick} </p>
+                        <img style={MatchImageStyle} src={match.user2.avatarFile} alt={`Opponent: ${match.user2.nick}`} />
                     </div>
                 ))}
-            </div> */}
+            </div>
             <SocialMenu></SocialMenu>
         </div>
     );
