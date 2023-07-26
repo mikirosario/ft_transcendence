@@ -440,8 +440,6 @@ export class UserService {
 
 		const gameRankingUsersFormatted = this.formatGameRankingUsers(gameRankingUsers);
 
-		console.log(gameRankingUsersFormatted);
-
 		return gameRankingUsersFormatted;
 	}
 
