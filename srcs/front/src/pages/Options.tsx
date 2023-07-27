@@ -31,7 +31,7 @@ function Options() {
         {
             try {
               const token = localStorage.getItem('token');
-              await axios.put<string>(getServerIP(3000) + 'auth/second-auth-factor/disable', {
+              await axios.get<string>(getServerIP(3000) + 'auth/second-auth-factor/disable', {
                 headers: { 'Authorization': `Bearer ${token}` }
               });
               console.log("2AF disabled");

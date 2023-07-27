@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { useContext } from 'react';
 import { useLocation, useNavigate, } from 'react-router-dom';
 import SettingsButton from "../components/home/SettingsButton";
 import HomeButton from "../components/B_Home";

@@ -162,3 +162,18 @@ export async function getUserImage(URI: string) {
     return null;
   }
 }
+
+export async function get2FAuthUser() {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get<{ checkresult: boolean }>(getServerIP(3000) + 'auth/second-auth-factor/check', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    return response.data.checkresult
+
+  } catch (error) {
+    console.error('Error checking 2FA status:', error);
+    return false;
+  }
+}
