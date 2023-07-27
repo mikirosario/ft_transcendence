@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getUserImage, getUserProfile } from "../requests/User.Service";
 import SocialMenu from "../components/chat-friend-menu/SocialMenu";
 import HomeButton from "../components/B_Home";
-import { getUserMatches } from "../requests/Perfil.Service";
+import { getUserMatches } from "../requests/GameData.Service";
 
 interface User {
     nick: string,
@@ -26,10 +26,10 @@ interface ProfileUser extends User {
 }
 
 function Perfil() {
-    
+
     const { username } = useParams();
     const [userProfile, setUserProfile] = useState<ProfileUser>();
-    const [matches, setMatches] = useState<Match[]>();
+    const [matches, setMatches] = useState<Match[]>([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -174,10 +174,6 @@ function Perfil() {
         maxWidth: '75%',
     };
 
-    const handleAvatarMatches = async (MatchAvatarUri: string) => {
-        return await getUserImage(MatchAvatarUri);
-    }
-
     return (
         <div style={ContainerStyle}>
             <HomeButton></HomeButton>
@@ -191,7 +187,7 @@ function Perfil() {
                 </div>
             </div>
             <div style={HistoryMatchStyle}>
-                {matches && matches.map((match, index) => (
+                {matches && [...matches].slice(-5).reverse().map((match, index) => (
                     <div key={index} style={MatchStyle}>
                         <img style={MatchImageStyle} src={match.user1.avatarFile} alt={`User: ${match.user1.nick}`} />
                         <p style={matchesStyle}>{match.user1.nick} </p>

@@ -13,6 +13,7 @@ export async function getUserMatches(nickname: string) {
             },
         });
 
+        // FALTA MANEJO DE ERRORES
         if (response.status !== 200 && response.status !== 201) {
             return { msg: response.data.response, error: response.data.error}
         }
@@ -22,5 +23,27 @@ export async function getUserMatches(nickname: string) {
     } catch (error) {
         console.log('Error', error);
         return { data: {}, msg: 'Usuario no encontrado', error: true}
+    }
+}
+
+export async function getLeaderboard() {
+    try {
+        const response = await axios.get('/game/ranking', {
+            responseType: 'json',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            },
+        });
+
+        // FALTA MANEJO DE ERRORES
+        if (response.status !== 200 && response.status !== 201) {
+            return { data: [], error: true}
+        }
+
+        return { data: response.data, error: false}
+    
+    } catch (error) {
+        console.log('Error', error);
+        return { data: [], error: true}
     }
 }

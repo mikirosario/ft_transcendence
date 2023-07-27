@@ -12,6 +12,7 @@ import { getUserProfile } from './requests/User.Service';
 import PermissionDenied from './pages/PermissionDenied';
 import Administration from './pages/Administration';
 import Perfil from './pages/Perfil';
+import Leaderboard from './pages/Leaderboard';
 
 const useAuth = () => {
   const token = localStorage.getItem('token');
@@ -85,7 +86,7 @@ function App() {
         <Route path="/settings" element={<ProtectedComponent><Options /></ProtectedComponent>} />
         <Route path="/pong" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
         <Route path="/gameSelector" element={<ProtectedComponent><GameSelector /></ProtectedComponent>} />
-        <Route path="/leaderboard" element={<ProtectedComponent><GameSelector /></ProtectedComponent>} />
+        <Route path="/leaderboard" element={<ProtectedComponent><Leaderboard /></ProtectedComponent>} />
         <Route path="/perfil" element={<ProtectedComponent><Perfil /></ProtectedComponent>} />
         <Route path="/perfil/:username" element={<ProtectedComponent><Perfil /></ProtectedComponent>} />
         
