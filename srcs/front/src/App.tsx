@@ -73,13 +73,9 @@ function App() {
       }}></div>
       <Routes>
         <Route path="/" element={<GuestComponent><PreRegister /></GuestComponent>} />
-
-        {/* Falta alguna comprobacion para ver si le ha dado el boton para el login, si va por URL habria que bloquear */}
+        
         <Route path="/register" element={<GuestComponent><Register /></GuestComponent>} /> 
         <Route path="/denied" element={<GuestComponent><PermissionDenied /></GuestComponent>} />
-
-        {/* New Protected Route  */}
-        {/* <Route path="/verification" element={<ProtectedComponent><Verification2af /></ProtectedComponent>} /> */}
 
         <Route path="/homepage" element={<ProtectedComponent><Home /></ProtectedComponent>} />
         <Route path="/settings" element={<ProtectedComponent><Options /></ProtectedComponent>} />

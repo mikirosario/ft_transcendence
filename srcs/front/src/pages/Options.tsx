@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import UserSettingsButtons from "../components/settings/UserSettingsButtons";
-import GoToHomepage from "../components/home/Home";
 import QRCodeDisplay from "../components/2AF/QRCodeDisplay";
 import axios from 'axios';
 import { getServerIP } from '../utils/utils';
@@ -79,9 +78,6 @@ function Options() {
 
     return (
         <div className="Register">
-            <section>
-                <GoToHomepage></GoToHomepage>
-            </section>
             <div className="NicknamePositionWrapper" style={NicknamePositionStyle}>
                 <div className="NicknameTapeWrapper" style={NicknameTapeStyle}>
                     <div className="NicknameInputWrapper" style={NicknameInputStyle}>

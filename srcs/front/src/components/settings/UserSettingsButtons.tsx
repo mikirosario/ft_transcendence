@@ -85,7 +85,7 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 		  };
 		  
 		   fetchUserProfile();
-	}, []);
+	}, [navigate]);
 
 	// -------------------------- STYLES ---------------------------------
 
