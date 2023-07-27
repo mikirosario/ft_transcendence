@@ -1,22 +1,16 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import HomeButton from "../components/B_Home";
 import OriginalMenu from "../components/gameSelector/M_OriginalGame";
 import CustomMenu from "../components/gameSelector/M_CustomGame";
+import SocialMenu from "../components/chat-friend-menu/SocialMenu";
 
 function GameSelector() {
-    const navigate = useNavigate();
     const [isCustom, setIsCustom] = useState(false);
 
     //<<< STYLES >>>//
     const BodyStyle: React.CSSProperties = {
         display: 'flex',
         height: '100vh',
-    }
-
-    const SocialMenu: React.CSSProperties = {
-        width: '400px',
-        backgroundColor: '#1C2C4A',
     }
 
     const Content: React.CSSProperties = {
@@ -49,7 +43,7 @@ function GameSelector() {
         alignItems: 'center',
         fontSize: '30px',
         fontFamily: "'Press Start 2P'",
-        color : 'white',
+        color: 'white',
         background: isCustom
             ? 'rgba(0,0,0,0.2)'
             : 'rgba(0,0,0,0)',
@@ -63,7 +57,7 @@ function GameSelector() {
         alignItems: 'center',
         fontSize: '30px',
         fontFamily: "'Press Start 2P'",
-        color : 'white',
+        color: 'white',
         background: isCustom
             ? 'rgba(0,0,0,0)'
             : 'rgba(0,0,0,0.2)',
@@ -85,11 +79,6 @@ function GameSelector() {
 
 
     //<<< FUNCTIONS >>>//
-    const changeCustomState = () => {
-        setIsCustom(!isCustom);
-        console.log(isCustom);
-    }
-
     const changeCustom = () => {
         if (isCustom === true)
             setIsCustom(false);
@@ -103,7 +92,7 @@ function GameSelector() {
 
     //<<< BUILD >>>//
     return (
-        <body style={BodyStyle}>
+        <div style={BodyStyle}>
             <div style={Content}>
                 <HomeButton></HomeButton>
                 <div style={Box}>
@@ -119,10 +108,8 @@ function GameSelector() {
                     </div>
                 </div>
             </div>
-            <div style={SocialMenu} className='SocialWindow'>
-                    {/* SOCIAL WINDOW */}
-            </div>
-        </body>
+            <SocialMenu></SocialMenu>
+        </div>
     );
 }
 

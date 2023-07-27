@@ -38,12 +38,14 @@ model User {
   chatDirectUser2       ChatDirect[]            @relation("ChatDirectUser2")
   chatDirectMessageUser ChatDirectMessage[]     @relation("ChatDirectMessageUser")
   chatChannelBannedUser ChatChannelBannedUser[] @relation("ChatChannelBannedUserUser")
+  gameLobbyUser         GameLobby[]             @relation("GameLobbyUser")
+  gameMatchUser1        GameMatch[]             @relation("GameMatchUser1")
+  gameMatchUser2        GameMatch[]             @relation("GameMatchUser2")
+  gameMatchWinnerUser   GameMatch[]             @relation("GameMatchWinnerUser")
 
-  score       Int @default(0)
   gamesWon    Int @default(0)
   gamesLost   Int @default(0)
   gamesPlayed Int @default(0)
-  rank        Int @default(0) //We'll need a function here that defaults to total-database-users
 
   @@map("users")
 }
@@ -148,4 +150,27 @@ model ChatBlockedUser {
 
   @@unique([userId, otherUserId])
   @@map("chatblockedusers")
+}
+
+model GameLobby {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(name: "GameLobbyUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("gamelobbies")
+}
+
+model GameMatch {
+  id           Int      @id @default(autoincrement())
+  userId1      Int
+  user1        User     @relation(name: "GameMatchUser1", fields: [userId1], references: [id], onDelete: Cascade)
+  userId2      Int
+  user2        User     @relation(name: "GameMatchUser2", fields: [userId2], references: [id], onDelete: Cascade)
+  hasEnded     Boolean? @default(false)
+  winnerUserId Int?
+  winnerUser   User?    @relation(name: "GameMatchWinnerUser", fields: [winnerUserId], references: [id], onDelete: Cascade)
+  score1       Int?     @default(0)
+  score2       Int?     @default(0)
+
+  @@map("gamematches")
 }

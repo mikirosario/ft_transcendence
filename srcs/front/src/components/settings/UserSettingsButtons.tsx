@@ -80,12 +80,12 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 				setUsername(userProfile.username);
 				setUserImage(userProfile.userImage);
 			} catch (error) {
-				// throw error
+				navigate('/')	// SOMEHOW THIS MAY NOT WORK????
 			}
 		  };
 		  
 		   fetchUserProfile();
-	}, []);
+	}, [navigate]);
 
 	// -------------------------- STYLES ---------------------------------
 

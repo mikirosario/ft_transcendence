@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Res, Get } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Res, Get, Put } from '@nestjs/common';
 import { SecondAuthFactorService } from './second-auth-factor.service';
 import { Verify2faDto } from '../dto';
 import { JwtGuard } from '../guard/jwt.guard';

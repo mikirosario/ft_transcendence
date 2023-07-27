@@ -9,8 +9,7 @@ const socketOptions = {
   transportOptions: {
       polling: {
           extraHeaders: {
-              Authorization: localStorage.getItem("token"),
-              userID: '1234'
+              Authorization: 'Bearer ' + localStorage.getItem("token"),
           }
       }
   },

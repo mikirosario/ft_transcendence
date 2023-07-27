@@ -1,7 +1,5 @@
 import React, { useEffect } from "react";
-import { useContext } from 'react';
 import { useLocation, useNavigate, } from 'react-router-dom';
-import SettingsButton from "../components/home/SettingsButton";
 import HomeButton from "../components/B_Home";
 import GameButton from "../components/B_General";
 import SocialMenu from "../components/chat-friend-menu/SocialMenu";
@@ -42,14 +40,14 @@ function Home() {
         alignItems: 'flex-end',
     };
 
-    const SettingsStyle: React.CSSProperties = {
-        position: 'fixed',
-        top: '30px',
-        right: '30px',
-        display: 'flex',
-        alignItems: 'flex-end',
-        scale: '1.5'
-    };
+    // const SettingsStyle: React.CSSProperties = {
+    //     position: 'fixed',
+    //     top: '30px',
+    //     right: '30px',
+    //     display: 'flex',
+    //     alignItems: 'flex-end',
+    //     scale: '1.5'
+    // };
 
 
     const GoGamePong = () => {

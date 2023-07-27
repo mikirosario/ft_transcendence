@@ -2,12 +2,9 @@ import React from "react";
 import PlayButton from "../components/home/StartButton";
 import axios from 'axios';
 import Logo from '../assets/images/Logo.png';
-import { useNavigate } from 'react-router-dom';
 import { getServerIP } from '../utils/utils';
 
 function PreRegister() {
-    const navigate = useNavigate();
-
     const TitleText: React.CSSProperties = {
         color: 'white',
         fontFamily: "'Press Start 2P'",

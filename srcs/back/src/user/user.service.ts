@@ -31,12 +31,28 @@ export class UserService {
 		return user;
 	}
 
-	async getUserByNick(nick: string) {
-		const user = await this.prisma.user.findUnique({
-			where: {
-				nick: nick,
-			}
-		});
+	async getUserByNick(nick: string, select: any = {}) {
+
+		let user;
+
+		/*
+			If 'select' is given, it can get only the necessary info.
+			If not, returns full user.
+		*/
+		if (Object.keys(select).length === 0) {
+			user = await this.prisma.user.findUnique({
+				where: {
+					nick: nick,
+				}
+			});
+		} else {
+			user = await this.prisma.user.findUnique({
+				where: {
+					nick: nick,
+				},
+				select: select
+			});
+		}
 
 		if (user === null) {
 			ThrowHttpException(new NotFoundException, 'User not found');
@@ -400,6 +416,70 @@ export class UserService {
 		
 		if (user)
 			this.eventEmitter.emit(SelfUserStateChangedEvent.name, new SelfUserStateChangedEvent(user));
+	}
+
+	public async updateGameStats(userId: number, hasWon: boolean) {
+
+		if (hasWon) {
+			await this.prisma.user.update({
+				where: {
+					id: userId
+				},
+				data: {
+					gamesWon: { increment: 1 },
+					gamesPlayed: { increment: 1 }
+				},
+			});
+		} else {
+			await this.prisma.user.update({
+				where: {
+					id: userId
+				},
+				data: {
+					gamesLost: { increment: 1 },
+					gamesPlayed: { increment: 1 }
+				},
+			});
+		}
+		
+	}
+
+	public async getGameRanking() {
+		const users = await this.prisma.user.findMany({
+			select: {
+				id: true,
+				nick: true,
+				avatarUri: true,
+				gamesWon: true,
+				gamesLost: true,
+				gamesPlayed: true
+			}
+		});
+		
+		const usersWithRatio = users.map(user => ({
+			...user,
+			ratio: user.gamesWon / user.gamesLost,
+		}));
+	
+		const gameRankingUsers = usersWithRatio.sort((a, b) => b.ratio - a.ratio);
+
+		const gameRankingUsersFormatted = this.formatGameRankingUsers(gameRankingUsers);
+
+		return gameRankingUsersFormatted;
+	}
+
+	private formatGameRankingUsers(gameRankingUsers: any) {
+		const gameRankingUsersFormatted: any[] = gameRankingUsers.map((userRank, index) => ({
+			userId: userRank.id,
+			nick: userRank.nick,
+			avatarUri: userRank.avatarUri,
+			wins: userRank.gamesWon,
+			losses: userRank.gamesLost,
+			played: userRank.gamesPlayed,
+			rank: index + 1
+		}));
+
+		return gameRankingUsersFormatted;
 	}
 }
 
