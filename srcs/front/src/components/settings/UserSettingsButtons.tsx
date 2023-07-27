@@ -80,7 +80,7 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 				setUsername(userProfile.username);
 				setUserImage(userProfile.userImage);
 			} catch (error) {
-				navigate('/denied')	// SOMEHOW THIS MAY NOT WORK????
+				navigate('/')	// SOMEHOW THIS MAY NOT WORK????
 			}
 		  };
 		  
