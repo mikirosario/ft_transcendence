@@ -6,6 +6,7 @@ import { centerPositionInRange } from "./utils";
 import { Player, PlayerID } from "./player";
 import { IPhysicsObject } from "./interfaces";
 
+
 export class Pong
 {
     private static readonly PADDLE_MARGIN: number = 25;
@@ -172,6 +173,20 @@ export class Pong
       this.physicsUpdate();
       this.scoreUpdate();
       this.gameStateUpdate();
+    }
+
+    public getWinnerAndScores()
+    {
+      let winner: number = 1;
+
+      if (this.winner == PlayerID.RIGHT_PLAYER)
+        winner = 2;
+      
+      return {
+        score1: this.rightPlayer.Score,
+        score2: this.leftPlayer.Score,
+        winner: winner
+      };
     }
 
   }

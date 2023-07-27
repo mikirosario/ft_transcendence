@@ -49,6 +49,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.sendSocketMessageToAll('UPDATE_USER', user);
 
 			console.log('Hola! ' + user.nick + ' está online ✅');
+			
 		} catch (error) {
 		}
 	}

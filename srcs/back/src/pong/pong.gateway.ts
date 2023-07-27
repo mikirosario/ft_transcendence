@@ -12,8 +12,11 @@ import { WebSocketService } from '../auth/websocket/websocket.service';
 import { Console } from 'console';
 import { Pong } from './pong';
 import { InputState } from './types';
-import { Queue } from './queue';
 import { Player, PlayerID } from './player';
+import { PongGameMatchService } from './pong-game-match/pong-game-match.service';
+import { PongGameMatchPlayerDto } from './pong-game-match/dto';
+
+
 
 @WebSocketGateway(8082, {
 	cors: {
@@ -26,47 +29,65 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@WebSocketServer() server: Server;
 
 	private games: Map<string, Pong> = new Map();
-	private waitingClients: Queue<Socket> = new Queue();
+	private waitingClients: Array<PongGameMatchPlayerDto> = new Array();
 
-	constructor(private config: ConfigService, private userService: UserService, private webSocketService: WebSocketService) { }
+	constructor(private config: ConfigService, private userService: UserService,
+				private webSocketService: WebSocketService, private pongGameMatchService: PongGameMatchService) { }
 
 	afterInit(server: any) { }
 
-	matchPlayersAny()
+	async matchPlayersAny()
 	{
 		// Spawn new games until queued clients come down to 1
 		while (this.waitingClients.length > 1)
 		{
-			const player1 = this.waitingClients.dequeue(); // First client in the queue is player 1
-			const player2 = this.waitingClients.dequeue(); // Second client in the queue is player 2
-			const roomId = `${player1.id}_${player2.id}`; // create a Socket.IO websocket room name with both client ids
+			const player1 = this.waitingClients.pop(); // First client in the queue is player 1
+			const player2 = this.waitingClients.pop(); // Second client in the queue is player 2
+			const roomId = `${player1.userId}_${player2.userId}`; // create a Socket.IO websocket room name with both client ids
+			
 			const pongBackend = new Pong(); // Start a game for them both
 			this.games.set(roomId, pongBackend); // Add to the running games map
 			// Add both clients to the same room
-			player1.join(roomId);
-			player2.join(roomId);
-			// Start the game loop; have fun! :)
-			this.startGameLoop(player1, player2, roomId);
+			player1.socket.join(roomId);
+			player2.socket.join(roomId);
+
+			// Add new match to matches DB table
+			try {
+				const gameMatch = await this.pongGameMatchService.createNewMatch({userId1: player1.userId, userId2: player2.userId});
+
+				if (gameMatch == null) {
+					this.waitingClients.push(player1);
+					this.waitingClients.push(player2);
+				} else {
+					// Start the game loop; have fun! :)
+					this.startGameLoop(player1, player2, roomId, gameMatch.id);
+				}
+
+			} catch (error) {
+				this.waitingClients.push(player1);
+				this.waitingClients.push(player2);
+			}
 		}
 	}
 
-	startGameLoop(player1: Socket, player2: Socket, roomId: string)
+	startGameLoop(player1: PongGameMatchPlayerDto, player2: PongGameMatchPlayerDto, roomId: string, matchId: number)
 	{
+		console.log("game started!")
 		const pongBackend = this.games.get(roomId);
 		let isCleanedUp = false;
 		let gameLoop: NodeJS.Timer;
 		// Inform each player which paddle is theirs
-		player1.emit('player-id', PlayerID.LEFT_PLAYER);
-		player2.emit('player-id', PlayerID.RIGHT_PLAYER);
+		player1.socket.emit('player-id', PlayerID.LEFT_PLAYER);
+		player2.socket.emit('player-id', PlayerID.RIGHT_PLAYER);
 		
 		// Set callback to apply Player1 inputs
-		player1.on('input', (input: InputState) => {
+		player1.socket.on('input', (input: InputState) => {
 			pongBackend.applyRemoteP1Input(input);
 			console.log("Input");
 		});
 
 		// Set callback to apply Player2 inputs
-		player2.on('input', (input: InputState) => {
+		player2.socket.on('input', (input: InputState) => {
 			pongBackend.applyRemoteP2Input(input);
 			console.log("Input");
 		});
@@ -76,8 +97,8 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			if (isCleanedUp) return;
 			isCleanedUp = true;
 			// clean up event listeners and game loop
-			player1.removeAllListeners();
-			player2.removeAllListeners();
+			player1.socket.removeAllListeners();
+			player2.socket.removeAllListeners();
 			if (gameLoop)
 				clearInterval(gameLoop);
 			this.games.delete(roomId);
@@ -94,48 +115,84 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.server.to(roomId).emit('gameState', gameState);
 			//Check if game over
 			if (gameState.gameOver)
+			{
+				const gameResult = pongBackend.getWinnerAndScores();
+				let winner;
+
+				if (gameResult.winner == 1)
+					winner = player1.userId;
+				else
+					winner = player2.userId;
+
+				// Update match info
+				this.pongGameMatchService.updateMatchInfo({
+					matchId: matchId,
+					hasEnded: true,
+					score1: gameResult.score1,
+					score2: gameResult.score2,
+					winnerUserId: winner
+				});
+
 				cleanUp();
+			}
+				
 		}, 1000 / 60); // 60 times a second
 	}
 
-	async handleConnection(client: Socket, ...args: any[]) {
+	async handleConnection(client: any, ...args: any[]) {
 		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
+
 		if (userId == null)
 		{
-			console.log("Usuario no encontrado");
 			client.disconnect();
 			return;
 		}
 
-		const user = await this.userService.setUserInGame(userId, true);
-		if (user == null)
-		{
-			console.log("Usuario no encontrado");
-			client.disconnect();
-			return;
-		}
-		console.log('Hola! ' + user.nick + ' está jugando ✅');
-		this.waitingClients.enqueue(client);
-		this.matchPlayersAny();
-	}
-	
-	async handleDisconnect(client: Socket) {
-		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
-		if (userId == null)
-		{
-			console.log("Usuario no encontrado");
-			client.disconnect();
-			return;
-		}
+		try {
+			const user = await this.userService.setUserInGame(userId, true);
+			if (user == null)
+			{
+				client.disconnect();
+				return;
+			}
 
-		const user = await this.userService.setUserInGame(userId, false);
-		if (user == null)
-		{
-			console.log("Usuario no encontrado");
-			client.disconnect();
-			return;
+			console.log('Hola! ' + user.nick + ' está jugando ✅');
+
+			this.waitingClients.push({userId: user.id, socket: client});
+			await this.matchPlayersAny();
+
+		} catch (error) {
 		}
 		
-		console.log(user.nick + ' ha salido del juego ❌');
+	}
+	
+	async handleDisconnect(client: any) {
+		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
+
+		if (userId == null)
+		{
+			console.log('Alguien se ha ido del juego ❌');
+			client.disconnect();
+			return;
+		}
+
+		this.waitingClients = this.waitingClients.filter((player: {userId: number, socket: Socket}) => player.userId !== userId);
+
+		try {
+			const user = await this.userService.setUserInGame(userId, false);
+
+
+			if (user == null)
+			{
+				client.disconnect();
+				return;
+			}
+
+			console.log(user.nick + ' ha salido del juego ❌');
+
+		} catch (error) {
+			client.disconnect();
+		}
+		
 	}
 }
