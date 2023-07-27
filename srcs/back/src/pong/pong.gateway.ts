@@ -100,21 +100,21 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async handleConnection(client: Socket, ...args: any[]) {
 		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
-		// if (userId == null)
-		// {
-		// 	console.log("No UserID found");
-		// 	client.disconnect();
-		// 	return;
-		// }
+		if (userId == null)
+		{
+			console.log("Usuario no encontrado");
+			client.disconnect();
+			return;
+		}
 
-
-		// const user = await this.userService.setUserInGame(userId, true);
-		// if (user == null)
-		// {
-		// 	client.disconnect();
-		// 	return;
-		// }
-		// console.log('Hola! ' + user.nick + ' está jugando ✅');
+		const user = await this.userService.setUserInGame(userId, true);
+		if (user == null)
+		{
+			console.log("Usuario no encontrado");
+			client.disconnect();
+			return;
+		}
+		console.log('Hola! ' + user.nick + ' está jugando ✅');
 		this.waitingClients.enqueue(client);
 		this.matchPlayersAny();
 	}
@@ -123,6 +123,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
 		if (userId == null)
 		{
+			console.log("Usuario no encontrado");
 			client.disconnect();
 			return;
 		}
@@ -130,6 +131,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const user = await this.userService.setUserInGame(userId, false);
 		if (user == null)
 		{
+			console.log("Usuario no encontrado");
 			client.disconnect();
 			return;
 		}
