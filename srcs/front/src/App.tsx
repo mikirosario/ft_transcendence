@@ -7,7 +7,6 @@ import GameSelector from './pages/GameSelector';
 import PongPage from './pages/Pong';
 import Register from './pages/Register';
 import PreRegister from './pages/PreRegister';
-import Verification2af from './pages/Verification2AF';
 import { getUserProfile } from './requests/User.Service';
 import PermissionDenied from './pages/PermissionDenied';
 import Administration from './pages/Administration';
@@ -80,7 +79,7 @@ function App() {
         <Route path="/denied" element={<GuestComponent><PermissionDenied /></GuestComponent>} />
 
         {/* New Protected Route  */}
-        <Route path="/verification" element={<ProtectedComponent><Verification2af /></ProtectedComponent>} />
+        {/* <Route path="/verification" element={<ProtectedComponent><Verification2af /></ProtectedComponent>} /> */}
 
         <Route path="/homepage" element={<ProtectedComponent><Home /></ProtectedComponent>} />
         <Route path="/settings" element={<ProtectedComponent><Options /></ProtectedComponent>} />
