@@ -3,7 +3,6 @@ import { ApiBody, ApiBearerAuth } from "@nestjs/swagger"
 import { JwtGuard } from "../../auth/guard";
 import { GetJwt } from "../../auth/decorator";
 import { PongGameMatchService } from "./pong-game-match.service";
-import { PongGameMatchDto } from './dto'
 
 
 @UseGuards(JwtGuard)
