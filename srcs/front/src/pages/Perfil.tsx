@@ -14,7 +14,9 @@ interface User {
 interface Match {
     user1: MatchUser;
     user2: MatchUser;
+    matchEnded: boolean;
 }
+
 interface MatchUser extends User {
     score: number;
     isWinner: boolean;
@@ -133,7 +135,7 @@ function Perfil() {
         border: 'none',
         background: 'transparent',
         width: '40vw',
-        height: '38vw',
+        height: '36vw',
         top: '100px',
         right: '150px',
         position: 'relative',
@@ -174,6 +176,20 @@ function Perfil() {
         maxWidth: '75%',
     };
 
+    const TitleStyle: React.CSSProperties = {
+        fontFamily: "'Press Start 2P'",
+        fontSize: '18px',
+        color: 'lightgray'
+    };
+
+    const ScoreContainerStyle: React.CSSProperties = {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '25%'
+    };
+
     return (
         <div style={ContainerStyle}>
             <HomeButton></HomeButton>
@@ -187,11 +203,17 @@ function Perfil() {
                 </div>
             </div>
             <div style={HistoryMatchStyle}>
+                <p style={TitleStyle}>Partidas recientes</p>
                 {matches && [...matches].slice(-5).reverse().map((match, index) => (
                     <div key={index} style={MatchStyle}>
                         <img style={MatchImageStyle} src={match.user1.avatarFile} alt={`User: ${match.user1.nick}`} />
                         <p style={matchesStyle}>{match.user1.nick} </p>
-                        <p style={matchesStyle}>{match.user1.score} - {match.user2.score}</p>
+                        <div style={ScoreContainerStyle}>
+                            {match.matchEnded
+                                ? <p style={matchesStyle}>{match.user1.score} - {match.user2.score}</p>
+                                : <p style={matchesStyle}>?? - ??</p>
+                            }
+                        </div>
                         <p style={matchesStyle}>{match.user2.nick} </p>
                         <img style={MatchImageStyle} src={match.user2.avatarFile} alt={`Opponent: ${match.user2.nick}`} />
                     </div>

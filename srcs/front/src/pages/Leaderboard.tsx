@@ -79,8 +79,6 @@ function Leaderboard() {
         height: '5vw',
         objectFit: 'cover',
         borderRadius: '50%',
-        marginLeft: '5%',
-        marginRight: '3%'
     };
 
     const UserDetailsStyle: React.CSSProperties = {
@@ -91,11 +89,17 @@ function Leaderboard() {
         maxWidth: '75%',
     };
 
+    const TitleStyle: React.CSSProperties = {
+        fontFamily: "'Press Start 2P'",
+        fontSize: '25px',
+        color: 'lightgray'
+    };
 
     return (
         <div style={ContainerStyle}>
             <HomeButton></HomeButton>
             <div style={LeaderboardStyle}>
+            <p style={TitleStyle}>Clasificación</p>
                 {users.slice(0, 10).map((user, index) => (
                     <div key={index} style={UserStyle}>
                         <img style={UserImageStyle} src={user.avatarFile} alt={`Profile of ${user.nick}`} />
