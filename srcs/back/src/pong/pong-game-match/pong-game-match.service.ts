@@ -28,7 +28,6 @@ export class PongGameMatchService {
 		} catch (error) {
 			return null;
 		}
-		
 	}
 
 	async updateMatchInfo(dto: PongGameMatchUpdateDto) {
@@ -40,7 +39,7 @@ export class PongGameMatchService {
 				score2: dto.score2,
 				winnerUserId: dto.winnerUserId
 			},
-		  });
+		});
 	}
 
 	async getGameRanking(userId: number) {
@@ -109,20 +108,21 @@ export class PongGameMatchService {
 	}
 
 	private formatGameMatches(gameMatchesList: any) {
+		
 		const gameMatchesListFormatted: any[] = gameMatchesList.map((match) => ({
 			user1: {
 				userId: match.user1.id,
 				nick: match.user1.nick,
 				avatarUri: match.user1.avatarUri,
 				score: match.score1,
-				isWinner: match.user1.id == match.winnerUser.id,
+				isWinner: match.winnerUserId ? match.user1.id == match.winnerUser.id : false,
 			},
 			user2: {
 				userId: match.user2.id,
 				nick: match.user2.nick,
 				avatarUri: match.user2.avatarUri,
 				score: match.score2,
-				isWinner: match.user2.id == match.winnerUser.id,
+				isWinner: match.winnerUser ? match.user2.id == match.winnerUser.id : false,
 			},
 			matchId: match.id,
 			matchEnded: match.hasEnded

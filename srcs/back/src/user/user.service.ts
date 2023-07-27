@@ -418,6 +418,31 @@ export class UserService {
 			this.eventEmitter.emit(SelfUserStateChangedEvent.name, new SelfUserStateChangedEvent(user));
 	}
 
+	public async updateGameStats(userId: number, hasWon: boolean) {
+
+		if (hasWon) {
+			await this.prisma.user.update({
+				where: {
+					id: userId
+				},
+				data: {
+					gamesWon: { increment: 1 },
+					gamesPlayed: { increment: 1 }
+				},
+			});
+		} else {
+			await this.prisma.user.update({
+				where: {
+					id: userId
+				},
+				data: {
+					gamesLost: { increment: 1 },
+					gamesPlayed: { increment: 1 }
+				},
+			});
+		}
+		
+	}
 
 	public async getGameRanking() {
 		const users = await this.prisma.user.findMany({

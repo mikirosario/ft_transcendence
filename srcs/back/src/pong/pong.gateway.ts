@@ -119,17 +119,22 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				const gameResult = pongBackend.getWinnerAndScores();
 				let winner;
 
-				if (gameResult.winner == 1)
+				if (gameResult.winner == 1) {
 					winner = player1.userId;
-				else
+					this.userService.updateGameStats(player1.userId, true);
+					this.userService.updateGameStats(player2.userId, false);
+				} else {
 					winner = player2.userId;
+					this.userService.updateGameStats(player1.userId, false);
+					this.userService.updateGameStats(player2.userId, true);
+				}
 
 				// Update match info
 				this.pongGameMatchService.updateMatchInfo({
 					matchId: matchId,
 					hasEnded: true,
-					score1: gameResult.score1,
-					score2: gameResult.score2,
+					score1: gameResult.score2,
+					score2: gameResult.score1,
 					winnerUserId: winner
 				});
 
