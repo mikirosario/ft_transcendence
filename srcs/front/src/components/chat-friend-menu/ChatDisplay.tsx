@@ -264,6 +264,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         fontWeight: 'bold',
         marginRight: '10px',
         marginTop: '16px',
+        textDecoration: 'none' 
     };
 
     const MessageInfoStyle: React.CSSProperties = {
@@ -348,7 +349,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                 {[...messagesList].reverse().map((messageItem, index) => {
                     return (
                         <div key={index} style={MessageStyle}>
-                            <Link to={`/perfil/${messageItem.sender}`}>
+                            <Link style={{ textDecoration: 'none' }} to={`/perfil/${messageItem.sender}`}>
                                 <img
                                     src={messageItem.avatarFile}
                                     alt={messageItem.sender}
