@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useLocation, useNavigate, } from 'react-router-dom';
 import HomeButton from "../components/B_Home";
 import GameButton from "../components/B_General";
+import LogoutButton from '../components/B_Logout'; 
 import SocialMenu from "../components/chat-friend-menu/SocialMenu";
 import { SocketProvider1,SocketProvider2 } from "../SocketContext";
 
@@ -40,15 +41,13 @@ function Home() {
         alignItems: 'flex-end',
     };
 
-    // const SettingsStyle: React.CSSProperties = {
-    //     position: 'fixed',
-    //     top: '30px',
-    //     right: '30px',
-    //     display: 'flex',
-    //     alignItems: 'flex-end',
-    //     scale: '1.5'
-    // };
-
+    const LogoutButtonStyle: React.CSSProperties = {
+        position: 'absolute',
+        bottom: '20px',
+        left: '20px',
+        display: 'flex',
+        alignItems: 'flex-end',
+    };
 
     const GoGamePong = () => {
         navigate('/pong');
@@ -69,6 +68,9 @@ function Home() {
                         </section>
                         <section className="B_Play" style={PlayButtonStyle} onClick={GoGameSelector}>
                             <GameButton name="Play" width={435} height={155} fsize={48}></GameButton>
+                        </section>
+                        <section style={LogoutButtonStyle}>
+                            <LogoutButton />
                         </section>
                         <section>
                             <SocialMenu></SocialMenu>
