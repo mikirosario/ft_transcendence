@@ -348,27 +348,26 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                 {[...messagesList].reverse().map((messageItem, index) => {
                     return (
                         <div key={index} style={MessageStyle}>
-                            <img
-                                src={messageItem.avatarFile}
-                                alt={messageItem.sender}
-                                style={UserImageStyle}
-                                // as={Link}
-                                // to="/settings"       CHANGE TO USER PROFILEPAGE
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                }}
-                            />
-                            <div style={{ ...UserNameStyle, color: messageItem.isAdmin ? 'red' : UserNameStyle.color }}>
-                                <span
-                                    style={UserNameStyle}
-                                    // as={Link}
-                                    // to="/settings"   CHANGE TO USER PROFILEPAGE
+                            <Link to={`/perfil/${messageItem.sender}`}>
+                                <img
+                                    src={messageItem.avatarFile}
+                                    alt={messageItem.sender}
+                                    style={UserImageStyle}
                                     onClick={(e) => {
                                         e.stopPropagation();
                                     }}
-                                >
-                                    {messageItem.sender}
-                                </span>
+                                />
+                            </Link>
+                            <div style={{ ...UserNameStyle, color: messageItem.isAdmin ? 'red' : UserNameStyle.color }}>
+                                <Link to={`/perfil/${messageItem.sender}`} style={UserNameStyle}>
+                                    <span
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                        }}
+                                    >
+                                        {messageItem.sender}
+                                    </span>
+                                </Link>
                                 <p style={MessageContentStyle}>
                                     {messageItem.message}
                                 </p>

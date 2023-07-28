@@ -6,7 +6,6 @@ import { getChatDirect, sendDirectMessage, getChatChannel, sendChannelMessage } 
 import { getUserImage } from "../../requests/User.Service";
 import { SocketContext1 } from '../../SocketContext';
 import NotificationContext from '../../NotificationContext';
-import { leaveChannel } from '../../requests/Channel.Service';
 
 interface ChatDisplayProps {
     selectedChat: number;
@@ -86,10 +85,10 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         }
 
         fetchData();
-            socket?.on("NEW_ADMIN_CHANNEL_MESSAGE", handleNewChannelMessages);
-            socket?.on("UPDATE_CHANNEL_USERS_LIST_JOIN", handleUpdateChannelJoin);
-            socket?.on("UPDATE_CHANNEL_USERS_LIST_LEAVE", handleUpdateChannelJoin);
-            socket?.on("KICK_FROM_CHANNEL", handleKickCommand);
+        socket?.on("NEW_ADMIN_CHANNEL_MESSAGE", handleNewChannelMessages);
+        socket?.on("UPDATE_CHANNEL_USERS_LIST_JOIN", handleUpdateChannelJoin);
+        socket?.on("UPDATE_CHANNEL_USERS_LIST_LEAVE", handleUpdateChannelJoin);
+        socket?.on("KICK_FROM_CHANNEL", handleKickCommand);
 
 
         // return () => {
@@ -180,27 +179,24 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                 {[...messagesList].reverse().map((messageItem, index) => {
                     return (
                         <div key={index} style={MessageStyle}>
-                            <img
-                                src={messageItem.avatarFile}
-                                alt={messageItem.sender}
-                                style={UserImageStyle}
-                                // as={Link}
-                                // to="/settings"       CHANGE TO USER PROFILEPAGE
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                }}
-                            />
-                            <div style={{ ...UserNameStyle, color: messageItem.isAdmin ? 'red' : UserNameStyle.color }}>
-                                <span
-                                    style={UserNameStyle}
-                                    // as={Link}
-                                    // to="/settings"   CHANGE TO USER PROFILEPAGE
+                            <Link to={`/perfil/${messageItem.sender}`}>
+                                <img
+                                    src={messageItem.avatarFile}
+                                    alt={messageItem.sender}
+                                    style={UserImageStyle}
                                     onClick={(e) => {
                                         e.stopPropagation();
                                     }}
-                                >
-                                    {messageItem.sender}
-                                </span>
+                                />
+                            </Link>
+                            <div style={{ ...UserNameStyle, color: messageItem.isAdmin ? 'red' : UserNameStyle.color }}>
+                                <Link to={`/perfil/${messageItem.sender}`} onClick={(e) => {
+                                    e.stopPropagation();
+                                }}>
+                                    <span style={UserNameStyle}>
+                                        {messageItem.sender}
+                                    </span>
+                                </Link>
                                 <p style={MessageContentStyle}>
                                     {messageItem.message}
                                 </p>
