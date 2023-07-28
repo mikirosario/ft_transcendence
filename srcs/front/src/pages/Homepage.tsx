@@ -58,8 +58,8 @@ function Home() {
     };
 
     return (
-        <SocketProvider1>
-            <SocketProvider2>
+        // <SocketProvider1>
+            // <SocketProvider2>
                 <div style={Window}>
                     <div>
                         <HomeButton></HomeButton>
@@ -77,8 +77,8 @@ function Home() {
                         </section>
                     </div>
                 </div>
-            </SocketProvider2>
-        </SocketProvider1>
+            // </SocketProvider2>
+        // </SocketProvider1>
     );
 }
 

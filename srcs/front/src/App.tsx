@@ -80,6 +80,8 @@ function App() {
         <Route path="/homepage" element={<ProtectedComponent><Home /></ProtectedComponent>} />
         <Route path="/settings" element={<ProtectedComponent><Options /></ProtectedComponent>} />
         <Route path="/pong" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
+        <Route path="/pong/:gameUserId" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
+        <Route path="/pong/spectate/:spectateUserId" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
         <Route path="/gameSelector" element={<ProtectedComponent><GameSelector /></ProtectedComponent>} />
         <Route path="/leaderboard" element={<ProtectedComponent><Leaderboard /></ProtectedComponent>} />
         <Route path="/perfil" element={<ProtectedComponent><Perfil /></ProtectedComponent>} />
