@@ -4,6 +4,7 @@ import {
 	OnGatewayInit,
 	WebSocketGateway,
 	WebSocketServer,
+	SubscribeMessage
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ConfigService } from "@nestjs/config";
@@ -145,30 +146,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async handleConnection(client: any, ...args: any[]) {
-		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
-
-		if (userId == null)
-		{
-			client.disconnect();
-			return;
-		}
-
-		try {
-			const user = await this.userService.setUserInGame(userId, true);
-			if (user == null)
-			{
-				client.disconnect();
-				return;
-			}
-
-			console.log('Hola! ' + user.nick + ' está jugando ✅');
-
-			this.waitingClients.push({userId: user.id, socket: client});
-			await this.matchPlayersAny();
-
-		} catch (error) {
-		}
-		
+		console.log("handleConnection");
 	}
 	
 	async handleDisconnect(client: any) {
@@ -199,5 +177,73 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			client.disconnect();
 		}
 		
+	}
+
+
+	@SubscribeMessage('game_connection')
+	async handleGameConnections(client: Socket, data: { gameUserId: string, spectateUserId: string }) {
+		console.log(data);
+		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
+
+		if (userId == null)
+		{
+			client.disconnect();
+			return;
+		}
+
+		try {
+			const user = await this.userService.getUserById(userId);
+			
+			if (user == null)
+			{
+				client.disconnect();
+				return;
+			}
+
+			if (data.spectateUserId.length > 0) {
+				this.spectateUser(client, userId, data.spectateUserId);
+				
+			} else if (data.gameUserId.length > 0) {
+				this.privateGame(client, userId, data.gameUserId);
+
+			} else {
+				this.publicGame(client, user);
+			}
+
+		} catch (error) {
+		}
+	}
+
+	spectateUser(client: Socket, userId: number, spectateUserId: string) {
+		console.log("Espectador nuevo! Para spectear a " + spectateUserId);
+
+		for (const [roomId, pongBackend ] of this.games.entries()) {
+			const userIdsArray = roomId.split("_");
+
+			if (userIdsArray.includes(spectateUserId))
+			{
+				client.join(roomId);
+				break;
+			}
+		}
+	}
+
+	privateGame(client: Socket, userId: number, gameUserId: string) {
+		console.log("Jugador nuevo! Para jugar con " + gameUserId);
+	}
+
+	async publicGame(client: Socket, user: any) {
+		console.log("Jugador nuevo! Para jugar con cualquier desconocido!");
+
+		try {
+			await this.userService.setUserInGame(user.id, true);
+
+			console.log('Hola! ' + user.nick + ' está jugando ✅');
+
+			this.waitingClients.push({userId: user.id, socket: client});
+			await this.matchPlayersAny();
+
+		} catch (error) {
+		}
 	}
 }
