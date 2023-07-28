@@ -246,6 +246,7 @@ function Menu() {
 	};
 
 	return (
+		
 		<NotificationContext.Provider value={{ handleNotification }}>
 			<>
 				<button
@@ -285,7 +286,7 @@ function Menu() {
 
 					<Link to='/settings'>
 						<div style={SettingsStyle}>
-							<IoMdSettings color="black" size={28}></IoMdSettings>
+							<IoMdSettings color="lightgray" size={28}></IoMdSettings>
 						</div>
 					</Link>
 					<div>

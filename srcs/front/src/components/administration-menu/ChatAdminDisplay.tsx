@@ -179,7 +179,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                 {[...messagesList].reverse().map((messageItem, index) => {
                     return (
                         <div key={index} style={MessageStyle}>
-                            <Link to={`/perfil/${messageItem.sender}`}>
+                            <Link style={{ textDecoration: 'none' }} to={`/perfil/${messageItem.sender}`}>
                                 <img
                                     src={messageItem.avatarFile}
                                     alt={messageItem.sender}
@@ -190,7 +190,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                                 />
                             </Link>
                             <div style={{ ...UserNameStyle, color: messageItem.isAdmin ? 'red' : UserNameStyle.color }}>
-                                <Link to={`/perfil/${messageItem.sender}`} onClick={(e) => {
+                                <Link style={{ textDecoration: 'none' }} to={`/perfil/${messageItem.sender}`} onClick={(e) => {
                                     e.stopPropagation();
                                 }}>
                                     <span style={UserNameStyle}>
