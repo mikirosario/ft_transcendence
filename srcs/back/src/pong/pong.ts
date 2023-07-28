@@ -40,7 +40,7 @@ export class Pong
         }
         let transform: Transform = new Transform(position);
         let color = "white";
-        let speed = 1;
+        let speed = 1.5;
         let radius = 10;
         return new Ball(transform, color, speed, radius, { SetCollider: true });
     }
@@ -51,7 +51,7 @@ export class Pong
         let color = "black";
         let width = 10;
         let height = 100;
-        let speed = 0.75;
+        let speed = 1.25;
         return new Paddle(transform, color, width, height, speed, Pong.ReferenceResolution, { SetCollider: true });
     }
 
