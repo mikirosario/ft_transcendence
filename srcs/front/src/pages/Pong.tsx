@@ -8,16 +8,16 @@ import { useNavigate, useParams } from "react-router-dom";
 
 
 const socketOptions = {
-  transportOptions: {
-      polling: {
-          extraHeaders: {
-              Authorization: 'Bearer ' + localStorage.getItem("token"),
-          }
-      }
-  },
-  autoConnect: false
+    transportOptions: {
+        polling: {
+            extraHeaders: {
+                Authorization: 'Bearer ' + localStorage.getItem("token"),
+            }
+        }
+    },
+    autoConnect: false
 };
-
+const socket: Socket = io(getServerIP(8082), socketOptions);
 
 function PongPage() {
 
@@ -25,64 +25,77 @@ function PongPage() {
     const { spectateUserId } = useParams();
     const navigate = useNavigate();
     const [isPlaying, setIsPlaying] = useState(false);
-
+    const [spectateExist, setSpectateExist] = useState(true);
+    
     useEffect(() => {
-        if (gameUserId != undefined && spectateUserId  != undefined)
-            if ((isNaN(Number(spectateUserId)) && gameUserId === undefined) || (isNaN(Number(gameUserId)) && spectateUserId === undefined))
+        if (gameUserId || spectateUserId) {
+            if ((isNaN(Number(spectateUserId)) && !gameUserId) || (isNaN(Number(gameUserId)) && !spectateUserId))
                 navigate('/homepage');
+        }
     }, []);
-
+    
     useEffect(() => {
-        const socket: Socket = io(getServerIP(8082), socketOptions);
-
+        // socket.connect();
         socket.on('connect', () => {
             console.log('Conectando al juego...');
-            
+
             // Enviar datos al servidor
             const dataToSend = { gameUserId: gameUserId ? gameUserId : '', spectateUserId: spectateUserId ? spectateUserId : '' };
+      
             socket.emit('game_connection', dataToSend);
         });
-        
+
         socket.on('player-id', () => {
             setIsPlaying(true);
         });
 
+        socket.on('spectate_match_not_found', () => {
+            setSpectateExist(false);
+        });
         Pong.main(socket, Pong.PongVariant.ALTERNATE);
         
-        
+
         return () => {
             setIsPlaying(false);
-            socket.close();
+            socket.off();
+            if (socket.connected)
+                socket.disconnect();
         };
     }, [gameUserId, spectateUserId]);
 
+    // useEffect(() => {
+    //     var font = new FontFace('press_start_2p', 'url(/fonts/PressStart2P-Regular.ttf) format(\'truetype\')', { style: 'normal', weight: 'normal' });
+        
+    //     font.load().then(function (loadedFont) {
+    //         document.fonts.add(loadedFont);
+    //         document.body.style.fontFamily = 'press_start_2p, monospace, sans-serif';
+    //     }).catch(function (error) {
+    //         console.log('Failed to load font: ' + error);
+    //     });
+    // }, []);
 
 
-
+    
     const [counter, setCounter] = useState(0);
-
+ 
     useEffect(() => {
         const interval = setInterval(() => {
             setCounter(prevCounter => {
                 const nextCounter = prevCounter + 1;
-                const maxCount = '¡Esperando a otro jugador!'.length + 1;
+                let maxCount;
+                if (!spectateUserId)
+                maxCount = '¡Esperando a otro jugador!'.length + 1;
+                else
+                maxCount = '¡No se encuentra partida!'.length + 1;
+                
                 if (nextCounter >= maxCount)
-                    return 0;
+                return 0;
                 
                 return nextCounter;
             });
         }, 150);
         return () => clearInterval(interval);
     }, []);
-
-    var font = new FontFace('press_start_2p', 'url(/fonts/PressStart2P-Regular.ttf) format(\'truetype\')', {style: 'normal', weight: 'normal'});
-
-    font.load().then(function (loadedFont) {
-        document.fonts.add(loadedFont);
-        document.body.style.fontFamily = 'press_start_2p, monospace, sans-serif';
-    }).catch(function (error) {
-        console.log('Failed to load font: ' + error);
-    });
 
     const ErrorMessage: React.CSSProperties = {
         display: 'none',
@@ -121,6 +134,7 @@ function PongPage() {
         height: '30px',
         fontSize: '20px',
         color: 'lightgray',
+        fontFamily: "'Press Start 2P'",
         position: 'absolute'
     };
 
@@ -142,13 +156,28 @@ function PongPage() {
     return (
         <div className="Pong" style={PageStyle}>
             <HomeButton></HomeButton>
-            <h1>The Original Pong</h1>
+            <h1 style={{fontFamily: "'Press Start 2P'"}}>The Original Pong</h1>
             <div id="error-message" style={ErrorMessage}></div>
             <div id="canvas-container" style={CanvasContainer}>
                 <canvas id="pong" width="640" height="480"></canvas>
             </div>
-            {!isPlaying ? <p style={WaitingPlayerStyle}>{generateText('¡Esperando a otro jugador!')}</p> : <p></p> }
-            <p>Mueve la pala con las teclas ↑ ↓</p>
+            {
+                !spectateUserId ?
+                    (
+                        !isPlaying
+                            ? <p style={WaitingPlayerStyle}>{generateText('¡Esperando a otro jugador!')}</p>
+                            : <p></p>
+                    )
+                    :
+                    (
+                        !spectateExist
+                            ? <p style={WaitingPlayerStyle}>{generateText('¡No se encuentra partida!')}</p>
+                            : <p></p>
+                    )
+            }
+            { !spectateUserId ?
+                <p style={{fontFamily: "'Press Start 2P'"}}>Mueve la pala con las teclas ↑ ↓</p> : <p>Estas en modo espectador</p>}
+
         </div>
     );
 }

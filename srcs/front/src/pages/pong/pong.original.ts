@@ -45,15 +45,21 @@ class Pong
     {
         // Connect to server
         this.socket = socket;
+        /*
         socket.on('connect', () => {
             console.log('Successfully connected to the server');
         });
+        */
         socket.on('player-id', (playerId) => {
             if (playerId == PlayerID.LEFT_PLAYER)
                 this.myPaddle = this.leftPaddle;
             else if (playerId == PlayerID.RIGHT_PLAYER)
                 this.myPaddle = this.rightPaddle;
-        })
+        });
+        socket.on('player_nicks', (data) => {
+            this.leftScore.PlayerName = data.leftPlayerNick;
+            this.rightScore.PlayerName = data.rightPlayerNick;
+        });
         socket.on('gameState', (gameState: GameState) => {
             this.gameState = gameState;
             console.log(gameState.ballVelocityVectorX);
