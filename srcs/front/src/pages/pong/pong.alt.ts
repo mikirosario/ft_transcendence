@@ -157,7 +157,7 @@ class PongAlt
           y: -1
         }
         let color = "red";
-        let speed = 2;
+        let speed = 0;
         let radius = 10;
         return new Ball(transform, color, speed, radius, direction, { SetCollider: true });
     }
@@ -277,11 +277,14 @@ class PongAlt
             this.rightScore.Score = this.gameState.rightPlayerScore;
             this.ball.Transform.position.x = this.gameState.ballPositionX;
             this.ball.Transform.position.y = this.gameState.ballPositionY;
+            this.evilBall.Transform.position.x = this.gameState.evilBallPositionX;
+            this.evilBall.Transform.position.y = this.gameState.evilBallPositionY;
             this.leftPaddle.Transform.position.x = this.gameState.leftPaddlePositionX;
             this.leftPaddle.Transform.position.y = this.gameState.leftPaddlePositionY;
             this.rightPaddle.Transform.position.x = this.gameState.rightPaddlePositionX;
             this.rightPaddle.Transform.position.y = this.gameState.rightPaddlePositionY;
             this.ball.synchronizeState(this.gameState, currentResolution);
+            this.evilBall.synchronizeState(this.gameState, currentResolution);
             this.leftPaddle.synchronizeState(this.gameState, currentResolution);
             this.rightPaddle.synchronizeState(this.gameState, currentResolution);
         }

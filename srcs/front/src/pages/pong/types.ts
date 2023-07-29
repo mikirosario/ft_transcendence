@@ -25,6 +25,8 @@ export type RigidBodyOptions = PhysicsOptions & DrawableOptions;
 export type GameState = {
     ballPositionX: number,
     ballPositionY: number,
+    evilBallPositionX: number,
+    evilBallPositionY: number,
     leftPaddlePositionX: number,
     leftPaddlePositionY: number,
     rightPaddlePositionX: number,
@@ -34,6 +36,9 @@ export type GameState = {
     ballReferenceSpeed: number,
     ballVelocityVectorX: number,
     ballVelocityVectorY: number,
+    evilBallReferenceSpeed: number,
+    evilBallVelocityVectorX: number,
+    evilBallVelocityVectorY: number,
     leftPaddleReferenceSpeed: number,
     leftPaddleVelocityVectorY: number,
     rightPaddleReferenceSpeed: number,

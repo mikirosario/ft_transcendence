@@ -234,9 +234,6 @@ export class Ball extends Circle implements IPhysicsObject, IStateSynchronizatio
         }
         let scaleFactors: ScaleFactors = getScaleFactors(currentResolution, referenceResolution);
         super.onResizeCanvas(scaleFactors, currentResolution, referenceResolution);
-        // this.updateSpeed(scaleFactors, gameState.ball.ReferenceSpeed);
-        // this.VelocityVectorX = gameState.ball.VelocityVectorX;
-        // this.VelocityVectorY = gameState.ball.VelocityVectorY;
     }
 
     public draw(ctx: CanvasRenderingContext2D): void

@@ -16,6 +16,7 @@ import { Player, PlayerID } from './player';
 import { PongGameMatchService } from './pong-game-match/pong-game-match.service';
 import { PongGameMatchPlayerDto } from './pong-game-match/dto';
 import { IPongBackend } from './interfaces';
+import { PongAlt } from './pong.alt';
 
 
 
@@ -31,6 +32,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	private games: Map<string, IPongBackend> = new Map();
 	private waitingClients: Array<PongGameMatchPlayerDto> = new Array();
+	//waitingClientsAlt
 
 	constructor(private config: ConfigService, private userService: UserService,
 				private webSocketService: WebSocketService, private pongGameMatchService: PongGameMatchService) { }
@@ -46,7 +48,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			const player2 = this.waitingClients.pop(); // Second client in the queue is player 2
 			const roomId = `${player1.userId}_${player2.userId}`; // create a Socket.IO websocket room name with both client ids
 			
-			const pongBackend = new Pong(); // Start a game for them both
+			const pongBackend = new PongAlt(); // Start a game for them both
 			this.games.set(roomId, pongBackend); // Add to the running games map
 			// Add both clients to the same room
 			player1.socket.join(roomId);
@@ -144,10 +146,11 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async handleConnection(client: any, ...args: any[]) {
-		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
+		let userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
 
 		if (userId == null)
 		{
+			console.log("Client disconnected");
 			client.disconnect();
 			return;
 		}

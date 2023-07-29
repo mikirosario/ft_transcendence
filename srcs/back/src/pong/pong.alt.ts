@@ -61,7 +61,7 @@ export class PongAlt implements IPongBackend
           y: -1
         }
         let color = "red";
-        let speed = 2;
+        let speed = 1;
         let radius = 10;
         return new Ball(transform, color, speed, radius, direction, { SetCollider: true });
     }
@@ -81,16 +81,20 @@ export class PongAlt implements IPongBackend
       let gameState: GameState = {
         ballPositionX: this.ball.Transform.position.x,
         ballPositionY: this.ball.Transform.position.y,
+        evilBallPositionX: this.evilBall.Transform.position.x,
+        evilBallPositionY: this.evilBall.Transform.position.y,
         leftPaddlePositionX: this.leftPaddle.Transform.position.x,
         leftPaddlePositionY: this.leftPaddle.Transform.position.y,
         rightPaddlePositionX: this.rightPaddle.Transform.position.x,
         rightPaddlePositionY: this.rightPaddle.Transform.position.y,
-
         leftPlayerScore: this.leftPlayer.Score,
         rightPlayerScore: this.rightPlayer.Score,
         ballReferenceSpeed: this.ball.ReferenceSpeed,
         ballVelocityVectorX: this.ball.VelocityVectorX,
         ballVelocityVectorY: this.ball.VelocityVectorY,
+        evilBallReferenceSpeed: this.evilBall.ReferenceSpeed,
+        evilBallVelocityVectorX: this.evilBall.VelocityVectorX,
+        evilBallVelocityVectorY: this.evilBall.VelocityVectorY,
         leftPaddleReferenceSpeed: this.leftPaddle.ReferenceSpeed,
         leftPaddleVelocityVectorY: this.leftPaddle.VelocityVectorY,
         rightPaddleReferenceSpeed: this.rightPaddle.ReferenceSpeed,
@@ -110,13 +114,13 @@ export class PongAlt implements IPongBackend
       this.rightPaddle.move(PongAlt.ReferenceResolution);
   
       // Update ball position and handle collisions
-      this.ball.move(PongAlt.ReferenceResolution, [ this.leftPaddle, this.rightPaddle ]);
       this.evilBall.move(PongAlt.ReferenceResolution, [ this.leftPaddle, this.rightPaddle ]);
+      this.ball.move(PongAlt.ReferenceResolution, [ this.leftPaddle, this.rightPaddle ]);
     }
 
     private async scoreUpdate()
     {
-      if (this.ball.IsInPlay)
+      if (this.ball.IsInPlay && this.evilBall.IsInPlay)
       {
         const scorer = this.whoScored(this.ball);
         if (scorer)
@@ -140,20 +144,15 @@ export class PongAlt implements IPongBackend
     {
       if (this.evilBall.IsInPlay)
       {
-        const scorer = this.whoScored(this.ball);
+        const scorer = this.whoScored(this.evilBall);
         if (scorer)
         {
           scorer.Score = PongAlt.MATCH_POINT;
-          this.ball.IsInPlay = false;
+          this.evilBall.IsInPlay = false;
           // 1 second pause, to give the ball time to move out of view
           await new Promise(resolve => setTimeout(resolve, 1000));
-          this.ball.IsInPlay = true;
-          this.ball.resetBall(PongAlt.ReferenceResolution);
-          if (scorer.Score === PongAlt.MATCH_POINT)
-          {
-            this.gameOver = true;
-            this.winner = scorer.ID;
-          }
+          this.gameOver = true;
+          this.winner = scorer.ID;
         }
       }
     }
@@ -164,6 +163,8 @@ export class PongAlt implements IPongBackend
       {
         this.gameState.ballPositionX = this.ball.Transform.position.x,
         this.gameState.ballPositionY = this.ball.Transform.position.y,
+        this.gameState.evilBallPositionX = this.evilBall.Transform.position.x,
+        this.gameState.evilBallPositionY = this.evilBall.Transform.position.y,
         this.gameState.leftPaddlePositionX = this.leftPaddle.Transform.position.x,
         this.gameState.leftPaddlePositionY = this.leftPaddle.Transform.position.y,
         this.gameState.rightPaddlePositionX = this.rightPaddle.Transform.position.x,
@@ -173,6 +174,9 @@ export class PongAlt implements IPongBackend
         this.gameState.ballReferenceSpeed = this.ball.ReferenceSpeed;
         this.gameState.ballVelocityVectorX = this.ball.VelocityVectorX;
         this.gameState.ballVelocityVectorY = this.ball.VelocityVectorY;
+        this.gameState.evilBallReferenceSpeed = this.evilBall.ReferenceSpeed;
+        this.gameState.evilBallVelocityVectorX = this.evilBall.VelocityVectorX;
+        this.gameState.evilBallVelocityVectorY = this.evilBall.VelocityVectorY;
         this.gameState.leftPaddleReferenceSpeed = this.leftPaddle.ReferenceSpeed;
         this.gameState.leftPaddleVelocityVectorY = this.leftPaddle.VelocityVectorY;
         this.gameState.rightPaddleReferenceSpeed = this.rightPaddle.ReferenceSpeed;
