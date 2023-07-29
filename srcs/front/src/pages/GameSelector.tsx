@@ -8,16 +8,20 @@ function GameSelector() {
     const [isCustom, setIsCustom] = useState(false);
 
     //<<< STYLES >>>//
-    const BodyStyle: React.CSSProperties = {
-        display: 'flex',
-        height: '100vh',
-    }
+    // const BodyStyle: React.CSSProperties = {
+    //     height: '320px',
+    //     // width: '100%',
+    //     // top: '320px',
+    //     backgroundColor: '#01624',
+    // }
 
     const Content: React.CSSProperties = {
-        flex: '1',
+        height: '100vh',
+        width: '100%',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        position: 'relative',
     }
 
     const Box: React.CSSProperties = {
@@ -26,7 +30,7 @@ function GameSelector() {
         display: 'flex',
         flexDirection: 'column',
         borderRadius: '15px',
-        backgroundColor: '#4C5970',
+        background: '#4C5970',
     }
 
     const ButtonHeader: React.CSSProperties = {
@@ -92,7 +96,7 @@ function GameSelector() {
 
     //<<< BUILD >>>//
     return (
-        <div style={BodyStyle}>
+
             <div style={Content}>
                 <HomeButton></HomeButton>
                 <div style={Box}>
@@ -107,9 +111,9 @@ function GameSelector() {
                         <CustomMenu></CustomMenu>
                     </div>
                 </div>
+                <SocialMenu></SocialMenu>
             </div>
-            <SocialMenu></SocialMenu>
-        </div>
+
     );
 }
 
