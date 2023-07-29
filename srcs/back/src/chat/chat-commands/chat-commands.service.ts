@@ -23,7 +23,6 @@ export class ChatCommandsService {
 	private commands = {
 		'/help': 'Usa /help para mostrar esta lista de comandos',
 
-		'/duel': 'Reta a un <usuario> a un Pong',
 		'/block': 'Bloquea a un <usuario>',
 		'/unblock': 'Desbloquea a un <usuario>',
 
@@ -175,9 +174,6 @@ export class ChatCommandsService {
 				}
 				return this.changePasswordInChannel(userId, updatePassword);
 				
-			case '/duel':
-
-				break;
 			default:
 				console.log('Comando no reconocido');
 				return commandNotExecuted;
