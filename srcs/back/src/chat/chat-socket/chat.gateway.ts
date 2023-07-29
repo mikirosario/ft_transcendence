@@ -13,7 +13,6 @@ import { WebSocketService } from '../../auth/websocket/websocket.service';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { SelfUserStateChangedEvent } from '../../user/user.events';
-import { use } from 'passport';
 
 
 @WebSocketGateway(8083, {
@@ -36,6 +35,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	
 	async handleConnection(client: Socket, ...args: any[]) {
 		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
+		
 		if (userId == null)
 		{
 			client.disconnect();
