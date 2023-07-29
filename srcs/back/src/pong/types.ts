@@ -3,6 +3,10 @@ import { IPhysicsObject } from "./interfaces";
 import { Paddle } from "./paddle";
 import { Player, PlayerID } from "./player";
 
+export type Vector = -1 | 0 | 1;
+
+export type Direction = { x: Vector, y: Vector };
+
 export type Position = { x: number, y: number };
 
 export type Resolution = { width: number, height: number }

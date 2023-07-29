@@ -1,7 +1,7 @@
 import { Transform } from "./transform";
 import { Ball } from "./ball";
 import { Paddle } from "./paddle";
-import { GameState, InputState, Position, Resolution } from "./types";
+import { Direction, GameState, InputState, Position, Resolution } from "./types";
 import { centerPositionInRange } from "./utils";
 import { Player, PlayerID } from "./player";
 import { IPhysicsObject } from "./interfaces";
@@ -39,10 +39,14 @@ export class Pong
           y: centerPositionInRange(0, Pong.ReferenceResolution.height)
         }
         let transform: Transform = new Transform(position);
+        let direction: Direction = {
+          x: -1,
+          y: 1
+        }
         let color = "white";
-        let speed = 1;
+        let speed = 2;
         let radius = 10;
-        return new Ball(transform, color, speed, radius, { SetCollider: true });
+        return new Ball(transform, color, speed, radius, direction, { SetCollider: true });
     }
 
     private static initPaddle(position: Position): Paddle
@@ -174,20 +178,5 @@ export class Pong
       this.scoreUpdate();
       this.gameStateUpdate();
     }
-
-    public getWinnerAndScores()
-    {
-      let winner: number = 1;
-
-      if (this.winner == PlayerID.RIGHT_PLAYER)
-        winner = 2;
-      
-      return {
-        score1: this.rightPlayer.Score,
-        score2: this.leftPlayer.Score,
-        winner: winner
-      };
-    }
-
   }
   

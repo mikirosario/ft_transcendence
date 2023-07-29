@@ -61,8 +61,8 @@ function PongPage() {
     };
 
     useEffect(() => {
-        const socket: Socket = io(getServerIP(8085), socketOptions);
-        Pong.main(socket, Pong.PongVariant.ALTERNATE);
+        const socket: Socket = io(getServerIP(8082), socketOptions);
+        Pong.main(socket, Pong.PongVariant.ORIGINAL);
     
         return () => {
             socket.close();

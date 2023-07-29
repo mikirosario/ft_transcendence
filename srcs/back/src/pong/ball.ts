@@ -1,7 +1,7 @@
 import { Circle } from "./circle";
 import { Transform } from "./transform";
 import { IPhysicsObject } from "./interfaces";
-import { BoundingBox, Resolution, Position, RigidBodyOptions, ScaleFactors } from "./types";
+import { BoundingBox, Resolution, Position, RigidBodyOptions, ScaleFactors, Direction } from "./types";
 import { isInRange, normalizeRange } from "./utils";
 
 export class Ball extends Circle implements IPhysicsObject
@@ -80,11 +80,11 @@ export class Ball extends Circle implements IPhysicsObject
         }
     }
 
-    constructor(transform: Transform, color: string, speed: number, radius: number, options: RigidBodyOptions = {} )
+    constructor(transform: Transform, color: string, speed: number, radius: number, direction: Direction, options: RigidBodyOptions = {} )
     {
         super(transform, color, radius, { SetActive: options.SetActive });
-        this.velocityVectorX = -1;
-        this.velocityVectorY = 1;
+        this.velocityVectorX = direction.x;
+        this.velocityVectorY = direction.y;
         this.isColliderActive = options.SetCollider === undefined ? false : options.SetCollider;
         this.isInPlay = true;
         this.referenceSpeed = speed;

@@ -4,9 +4,9 @@ import { Paddle } from "./paddle";
 import { Direction, GameState, InputState, Position, Resolution } from "./types";
 import { centerPositionInRange } from "./utils";
 import { Player, PlayerID } from "./player";
-import { IPhysicsObject } from "./interfaces";
+import { IPhysicsObject, IPongBackend } from "./interfaces";
 
-export class Pong
+export class PongAlt implements IPongBackend
 {
     private static readonly PADDLE_MARGIN: number = 25;
     private static readonly MATCH_POINT: number = 3;
@@ -15,15 +15,15 @@ export class Pong
     private winner: PlayerID = PlayerID.NONE;
     private leftPlayer: Player = new Player(PlayerID.LEFT_PLAYER);
     private rightPlayer: Player = new Player(PlayerID.RIGHT_PLAYER);
-    private ball: Ball = Pong.initBall();
-    private evilBall: Ball = Pong.initEvilBall();
-    private leftPaddle: Paddle = Pong.initPaddle({
-      x: Pong.PADDLE_MARGIN,
-      y: centerPositionInRange(0, Pong.ReferenceResolution.height)
+    private ball: Ball = PongAlt.initBall();
+    private evilBall: Ball = PongAlt.initEvilBall();
+    private leftPaddle: Paddle = PongAlt.initPaddle({
+      x: PongAlt.PADDLE_MARGIN,
+      y: centerPositionInRange(0, PongAlt.ReferenceResolution.height)
     });
-    private rightPaddle: Paddle = Pong.initPaddle({
-      x: Pong.ReferenceResolution.width - Pong.PADDLE_MARGIN,
-      y: centerPositionInRange(0, Pong.ReferenceResolution.height)
+    private rightPaddle: Paddle = PongAlt.initPaddle({
+      x: PongAlt.ReferenceResolution.width - PongAlt.PADDLE_MARGIN,
+      y: centerPositionInRange(0, PongAlt.ReferenceResolution.height)
     });
     private gameState: GameState;
   
@@ -35,8 +35,8 @@ export class Pong
     private static initBall(): Ball
     {
         let position: Position = {
-          x: centerPositionInRange(0, Pong.ReferenceResolution.width),
-          y: centerPositionInRange(0, Pong.ReferenceResolution.height)
+          x: centerPositionInRange(0, PongAlt.ReferenceResolution.width),
+          y: centerPositionInRange(0, PongAlt.ReferenceResolution.height)
         }
         let transform: Transform = new Transform(position);
         let direction: Direction = {
@@ -52,8 +52,8 @@ export class Pong
     private static initEvilBall(): Ball
     {
         let position: Position = {
-          x: centerPositionInRange(0, Pong.ReferenceResolution.width),
-          y: centerPositionInRange(0, Pong.ReferenceResolution.height)
+          x: centerPositionInRange(0, PongAlt.ReferenceResolution.width),
+          y: centerPositionInRange(0, PongAlt.ReferenceResolution.height)
         }
         let transform: Transform = new Transform(position);
         let direction: Direction = {
@@ -73,7 +73,7 @@ export class Pong
         let width = 10;
         let height = 100;
         let speed = 0.75;
-        return new Paddle(transform, color, width, height, speed, Pong.ReferenceResolution, { SetCollider: true });
+        return new Paddle(transform, color, width, height, speed, PongAlt.ReferenceResolution, { SetCollider: true });
     }
 
     private initGameState(): GameState
@@ -97,8 +97,8 @@ export class Pong
         rightPaddleVelocityVectorY: this.rightPaddle.VelocityVectorY,
         gameOver: false,
         winner: PlayerID.NONE,
-        referenceWidth: Pong.ReferenceResolution.width,
-        referenceHeight: Pong.ReferenceResolution.height
+        referenceWidth: PongAlt.ReferenceResolution.width,
+        referenceHeight: PongAlt.ReferenceResolution.height
       }
       return gameState;
     }
@@ -106,12 +106,12 @@ export class Pong
     private physicsUpdate()
     {
       // Update paddle positions based on input
-      this.leftPaddle.move(Pong.ReferenceResolution);
-      this.rightPaddle.move(Pong.ReferenceResolution);
+      this.leftPaddle.move(PongAlt.ReferenceResolution);
+      this.rightPaddle.move(PongAlt.ReferenceResolution);
   
       // Update ball position and handle collisions
-      this.ball.move(Pong.ReferenceResolution, [ this.leftPaddle, this.rightPaddle ]);
-      this.evilBall.move(Pong.ReferenceResolution, [ this.leftPaddle, this.rightPaddle ]);
+      this.ball.move(PongAlt.ReferenceResolution, [ this.leftPaddle, this.rightPaddle ]);
+      this.evilBall.move(PongAlt.ReferenceResolution, [ this.leftPaddle, this.rightPaddle ]);
     }
 
     private async scoreUpdate()
@@ -126,8 +126,8 @@ export class Pong
           // 1 second pause, to give the ball time to move out of view
           await new Promise(resolve => setTimeout(resolve, 1000));
           this.ball.IsInPlay = true;
-          this.ball.resetBall(Pong.ReferenceResolution);
-          if (scorer.Score === Pong.MATCH_POINT)
+          this.ball.resetBall(PongAlt.ReferenceResolution);
+          if (scorer.Score === PongAlt.MATCH_POINT)
           {
             this.gameOver = true;
             this.winner = scorer.ID;
@@ -143,13 +143,13 @@ export class Pong
         const scorer = this.whoScored(this.ball);
         if (scorer)
         {
-          scorer.Score = Pong.MATCH_POINT;
+          scorer.Score = PongAlt.MATCH_POINT;
           this.ball.IsInPlay = false;
           // 1 second pause, to give the ball time to move out of view
           await new Promise(resolve => setTimeout(resolve, 1000));
           this.ball.IsInPlay = true;
-          this.ball.resetBall(Pong.ReferenceResolution);
-          if (scorer.Score === Pong.MATCH_POINT)
+          this.ball.resetBall(PongAlt.ReferenceResolution);
+          if (scorer.Score === PongAlt.MATCH_POINT)
           {
             this.gameOver = true;
             this.winner = scorer.ID;
@@ -179,8 +179,8 @@ export class Pong
         this.gameState.rightPaddleVelocityVectorY = this.rightPaddle.VelocityVectorY;
         this.gameState.gameOver = this.gameOver;
         this.gameState.winner = this.winner;
-        this.gameState.referenceWidth = Pong.ReferenceResolution.width;
-        this.gameState.referenceHeight = Pong.ReferenceResolution.height;
+        this.gameState.referenceWidth = PongAlt.ReferenceResolution.width;
+        this.gameState.referenceHeight = PongAlt.ReferenceResolution.height;
       }
     }
 
@@ -190,7 +190,7 @@ export class Pong
         let ballBoundingBox = ball.BoundingBoxPosition;
         if (ballBoundingBox.left < 0)
             scorer = this.rightPlayer;
-        else if (ballBoundingBox.right > Pong.ReferenceResolution.width)
+        else if (ballBoundingBox.right > PongAlt.ReferenceResolution.width)
             scorer = this.leftPlayer;
         return scorer;
     }
@@ -219,6 +219,5 @@ export class Pong
       this.scoreUpdate();
       this.gameStateUpdate();
     }
-
   }
   
