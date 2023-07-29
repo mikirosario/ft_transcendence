@@ -14,8 +14,8 @@ export class Pong
     private static readonly ReferenceResolution: Resolution = { width: 640, height: 480 };
     private gameOver: boolean = false;
     private winner: PlayerID = PlayerID.NONE;
-    private leftPlayer: Player = new Player(PlayerID.LEFT_PLAYER);
-    private rightPlayer: Player = new Player(PlayerID.RIGHT_PLAYER);
+    private leftPlayer: Player;
+    private rightPlayer: Player;
     private ball: Ball = Pong.initBall();
     private leftPaddle: Paddle = Pong.initPaddle({
       x: Pong.PADDLE_MARGIN,
@@ -27,8 +27,10 @@ export class Pong
     });
     private gameState: GameState;
   
-    constructor()
+    constructor(leftPlayerNick: string, rightPlayerNick: string)
     {
+      this.leftPlayer = new Player(PlayerID.LEFT_PLAYER, leftPlayerNick);
+      this.rightPlayer = new Player(PlayerID.RIGHT_PLAYER, rightPlayerNick);
       this.gameState = this.initGameState();
     }
 
@@ -166,6 +168,16 @@ export class Pong
     public getGameState(): GameState
     {     
       return this.gameState;
+    }
+
+    public getLeftPlayerNick(): string
+    {     
+      return this.leftPlayer.Nick;
+    }
+
+    public getRightPlayerNick(): string
+    {     
+      return this.rightPlayer.Nick;
     }
 
     public setGameState()
