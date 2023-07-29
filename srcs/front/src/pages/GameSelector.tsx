@@ -1,19 +1,49 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import HomeButton from "../components/B_Home";
-import OriginalMenu from "../components/gameSelector/M_OriginalGame";
-import CustomMenu from "../components/gameSelector/M_CustomGame";
+import PlayButton from "../components/gameSelector/B_PlayFriends";
 import SocialMenu from "../components/chat-friend-menu/SocialMenu";
+import { getFriendList } from '../requests/Friend.Service';
+import { getUserImage } from '../requests/User.Service';
+
+interface Friend {
+    userId: number;
+    nick: string;
+    avatarUri: string;
+    isOnline: boolean;
+    isInGame: boolean;
+    avatarFile?: string | null;
+}
 
 function GameSelector() {
+    const [friendList, setFriendList] = useState<Friend[]>([]);
+    const [isFriendHovered, setIsFriendHovered] = useState(-1);
+    const [playWithUserId, setPlayWithUserId] = useState<number>(-1);
+
     const [isCustom, setIsCustom] = useState(false);
 
+
+    useEffect(() => {
+        const fetchFriends = async () => {
+            const friendsRequest = await getFriendList();
+            const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
+                const imageUrl = await getUserImage(friend.avatarUri);
+                return { ...friend, avatarFile: imageUrl };
+            }));
+            setFriendList(friendsWithImages);
+            // console.log(friendList);
+        };
+
+        fetchFriends();
+    }, []);
+
+
     //<<< STYLES >>>//
-    // const BodyStyle: React.CSSProperties = {
-    //     height: '320px',
-    //     // width: '100%',
-    //     // top: '320px',
-    //     backgroundColor: '#01624',
-    // }
+    const MainContainer: React.CSSProperties = {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+    }
 
     const Content: React.CSSProperties = {
         height: '100vh',
@@ -21,6 +51,7 @@ function GameSelector() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        marginRight: '300px',
         position: 'relative',
     }
 
@@ -68,18 +99,53 @@ function GameSelector() {
     }
 
     const SectionStyle: React.CSSProperties = {
-        flex: 1,
-        display: isCustom
-            ? 'none'
-            : 'flex',
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        marginTop: '4%',
+        marginLeft: '9%',
+        width: '66%',
     }
-
-    const SectionAlt: React.CSSProperties = {
-        flex: 1,
-        display: isCustom
-            ? 'flex'
-            : 'none',
-    }
+    
+    const friendContainerStyle: React.CSSProperties = {
+        width: '100px',
+        height: '130px',
+        marginBottom: '40%',
+        borderRadius: '8px',
+        border: 'none',
+        background: 'transparent',
+        position: 'relative',
+        cursor: 'pointer',
+        transition: 'transform 0.3s ease-in-out, background-color 0.3s ease',
+    };
+    
+    const avatarWrapperStyle: React.CSSProperties = {
+        width: '100px',
+        height: '130px',
+        borderRadius: '15px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'relative',
+        transition: 'transform 0.3s ease-in-out, background-color 0.8s ease',
+    };
+    
+    const avatarStyle: React.CSSProperties = {
+        width: '80px',
+        height: '80px',
+        marginTop: '25%',
+        borderRadius: '50%',
+    };
+    
+    const nameStyle: React.CSSProperties = {
+        marginTop: '10px',
+        fontSize: '20px',
+        color: '#c0c0c0',
+        display: 'flex',
+        alignItems: 'center',
+        paddingLeft: '10px'
+    };
 
 
     //<<< FUNCTIONS >>>//
@@ -96,7 +162,7 @@ function GameSelector() {
 
     //<<< BUILD >>>//
     return (
-
+        <div style={MainContainer}>
             <div style={Content}>
                 <HomeButton></HomeButton>
                 <div style={Box}>
@@ -105,15 +171,41 @@ function GameSelector() {
                         <div className='CustomButton' style={ButtonAlt} onClick={changeOriginal}>CUSTOM</div>
                     </div>
                     <div className='OriginalContent' style={SectionStyle}>
-                        <OriginalMenu></OriginalMenu>
+                        {friendList.map((friend, index) => (
+                            <button
+                                key={index}
+                                style={friendContainerStyle}
+                                onMouseEnter={() => {
+                                    if (playWithUserId !== friend.userId)
+                                        setIsFriendHovered(index);
+                                }}
+                                onMouseLeave={() => setIsFriendHovered(-1)}
+                                onClick={() => setPlayWithUserId(friend.userId)}
+                            >
+                                <div style={{
+                                    transform: (isFriendHovered === index && playWithUserId !== friend.userId) ? 'scale(1.1)' : 'none',
+                                    transition: 'transform 0.3s ease-in-out',
+                                }}>
+                                    <div style={{...avatarWrapperStyle, backgroundColor: playWithUserId === friend.userId ? '#5b8731' : 'transparent'}}>
+                                        <img
+                                            className='FriendAvatar'
+                                            alt={'Avatar de' + friend.nick}
+                                            src={friend.avatarFile || ''}
+                                            style={avatarStyle}
+                                        />
+                                        <p style={nameStyle}>{friend.nick}</p>
+                                    </div>
+                                </div>
+                            </button>
+                        ))}
                     </div>
-                    <div className='CustomContent' style={SectionAlt}>
-                        <CustomMenu></CustomMenu>
+                    <PlayButton friendGameId={playWithUserId}></PlayButton>
+                    <div className='CustomContent'>
                     </div>
                 </div>
-                <SocialMenu></SocialMenu>
             </div>
-
+            <SocialMenu></SocialMenu>
+        </div>
     );
 }
 
