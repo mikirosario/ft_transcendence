@@ -24,7 +24,6 @@ export class ChatCommandsService {
 		'/help': 'Usa /help para mostrar esta lista de comandos',
 
 		'/duel': 'Reta a un <usuario> a un Pong',
-		'/spectate': 'Comienza a observar la partida de un <usuario>',
 		'/block': 'Bloquea a un <usuario>',
 		'/unblock': 'Desbloquea a un <usuario>',
 
@@ -177,9 +176,6 @@ export class ChatCommandsService {
 				return this.changePasswordInChannel(userId, updatePassword);
 				
 			case '/duel':
-
-				break;
-			case '/spectate':
 
 				break;
 			default:
