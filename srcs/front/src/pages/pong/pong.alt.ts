@@ -91,7 +91,7 @@ class PongAlt
         
         // Render Logic
         // Leftmost objects are rendered first
-        this.drawables = [ this.gameOverText, this.net, this.leftPaddle, this.rightPaddle, this.ball, this.leftScore, this.rightScore ];
+        this.drawables = [ this.gameOverText, this.net, this.leftPaddle, this.rightPaddle, this.ball, this.evilBall, this.leftScore, this.rightScore ];
         this.renderFrame = this.renderFrame.bind(this);
         this.renderGameOverFrame = this.renderGameOverFrame.bind(this);
         this.resizeCanvas(window.innerWidth, window.innerHeight);
