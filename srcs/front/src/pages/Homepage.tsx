@@ -2,9 +2,9 @@ import React, { useEffect } from "react";
 import { useLocation, useNavigate, } from 'react-router-dom';
 import HomeButton from "../components/B_Home";
 import GameButton from "../components/B_General";
-import LogoutButton from '../components/B_Logout'; 
+import LogoutButton from '../components/B_Logout';
 import SocialMenu from "../components/chat-friend-menu/SocialMenu";
-import { SocketProvider1,SocketProvider2 } from "../SocketContext";
+import { SocketProvider1, SocketProvider2 } from "../SocketContext";
 
 function Home() {
     const navigate = useNavigate();
@@ -12,11 +12,11 @@ function Home() {
 
     useEffect(() => {
         return () => {
-          if (location.pathname === "/register") {
-            navigate('/homepage');
-          }
+            if (location.pathname === "/register") {
+                navigate('/homepage');
+            }
         };
-      }, [location, navigate]);
+    }, [location, navigate]);
 
     const Window: React.CSSProperties = {
         height: '100%',
@@ -59,7 +59,7 @@ function Home() {
 
     return (
         // <SocketProvider1>
-            // <SocketProvider2>
+        //     <SocketProvider2>
                 <div style={Window}>
                     <div>
                         <HomeButton></HomeButton>
@@ -77,8 +77,6 @@ function Home() {
                         </section>
                     </div>
                 </div>
-            // </SocketProvider2>
-        // </SocketProvider1>
     );
 }
 

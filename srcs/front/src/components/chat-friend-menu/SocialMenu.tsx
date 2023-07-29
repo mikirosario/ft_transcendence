@@ -7,7 +7,7 @@ import ChannelDisplay from "./ChannelDisplay"
 import { FaAngleRight, FaAngleLeft, FaCrown } from 'react-icons/fa';
 import { IoMdSettings } from 'react-icons/io';
 import ChatDisplay from "./ChatDisplay";
-import { SocketContext1, SocketContext2 } from '../../SocketContext';
+import { SocketContext1, SocketContext2, SocketProvider1, SocketProvider2 } from '../../SocketContext';
 import NotificationContext from '../../NotificationContext';
 //BiChevronLeft 
 
@@ -246,67 +246,70 @@ function Menu() {
 	};
 
 	return (
-		
-		<NotificationContext.Provider value={{ handleNotification }}>
-			<>
-				<button
-					style={toggleButtonStyle}
-					onClick={() => {
-						setIsMenuExpanded(!isMenuExpanded);
-						localStorage.setItem("isMenuExpanded", (!isMenuExpanded).toString());
-					}}
-				>
-					{isMenuExpanded ? <FaAngleRight size={22} /> : <FaAngleLeft size={22} />}
-				</button>
-
-				{showNotification && (
-					<div style={notificationMessageStyle}>
-						{notifications[0]?.content}
-					</div>
-				)}
-
-				<div style={{
-					...MenuStyle,
-					width: isMenuExpanded ? '20vw' : '0',
-					left: isMenuExpanded ? '80%' : '100%',
-				}}>
-					<Link to={'/perfil'}>
-						<button style={ProfileButtonStyle}>
-							<UserProfile image={userImage} name={username}></UserProfile>
+		<SocketProvider1>
+			<SocketProvider2>
+				<NotificationContext.Provider value={{ handleNotification }}>
+					<>
+						<button
+							style={toggleButtonStyle}
+							onClick={() => {
+								setIsMenuExpanded(!isMenuExpanded);
+								localStorage.setItem("isMenuExpanded", (!isMenuExpanded).toString());
+							}}
+						>
+							{isMenuExpanded ? <FaAngleRight size={22} /> : <FaAngleLeft size={22} />}
 						</button>
-					</Link>
-					{isSiteAdmin &&
-						<Link to={'/administration'}>
 
-							<button style={CrownIconStyle}>
-								<FaCrown color="gold" size={30} />
-							</button>
-						</Link>
-					}
+						{showNotification && (
+							<div style={notificationMessageStyle}>
+								{notifications[0]?.content}
+							</div>
+						)}
 
-					<Link to='/settings'>
-						<div style={SettingsStyle}>
-							<IoMdSettings color="lightgray" size={28}></IoMdSettings>
+						<div style={{
+							...MenuStyle,
+							width: isMenuExpanded ? '20vw' : '0',
+							left: isMenuExpanded ? '80%' : '100%',
+						}}>
+							<Link to={'/perfil'}>
+								<button style={ProfileButtonStyle}>
+									<UserProfile image={userImage} name={username}></UserProfile>
+								</button>
+							</Link>
+							{isSiteAdmin &&
+								<Link to={'/administration'}>
+
+									<button style={CrownIconStyle}>
+										<FaCrown color="gold" size={30} />
+									</button>
+								</Link>
+							}
+
+							<Link to='/settings'>
+								<div style={SettingsStyle}>
+									<IoMdSettings color="lightgray" size={28}></IoMdSettings>
+								</div>
+							</Link>
+							<div>
+								<button style={FriendButtonStyle} onClick={handleFriendButtonClick}>
+									Amigos
+								</button>
+								<button style={ChannelsButtonStyle} onClick={handleChannelsButtonClick}>
+									Canales
+								</button>
+								<div style={SocialDisplay}>
+									{selectedChat ? (
+										<ChatDisplay selectedChat={selectedChat} setSelectedChat={setSelectedChat} isFriendChat={isFriendChat} />
+									) : (
+										selectedButton === 'friend' ? <FriendDisplay openChat={(id) => openChat(id, true)} /> : <ChannelDisplay openChat={(id) => openChat(id, false)} />
+									)}
+								</div>
+							</div>
 						</div>
-					</Link>
-					<div>
-						<button style={FriendButtonStyle} onClick={handleFriendButtonClick}>
-							Amigos
-						</button>
-						<button style={ChannelsButtonStyle} onClick={handleChannelsButtonClick}>
-							Canales
-						</button>
-						<div style={SocialDisplay}>
-							{selectedChat ? (
-								<ChatDisplay selectedChat={selectedChat} setSelectedChat={setSelectedChat} isFriendChat={isFriendChat} />
-							) : (
-								selectedButton === 'friend' ? <FriendDisplay openChat={(id) => openChat(id, true)} /> : <ChannelDisplay openChat={(id) => openChat(id, false)} />
-							)}
-						</div>
-					</div>
-				</div>
-			</>
-		</NotificationContext.Provider>
+					</>
+				</NotificationContext.Provider>
+			</SocketProvider2>
+		</SocketProvider1>
 	);
 }
 
