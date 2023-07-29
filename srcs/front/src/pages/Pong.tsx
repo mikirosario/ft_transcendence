@@ -3,24 +3,14 @@ import HomeButton from "../components/B_Home";
 import * as Pong from "./pong/pong";
 import { io, Socket } from 'socket.io-client';
 import { getServerIP } from "../utils/utils";
-import { Console } from "console";
 import { useNavigate, useParams } from "react-router-dom";
 
 
-const socketOptions = {
-    transportOptions: {
-        polling: {
-            extraHeaders: {
-                Authorization: 'Bearer ' + localStorage.getItem("token"),
-            }
-        }
-    },
-    autoConnect: false
-};
-const socket: Socket = io(getServerIP(8082), socketOptions);
+
+
 
 function PongPage() {
-
+    
     const { gameUserId } = useParams();
     const { spectateUserId } = useParams();
     const navigate = useNavigate();
@@ -30,12 +20,24 @@ function PongPage() {
     useEffect(() => {
         if (gameUserId || spectateUserId) {
             if ((isNaN(Number(spectateUserId)) && !gameUserId) || (isNaN(Number(gameUserId)) && !spectateUserId))
-                navigate('/homepage');
+            navigate('/homepage');
         }
     }, []);
     
     useEffect(() => {
-        // socket.connect();
+
+        const socketOptions = {
+            transportOptions: {
+                polling: {
+                    extraHeaders: {
+                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                    }
+                }
+            },
+            autoConnect: false
+        };
+        const socket: Socket = io(getServerIP(8082), socketOptions);
+
         socket.on('connect', () => {
             console.log('Conectando al juego...');
 
@@ -61,6 +63,7 @@ function PongPage() {
             socket.off();
             if (socket.connected)
                 socket.disconnect();
+            
         };
     }, [gameUserId, spectateUserId]);
 
