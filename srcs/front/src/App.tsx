@@ -13,6 +13,9 @@ import Administration from './pages/Administration';
 import Perfil from './pages/Perfil';
 import Leaderboard from './pages/Leaderboard';
 
+import { SocketProvider1, SocketProvider2 } from './SocketContext';
+
+
 const useAuth = () => {
   const token = localStorage.getItem('token');
   return !!token;
@@ -63,32 +66,36 @@ function AdminComponent({ children }: { children: React.ReactElement }) {
 function App() {
   return (
     <BrowserRouter>
-      <div style={{
-        backgroundColor: '#0E1625',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100vh',
-      }}></div>
-      <Routes>
-        <Route path="/" element={<GuestComponent><PreRegister /></GuestComponent>} />
-        
-        <Route path="/register" element={<GuestComponent><Register /></GuestComponent>} /> 
-        <Route path="/denied" element={<GuestComponent><PermissionDenied /></GuestComponent>} />
+      <SocketProvider1>
+        <SocketProvider2>
+          <div style={{
+            backgroundColor: '#0E1625',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100vh',
+          }}></div>
+          <Routes>
+            <Route path="/" element={<GuestComponent><PreRegister /></GuestComponent>} />
+            
+            <Route path="/register" element={<GuestComponent><Register /></GuestComponent>} /> 
+            <Route path="/denied" element={<GuestComponent><PermissionDenied /></GuestComponent>} />
 
-        <Route path="/homepage" element={<ProtectedComponent><Home /></ProtectedComponent>} />
-        <Route path="/settings" element={<ProtectedComponent><Options /></ProtectedComponent>} />
-        <Route path="/pong" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
-        <Route path="/pong/:gameUserId" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
-        <Route path="/pong/spectate/:spectateUserId" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
-        <Route path="/game-selector" element={<ProtectedComponent><GameSelector /></ProtectedComponent>} />
-        <Route path="/leaderboard" element={<ProtectedComponent><Leaderboard /></ProtectedComponent>} />
-        <Route path="/perfil" element={<ProtectedComponent><Perfil /></ProtectedComponent>} />
-        <Route path="/perfil/:username" element={<ProtectedComponent><Perfil /></ProtectedComponent>} />
-        
-        <Route path="/administration" element={<AdminComponent><Administration /></AdminComponent>} />
-      </Routes>
+            <Route path="/homepage" element={<ProtectedComponent><Home /></ProtectedComponent>} />
+            <Route path="/settings" element={<ProtectedComponent><Options /></ProtectedComponent>} />
+            <Route path="/pong" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
+            <Route path="/pong/:gameUserId" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
+            <Route path="/pong/spectate/:spectateUserId" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
+            <Route path="/game-selector" element={<ProtectedComponent><GameSelector /></ProtectedComponent>} />
+            <Route path="/leaderboard" element={<ProtectedComponent><Leaderboard /></ProtectedComponent>} />
+            <Route path="/perfil" element={<ProtectedComponent><Perfil /></ProtectedComponent>} />
+            <Route path="/perfil/:username" element={<ProtectedComponent><Perfil /></ProtectedComponent>} />
+            
+            <Route path="/administration" element={<AdminComponent><Administration /></AdminComponent>} />
+          </Routes>
+        </SocketProvider2>
+      </SocketProvider1>
     </BrowserRouter>
   );
 }

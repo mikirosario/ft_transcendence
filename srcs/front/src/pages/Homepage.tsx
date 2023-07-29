@@ -4,7 +4,6 @@ import HomeButton from "../components/B_Home";
 import GameButton from "../components/B_General";
 import LogoutButton from '../components/B_Logout';
 import SocialMenu from "../components/chat-friend-menu/SocialMenu";
-import { SocketProvider1, SocketProvider2 } from "../SocketContext";
 
 function Home() {
     const navigate = useNavigate();
@@ -58,25 +57,24 @@ function Home() {
     };
 
     return (
-        // <SocketProvider1>
-        //     <SocketProvider2>
-                <div style={Window}>
-                    <div>
-                        <HomeButton></HomeButton>
-                        <section className="B_PFriends" style={PlayFriendsButtonStyle} onClick={GoGamePong}>
-                            <GameButton name="Play" width={435} height={155} fsize={48}></GameButton>
-                        </section>
-                        <section className="B_Play" style={PlayButtonStyle} onClick={GoGameSelector}>
-                            <GameButton name="Play with friends" width={435} height={155} fsize={22}></GameButton>
-                        </section>
-                        <section style={LogoutButtonStyle}>
-                            <LogoutButton />
-                        </section>
-                        <section>
-                            <SocialMenu></SocialMenu>
-                        </section>
-                    </div>
-                </div>
+
+        <div style={Window}>
+            <div>
+                <HomeButton></HomeButton>
+                <section className="B_PFriends" style={PlayFriendsButtonStyle} onClick={GoGamePong}>
+                    <GameButton name="Play" width={435} height={155} fsize={48}></GameButton>
+                </section>
+                <section className="B_Play" style={PlayButtonStyle} onClick={GoGameSelector}>
+                    <GameButton name="Play with friends" width={435} height={155} fsize={22}></GameButton>
+                </section>
+                <section style={LogoutButtonStyle}>
+                    <LogoutButton />
+                </section>
+                <section>
+                    <SocialMenu></SocialMenu>
+                </section>
+            </div>
+        </div>
     );
 }
 
