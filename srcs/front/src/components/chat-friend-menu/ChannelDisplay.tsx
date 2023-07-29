@@ -54,7 +54,12 @@ function ChannelDisplay({ openChat }: { openChat: (id: number) => void }) {
 
       fetchChannels();
       socket?.on("UPDATE_CHANNELS_LIST", handleChannelsList);
-      // socket?.on("KICK_FROM_CHANNEL", handleKickCommand);
+
+      // return () => {
+      //   socket?.off();
+      //   if (socket?.connected)
+      //     socket.disconnect();
+      // }
   }, [socket]);
 
 

@@ -24,11 +24,12 @@ function ChannelDisplay({ openChat }: { openChat: (id: number) => void }) {
   const [isHoveredCreate, setIsHoveredCreate] = useState(false);
   const [isHoveredJoin, setIsHoveredJoin] = useState(false);
 
+  /*
   const socketRef = useRef(socket);
   useEffect(() => {
     socketRef.current = socket;
   }, [socket]);
-
+  */
   useEffect(() => {
 
       const fetchChannels = async () => {

@@ -7,7 +7,6 @@ import { sendAdminCommand } from '../requests/Admin.Service';
 import NotificationContext from '../NotificationContext';
 import SocialAdminMenu from '../components/administration-menu/SocialAdminMenu';
 import { FaInfoCircle } from 'react-icons/fa';
-import { SocketProvider1, SocketProvider2 } from "../SocketContext";
 
 
 function Administration() {
@@ -157,63 +156,59 @@ function Administration() {
     }
 
     return (
-        <SocketProvider1>
-            <SocketProvider2>
-                <div style={Window}>
-                    <HomeButton></HomeButton>
-                    <SocialAdminMenu></SocialAdminMenu>
-                    <h1 style={AdministrationPanelStyle}> Panel de Administración</h1>
-                    <button style={InfoCommandsIconStyle} onClick={toggleCommands}>
-                        <FaInfoCircle size={24} color='grey' />
-                    </button>
+        <div style={Window}>
+            <HomeButton></HomeButton>
+            <SocialAdminMenu></SocialAdminMenu>
+            <h1 style={AdministrationPanelStyle}> Panel de Administración</h1>
+            <button style={InfoCommandsIconStyle} onClick={toggleCommands}>
+                <FaInfoCircle size={24} color='grey' />
+            </button>
 
-                    {showCommands && (
-                        <div style={HelpCommandPopUpStyle}>
-                            <h2>Lista de Comandos</h2>
-                            <button style={CloseButtonStyle} onClick={toggleCommands}>X</button>
-                            <ul>
-                                <>
-                                    <li style={{ fontSize: '14px' }}>/setsiteadmin {usuario}: Da permisos de administador en todo la pagina a un usuario</li>
-                                    <li style={{ fontSize: '14px' }}>/unsiteadmin {usuario}: Quita los permisos de administrador en toda la pagina</li>
-                                    <li style={{ fontSize: '14px' }}>/siteban {usuario}: Banea a un usuario de toda la pagina de forma inminente</li>
-                                    <li style={{ fontSize: '14px' }}>/siteunban {usuario}: Desbanea a un usuario de toda la pagina de forma inminente</li>
-                                    <li style={{ fontSize: '14px' }}>/setchanneladmin {canal} {usuario}: Agrega permisos de administrador a un usuario en el canal especificado</li>
-                                    <li style={{ fontSize: '14px' }}>/unsetchanneladmin {canal} {usuario}: Elimina permisos de administrador a un usuario en el canal especificado</li>
-                                    <li style={{ fontSize: '14px' }}>/destroychannel {canal}: Elimina un canal de chat del servidor</li>
+            {showCommands && (
+                <div style={HelpCommandPopUpStyle}>
+                    <h2>Lista de Comandos</h2>
+                    <button style={CloseButtonStyle} onClick={toggleCommands}>X</button>
+                    <ul>
+                        <>
+                            <li style={{ fontSize: '14px' }}>/setsiteadmin {usuario}: Da permisos de administador en todo la pagina a un usuario</li>
+                            <li style={{ fontSize: '14px' }}>/unsiteadmin {usuario}: Quita los permisos de administrador en toda la pagina</li>
+                            <li style={{ fontSize: '14px' }}>/siteban {usuario}: Banea a un usuario de toda la pagina de forma inminente</li>
+                            <li style={{ fontSize: '14px' }}>/siteunban {usuario}: Desbanea a un usuario de toda la pagina de forma inminente</li>
+                            <li style={{ fontSize: '14px' }}>/setchanneladmin {canal} {usuario}: Agrega permisos de administrador a un usuario en el canal especificado</li>
+                            <li style={{ fontSize: '14px' }}>/unsetchanneladmin {canal} {usuario}: Elimina permisos de administrador a un usuario en el canal especificado</li>
+                            <li style={{ fontSize: '14px' }}>/destroychannel {canal}: Elimina un canal de chat del servidor</li>
 
-                                </>
-                            </ul>
-                        </div>
-                    )}
-                    <div style={UnifiedContainerStyle}>
-                        <div style={MessagesContainerStyle}>
-                            {[...messagesList].reverse().map((messageItem, index) => (
-                                <div key={index} style={MessageStyle}>
-                                    {messageItem}
-                                </div>
-                            ))}
-                        </div>
-                        <div style={TextAreaWrapperStyle}>
-                            <textarea
-                                style={MessageInputStyle}
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                placeholder="Escribe un mensaje"
-                                onKeyPress={(e) => {
-                                    if (e.key === 'Enter' && !e.shiftKey) {
-                                        e.preventDefault();
-                                        handleSend();
-                                    }
-                                }}
-                            />
-                            <button style={SendButtonStyle} onClick={handleSend}>
-                                <IoMdSend size={26} />
-                            </button>
-                        </div>
-                    </div>
+                        </>
+                    </ul>
                 </div>
-            </SocketProvider2>
-        </SocketProvider1>
+            )}
+            <div style={UnifiedContainerStyle}>
+                <div style={MessagesContainerStyle}>
+                    {[...messagesList].reverse().map((messageItem, index) => (
+                        <div key={index} style={MessageStyle}>
+                            {messageItem}
+                        </div>
+                    ))}
+                </div>
+                <div style={TextAreaWrapperStyle}>
+                    <textarea
+                        style={MessageInputStyle}
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder="Escribe un mensaje"
+                        onKeyPress={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSend();
+                            }
+                        }}
+                    />
+                    <button style={SendButtonStyle} onClick={handleSend}>
+                        <IoMdSend size={26} />
+                    </button>
+                </div>
+            </div>
+        </div>
     )
 }
 

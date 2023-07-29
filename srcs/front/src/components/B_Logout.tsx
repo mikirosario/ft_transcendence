@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { FaSignOutAlt } from 'react-icons/fa';
+import { SocketContext1, SocketContext2 } from '../SocketContext'
 
 const LogoutButton: React.FC = () => {
+    const socket1 = useContext(SocketContext1);
+    const socket2 = useContext(SocketContext2);
+
     const handleLogout = () => {
+        socket1?.off();
+        socket2?.off();
+        socket1?.disconnect();
+        socket2?.disconnect();
         localStorage.removeItem('token')
     };
 

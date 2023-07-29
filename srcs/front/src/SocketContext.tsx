@@ -10,6 +10,8 @@ export function SocketProvider1({ children }: { children: ReactNode }) {
   const [socket1, setSocket1] = useState<Socket | null>(null);
 
   useEffect(() => {
+    console.log('Creating socket1');  // Agrega esta línea
+
     const socketOptions = {
       transportOptions: {
         polling: {
@@ -17,10 +19,20 @@ export function SocketProvider1({ children }: { children: ReactNode }) {
             Authorization: 'Bearer ' + localStorage.getItem("token"),
           }
         }
-      }
+      },
     };
 
-    setSocket1(io(getServerIP(8083), socketOptions));
+    const newSocket = io(getServerIP(8083), socketOptions);
+    
+    setSocket1(newSocket);
+
+    return () => {
+      console.log('Cleaning up socket1');  // Y esta línea
+      newSocket.off();
+      if (newSocket.connected) {
+        newSocket.disconnect();
+      }
+    };
   }, []);
 
   return (
@@ -34,6 +46,7 @@ export function SocketProvider2({ children }: { children: ReactNode }) {
   const [socket2, setSocket2] = useState<Socket | null>(null);
 
   useEffect(() => {
+    console.log('Creating socket2');  // Agrega esta línea
     const socketOptions = {
       transportOptions: {
         polling: {
@@ -44,7 +57,15 @@ export function SocketProvider2({ children }: { children: ReactNode }) {
       }
     };
 
-    setSocket2(io(getServerIP(8081), socketOptions));
+    const newSocket = io(getServerIP(8081), socketOptions);
+    setSocket2(newSocket);
+
+    return () => {
+      newSocket.off();
+      if (newSocket.connected) {
+        newSocket.disconnect();
+      }
+    };
   }, []);
 
   return (

@@ -44,7 +44,6 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
 
     useEffect(() => {
 
-            if (!socketUserStatus) return undefined;
             // FriendList Functions
             const fetchFriends = async () => {
                 const friendsRequest = await getFriendList();
@@ -163,13 +162,10 @@ function FriendDisplay({ openChat }: { openChat: (friendName: number) => void })
             socket?.on("UPDATE_FRIEND_LIST", handleFriendListUpdate);
             socket?.on("UPDATE_BLOCKED_LIST", handleBlockedListUpdate);
 
-            // // Función de limpieza
             // return () => {
-            //     socket?.off("FRIEND_REQUEST_ACCEPTED", handleFriendListNew);
-            //     socket?.off("FRIENDLIST_STATUS", handleFriendListStatus);
-            //     socket?.off("FRIEND_REQUEST_NEW", handleFriendRequestNew);
-            //     socket?.off("FRIEND_REQUEST_REJECTED", handleFriendRequestReject);
-            //     socket?.off("USER_BLOCK_LSIT", handleBlockedListUpdate);
+            //     socket?.off();
+            //     if (socket?.connected)
+            //         socket.disconnect();
             // };
     }, [socket, socketUserStatus]);
 
