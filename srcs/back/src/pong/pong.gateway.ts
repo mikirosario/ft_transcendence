@@ -223,9 +223,11 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			if (userIdsArray.includes(spectateUserId))
 			{
 				client.join(roomId);
-				break;
+				return;
 			}
 		}
+
+		client.emit('spectate_match_not_found', true);
 	}
 
 	privateGame(client: Socket, userId: number, gameUserId: string) {
