@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
+import axios from 'axios';
+import HomeButton from "../components/B_Home";
 import UserSettingsButtons from "../components/settings/UserSettingsButtons";
 import QRCodeDisplay from "../components/2AF/QRCodeDisplay";
-import axios from 'axios';
 import { getServerIP } from '../utils/utils';
 
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
@@ -86,10 +87,11 @@ function Options() {
     marginBottom: '50px'
     // justifyContent: 'flex-start',  // Cambia esto a 'flex-end' si quieres que los elementos estén alineados a la derecha
   };
-  
+
 
   return (
     <div className="Register">
+      <HomeButton></HomeButton>
       <div className="NicknamePositionWrapper" style={NicknamePositionStyle}>
         <div className="NicknameTapeWrapper" style={NicknameTapeStyle}>
           <div className="NicknameInputWrapper" style={NicknameInputStyle}>
