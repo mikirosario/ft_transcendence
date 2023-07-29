@@ -54,7 +54,7 @@ function Home() {
     };
 
     const GoGameSelector = () => {
-        navigate('/gameSelector');
+        navigate('/game-selector');
     };
 
     return (
@@ -64,10 +64,10 @@ function Home() {
                     <div>
                         <HomeButton></HomeButton>
                         <section className="B_PFriends" style={PlayFriendsButtonStyle} onClick={GoGamePong}>
-                            <GameButton name="Play with friends" width={435} height={155} fsize={22}></GameButton>
+                            <GameButton name="Play" width={435} height={155} fsize={48}></GameButton>
                         </section>
                         <section className="B_Play" style={PlayButtonStyle} onClick={GoGameSelector}>
-                            <GameButton name="Play" width={435} height={155} fsize={48}></GameButton>
+                            <GameButton name="Play with friends" width={435} height={155} fsize={22}></GameButton>
                         </section>
                         <section style={LogoutButtonStyle}>
                             <LogoutButton />
