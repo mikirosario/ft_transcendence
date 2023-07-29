@@ -51,6 +51,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			console.log('Hola! ' + user.nick + ' está online ✅');
 			
 		} catch (error) {
+			client.disconnect();
 		}
 	}
 	
