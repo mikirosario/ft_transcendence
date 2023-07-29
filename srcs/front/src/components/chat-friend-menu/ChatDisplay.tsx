@@ -114,12 +114,9 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         }
 
         // return () => {
-        //     if (isFriendChat) {
-        //         socket.off("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
-        //     } else {
-        //         socket.off("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
-        //         socket.off("UPDATE_CHANNEL_USERS_LIST", handleUpdateChannel);
-        //     }
+        //     socket?.off();
+        //     if (socket?.connected)
+        //         socket.disconnect();
         // };
     }, [selectedChat, socket]);
 
@@ -264,7 +261,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         fontWeight: 'bold',
         marginRight: '10px',
         marginTop: '16px',
-        textDecoration: 'none' 
+        textDecoration: 'none'
     };
 
     const MessageInfoStyle: React.CSSProperties = {
@@ -316,8 +313,6 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     <ul>
                         {isFriendChat ? (
                             <>
-                                <li style={{ fontSize: '14px' }}>/duel {usuario}: Reta a un usuario a un Pong</li>
-                                <li style={{ fontSize: '14px' }}>/spectate {usuario}: Comienza a observar la partida de un usuario</li>
                                 <li style={{ fontSize: '14px' }}>/block {usuario}: Bloquea a un usuario</li>
                                 <li style={{ fontSize: '14px' }}>/unblock {usuario}: Desbloquea a un usuario</li>
                             </>
