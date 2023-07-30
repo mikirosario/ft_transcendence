@@ -14,27 +14,27 @@ interface Friend {
     avatarFile?: string | null;
 }
 
-function GameSelector() {
-    // const [friendList, setFriendList] = useState<Friend[]>([]);
-    // const [isFriendHovered, setIsFriendHovered] = useState(-1);
-    // const [playWithUserId, setPlayWithUserId] = useState<number>(-1);
+function GameFriends() {
+    const [friendList, setFriendList] = useState<Friend[]>([]);
+    const [isFriendHovered, setIsFriendHovered] = useState(-1);
+    const [playWithUserId, setPlayWithUserId] = useState<number>(-1);
 
     const [isOriginal, setisOriginal] = useState(true);
 
 
-    // useEffect(() => {
-    //     const fetchFriends = async () => {
-    //         const friendsRequest = await getFriendList();
-    //         const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
-    //             const imageUrl = await getUserImage(friend.avatarUri);
-    //             return { ...friend, avatarFile: imageUrl };
-    //         }));
-    //         setFriendList(friendsWithImages);
-    //         // console.log(friendList);
-    //     };
+    useEffect(() => {
+        const fetchFriends = async () => {
+            const friendsRequest = await getFriendList();
+            const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
+                const imageUrl = await getUserImage(friend.avatarUri);
+                return { ...friend, avatarFile: imageUrl };
+            }));
+            setFriendList(friendsWithImages);
+            // console.log(friendList);
+        };
 
-    //     fetchFriends();
-    // }, []);
+        fetchFriends();
+    }, []);
 
 
     //<<< STYLES >>>//
@@ -170,8 +170,7 @@ function GameSelector() {
                         <div className='OriginalButton' style={Button} onClick={changeCustom}>ORIGINAL</div>
                         <div className='CustomButton' style={ButtonAlt} onClick={changeOriginal}>CUSTOM</div>
                     </div>
-                    {!isOriginal ? <h1>Como jugar Pong Normal</h1> : <h1>Como jugar Pong Alter</h1>}
-                    {/* <div className='OriginalContent' style={SectionStyle}>
+                    <div className='OriginalContent' style={SectionStyle}>
                         {friendList.map((friend, index) => (
                             <button
                                 key={index}
@@ -199,8 +198,8 @@ function GameSelector() {
                                 </div>
                             </button>
                         ))}
-                    </div> */}
-                    <PlayButton friendGameId={-2} gameType={isOriginal}></PlayButton>
+                    </div>
+                    <PlayButton friendGameId={playWithUserId} gameType={isOriginal}></PlayButton>
                     <div className='CustomContent'>
                     </div>
                 </div>
@@ -210,4 +209,4 @@ function GameSelector() {
     );
 }
 
-export default GameSelector;
+export default GameFriends;

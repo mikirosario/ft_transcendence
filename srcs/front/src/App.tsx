@@ -14,6 +14,7 @@ import Perfil from './pages/Perfil';
 import Leaderboard from './pages/Leaderboard';
 
 import { SocketProvider1, SocketProvider2 } from './SocketContext';
+import GameFriends from './pages/GameFriends';
 
 
 const useAuth = () => {
@@ -84,10 +85,17 @@ function App() {
 
             <Route path="/homepage" element={<ProtectedComponent><Home /></ProtectedComponent>} />
             <Route path="/settings" element={<ProtectedComponent><Options /></ProtectedComponent>} />
-            <Route path="/pong" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
-            <Route path="/pong/:gameUserId" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
-            <Route path="/pong/spectate/:spectateUserId" element={<ProtectedComponent><PongPage /></ProtectedComponent>} />
+            
+            <Route path="/pong" element={<ProtectedComponent><PongPage gameType={true}/></ProtectedComponent>} />
+            <Route path="/pong/:gameUserId" element={<ProtectedComponent><PongPage gameType={true}/></ProtectedComponent>} />
+            <Route path="/pong-alter" element={<ProtectedComponent><PongPage gameType={false}/></ProtectedComponent>} />
+            <Route path="/pong-alter/:gameUserId" element={<ProtectedComponent><PongPage gameType={false}/></ProtectedComponent>} />
+            
+            <Route path="/pong/spectate/:spectateUserId" element={<ProtectedComponent><PongPage gameType={true}/></ProtectedComponent>} />
+            <Route path="/pong-alter/spectate/:spectateUserId" element={<ProtectedComponent><PongPage gameType={false}/></ProtectedComponent>} />
+
             <Route path="/game-selector" element={<ProtectedComponent><GameSelector /></ProtectedComponent>} />
+            <Route path="/game-friends" element={<ProtectedComponent><GameFriends /></ProtectedComponent>} />
             <Route path="/leaderboard" element={<ProtectedComponent><Leaderboard /></ProtectedComponent>} />
             <Route path="/perfil" element={<ProtectedComponent><Perfil /></ProtectedComponent>} />
             <Route path="/perfil/:username" element={<ProtectedComponent><Perfil /></ProtectedComponent>} />

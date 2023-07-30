@@ -162,6 +162,7 @@ model GameMatch {
   winnerUser   User?    @relation(name: "GameMatchWinnerUser", fields: [winnerUserId], references: [id], onDelete: Cascade)
   score1       Int?     @default(0)
   score2       Int?     @default(0)
+  isOriginalPong Boolean @default(true)
 
   @@map("gamematches")
 }

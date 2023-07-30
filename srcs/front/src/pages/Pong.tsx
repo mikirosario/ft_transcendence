@@ -5,11 +5,12 @@ import { io, Socket } from 'socket.io-client';
 import { getServerIP } from "../utils/utils";
 import { useNavigate, useParams } from "react-router-dom";
 
+interface PlayButtonProps {
+    gameType: boolean;
+  }
 
 
-
-
-function PongPage() {
+function PongPage({ gameType }: PlayButtonProps) {
     
     const { gameUserId } = useParams();
     const { spectateUserId } = useParams();
@@ -25,7 +26,6 @@ function PongPage() {
     }, []);
     
     useEffect(() => {
-
         const socketOptions = {
             transportOptions: {
                 polling: {
@@ -42,7 +42,11 @@ function PongPage() {
             console.log('Conectando al juego...');
 
             // Enviar datos al servidor
-            const dataToSend = { gameUserId: gameUserId ? gameUserId : '', spectateUserId: spectateUserId ? spectateUserId : '' };
+            let dataToSend;
+            if (gameType)
+                dataToSend = { gameUserId: gameUserId ? gameUserId : '', spectateUserId: spectateUserId ? spectateUserId : '' , isOriginalPong: true};
+            else
+                dataToSend = { gameUserId: gameUserId ? gameUserId : '', spectateUserId: spectateUserId ? spectateUserId : '' , isOriginalPong: false};
       
             socket.emit('game_connection', dataToSend);
         });
@@ -54,8 +58,11 @@ function PongPage() {
         socket.on('spectate_match_not_found', () => {
             setSpectateExist(false);
         });
-        Pong.main(socket, Pong.PongVariant.ORIGINAL);
-        
+
+        if (gameType)
+            Pong.main(socket, Pong.PongVariant.ORIGINAL);
+        else    
+            Pong.main(socket, Pong.PongVariant.ALTERNATE);
 
         return () => {
             setIsPlaying(false);

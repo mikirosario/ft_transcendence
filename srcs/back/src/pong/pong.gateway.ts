@@ -42,7 +42,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	afterInit(server: any) { }
 
-	async matchPlayersAny()
+	async matchPlayersAny(isOriginalPong: boolean)
 	{
 		// Spawn new games until queued clients come down to 1
 		while (this.waitingClients.length > 1)
@@ -53,7 +53,13 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			
 			// const pongBackend = new PongAlt(player1.nick, player2.nick); // Start a game for them both
 			
-			const pongBackend = new Pong(player1.nick, player2.nick); // Start a game for them both
+			
+			let pongBackend;
+			if (isOriginalPong)
+				pongBackend = new Pong(player1.nick, player2.nick); // Start a game for them both
+			else
+				pongBackend = new PongAlt(player1.nick, player2.nick); // Start a game for them both
+
 			this.games.set(roomId, pongBackend); // Add to the running games map
 			// Add both clients to the same room
 			player1.socket.join(roomId);
@@ -61,7 +67,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 			// Add new match to matches DB table
 			try {
-				const gameMatch = await this.pongGameMatchService.createNewMatch({userId1: player1.userId, userId2: player2.userId});
+				const gameMatch = await this.pongGameMatchService.createNewMatch({userId1: player1.userId, userId2: player2.userId, isOriginalPong: isOriginalPong});
 
 				if (gameMatch == null) {
 					this.waitingClients.push(player1);
@@ -199,7 +205,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 
 	@SubscribeMessage('game_connection')
-	async handleGameConnections(client: Socket, data: { gameUserId: string, spectateUserId: string }) {
+	async handleGameConnections(client: Socket, data: { gameUserId: string, spectateUserId: string, isOriginalPong: boolean }) {
 		console.log(data);
 		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
 
@@ -224,12 +230,12 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			} else if (data.gameUserId.length > 0) {
 				/* Evitamos que si ya esta jugando, entre a otra partida */
 				if (this.getUserPlaying(userId).roomId == '')
-					this.privateGame(client, user, Number(data.gameUserId));
+					this.privateGame(client, user, Number(data.gameUserId), data.isOriginalPong);
 
 			} else {
 				/* Evitamos que si ya esta jugando, entre a otra partida */
 				if (this.getUserPlaying(userId).roomId == '')
-					this.publicGame(client, user);
+					this.publicGame(client, user, data.isOriginalPong);
 			}
 
 		} catch (error) {
@@ -248,13 +254,13 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 			client.emit('player_nicks', {
 					leftPlayerNick: playingUser.pongBackend.getLeftPlayerNick(),
-					rightPlayerNick: playingUser.pongBackend.getRightPlayerNick()});
+					rightPlayerNick: playingUser.pongBackend.getRightPlayerNick()
+			});
 		}
 
-		
 	}
 
-	async privateGame(client: Socket, user: any, gameUserId: number) {
+	async privateGame(client: Socket, user: any, gameUserId: number, isOriginalPong: boolean) {
 		console.log("Jugador nuevo! Para jugar con " + gameUserId);
 
 		const userPlayer: PongGameMatchPlayerDto = {userId: user.id, nick: user.nick, socket: client};
@@ -264,11 +270,11 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.waitingPrivateClients.set(user.id, userPlayer);
 		} else {
 			this.waitingPrivateClients.delete(otherPlayer.userId);
-			await this.createPrivateMatch(userPlayer, otherPlayer);
+			await this.createPrivateMatch(userPlayer, otherPlayer, isOriginalPong);
 		}
 	}
 
-	async publicGame(client: Socket, user: any) {
+	async publicGame(client: Socket, user: any, isOriginalPong: boolean) {
 		console.log("Jugador nuevo! Para jugar con cualquier desconocido!");
 
 		try {
@@ -280,16 +286,21 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 			this.waitingClients = this.waitingClients.filter((player: {userId: number, socket: Socket}) => player.userId !== user.id);
 			this.waitingClients.push(userPlayer);
-			await this.matchPlayersAny();
+			await this.matchPlayersAny(isOriginalPong);
 
 		} catch (error) {
 		}
 	}
 
-	async createPrivateMatch(player1: PongGameMatchPlayerDto, player2: PongGameMatchPlayerDto) {
+	async createPrivateMatch(player1: PongGameMatchPlayerDto, player2: PongGameMatchPlayerDto, isOriginalPong: boolean) {
 		const roomId = `${player1.userId}_${player2.userId}`; // create a Socket.IO websocket room name with both client ids
 
-		const pongBackend = new Pong(player1.nick, player2.nick); // Start a game for them both
+		let pongBackend;
+		if (isOriginalPong)
+			pongBackend = new Pong(player1.nick, player2.nick); // Start a game for them both
+		else
+			pongBackend = new PongAlt(player1.nick, player2.nick); // Start a game for them both
+
 		this.games.set(roomId, pongBackend); // Add to the running games map
 		// Add both clients to the same room
 		player1.socket.join(roomId);
@@ -297,7 +308,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 		// Add new match to matches DB table
 		try {
-			const gameMatch = await this.pongGameMatchService.createNewMatch({userId1: player1.userId, userId2: player2.userId});
+			const gameMatch = await this.pongGameMatchService.createNewMatch({userId1: player1.userId, userId2: player2.userId, isOriginalPong: isOriginalPong});
 
 			if (gameMatch == null) {
 				this.waitingPrivateClients.set(player2.userId, player2);
