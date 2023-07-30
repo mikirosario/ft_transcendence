@@ -10,26 +10,29 @@ import { ConfigService } from "@nestjs/config";
 import { UserService } from "../user/user.service";
 import { WebSocketService } from '../auth/websocket/websocket.service';
 import { Console } from 'console';
-import { Pong } from './pong';
+import { Pong } from './pong.original';
 import { InputState } from './types';
 import { Player, PlayerID } from './player';
 import { PongGameMatchService } from './pong-game-match/pong-game-match.service';
 import { PongGameMatchPlayerDto } from './pong-game-match/dto';
+import { IPongBackend } from './interfaces';
+import { PongAlt } from './pong.alt';
 
 
 
 @WebSocketGateway(8082, {
 	cors: {
-		origin: ['http://localhost:3001']
-		//origin: '*'
+		// origin: ['http://localhost:3001']
+		origin: '*'
 	},
 })
 export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
 	@WebSocketServer() server: Server;
 
-	private games: Map<string, Pong> = new Map();
+	private games: Map<string, IPongBackend> = new Map();
 	private waitingClients: Array<PongGameMatchPlayerDto> = new Array();
+	//waitingClientsAlt
 
 	constructor(private config: ConfigService, private userService: UserService,
 				private webSocketService: WebSocketService, private pongGameMatchService: PongGameMatchService) { }
@@ -45,7 +48,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			const player2 = this.waitingClients.pop(); // Second client in the queue is player 2
 			const roomId = `${player1.userId}_${player2.userId}`; // create a Socket.IO websocket room name with both client ids
 			
-			const pongBackend = new Pong(); // Start a game for them both
+			const pongBackend = new PongAlt(); // Start a game for them both
 			this.games.set(roomId, pongBackend); // Add to the running games map
 			// Add both clients to the same room
 			player1.socket.join(roomId);
@@ -116,10 +119,8 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			//Check if game over
 			if (gameState.gameOver)
 			{
-				const gameResult = pongBackend.getWinnerAndScores();
 				let winner;
-
-				if (gameResult.winner == 1) {
+				if (gameState.winner == PlayerID.LEFT_PLAYER) {
 					winner = player1.userId;
 					this.userService.updateGameStats(player1.userId, true);
 					this.userService.updateGameStats(player2.userId, false);
@@ -133,8 +134,8 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				this.pongGameMatchService.updateMatchInfo({
 					matchId: matchId,
 					hasEnded: true,
-					score1: gameResult.score2,
-					score2: gameResult.score1,
+					score1: gameState.leftPlayerScore,
+					score2: gameState.rightPlayerScore,
 					winnerUserId: winner
 				});
 
@@ -145,10 +146,11 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async handleConnection(client: any, ...args: any[]) {
-		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
+		let userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
 
 		if (userId == null)
 		{
+			console.log("Client disconnected");
 			client.disconnect();
 			return;
 		}

@@ -1,6 +1,14 @@
-import { Position, BoundingBox, Resolution, ScaleFactors } from "./types";
+import { Position, BoundingBox, Resolution, ScaleFactors, InputState, GameState } from "./types";
 import { Alignment } from "./alignment";
 import { Transform } from "./transform";
+
+export interface IPongBackend
+{
+    applyRemoteP1Input(inputs: InputState);
+    applyRemoteP2Input(inptus: InputState);
+    setGameState();
+    getGameState(): GameState;
+}
 
 export interface IDrawable
 {

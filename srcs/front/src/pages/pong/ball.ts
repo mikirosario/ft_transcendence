@@ -1,7 +1,7 @@
 import { Circle } from "./circle";
 import { Transform } from "./transform";
 import { IPhysicsObject, IStateSynchronizationObject } from "./interfaces";
-import { BoundingBox, Resolution, Position, RigidBodyOptions, ScaleFactors, GameState } from "./types";
+import { BoundingBox, Resolution, Position, RigidBodyOptions, ScaleFactors, GameState, Direction } from "./types";
 import { getScaleFactors, isInRange, normalizeRange } from "./utils";
 
 export class Ball extends Circle implements IPhysicsObject, IStateSynchronizationObject
@@ -81,12 +81,12 @@ export class Ball extends Circle implements IPhysicsObject, IStateSynchronizatio
         }
     }
 
-    constructor(transform: Transform, color: string, speed: number, radius: number, options: RigidBodyOptions = {} )
+    constructor(transform: Transform, color: string, speed: number, radius: number, direction: Direction, options: RigidBodyOptions = {} )
     {
         super(transform, color, radius, { SetActive: options.SetActive });
         this.speed = speed;
-        this.velocityVectorX = -1;
-        this.velocityVectorY = 1;
+        this.velocityVectorX = direction.x;
+        this.velocityVectorY = direction.y;
         this.isColliderActive = options.SetCollider === undefined ? false : options.SetCollider;
         this.isInPlay = true;
         this.referenceSpeed = speed;
@@ -234,9 +234,6 @@ export class Ball extends Circle implements IPhysicsObject, IStateSynchronizatio
         }
         let scaleFactors: ScaleFactors = getScaleFactors(currentResolution, referenceResolution);
         super.onResizeCanvas(scaleFactors, currentResolution, referenceResolution);
-        // this.updateSpeed(scaleFactors, gameState.ball.ReferenceSpeed);
-        // this.VelocityVectorX = gameState.ball.VelocityVectorX;
-        // this.VelocityVectorY = gameState.ball.VelocityVectorY;
     }
 
     public draw(ctx: CanvasRenderingContext2D): void
