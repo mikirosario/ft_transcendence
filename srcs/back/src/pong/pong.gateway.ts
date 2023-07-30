@@ -212,7 +212,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage('game_connection')
 	async handleGameConnections(client: Socket, data: { gameUserId: string, spectateUserId: string, isOriginalPong: boolean }) {
-		console.log(data);
+
 		const userId = this.webSocketService.getUserIdFromHeaders(client.handshake.headers);
 
 		if (userId == null)
