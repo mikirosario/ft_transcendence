@@ -10,6 +10,7 @@ export interface IPongBackend
     getGameState(): GameState;
     getLeftPlayerNick(): string;
     getRightPlayerNick(): string;
+    getIsOriginalPong(): boolean;
 }
 
 export interface IDrawable
