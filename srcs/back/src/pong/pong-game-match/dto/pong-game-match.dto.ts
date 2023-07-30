@@ -44,6 +44,10 @@ export class PongGameMatchCreateDto {
 	@ApiProperty()
 	@IsNumber()
 	userId2: number
+
+	@ApiProperty()
+	@IsBoolean()
+	isOriginalPong: boolean
 }
 
 export class PongGameMatchUpdateDto {

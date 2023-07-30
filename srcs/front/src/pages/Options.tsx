@@ -85,9 +85,19 @@ function Options() {
     display: 'absolute',
     marginLeft: '800px',
     marginBottom: '50px'
-    // justifyContent: 'flex-start',  // Cambia esto a 'flex-end' si quieres que los elementos estén alineados a la derecha
   };
 
+  const ButtonStyle: React.CSSProperties = {
+    fontFamily: 'Quantico',
+		backgroundColor: '#ccb862',
+		fontSize: '12px',
+		fontWeight: 'bold',
+		border: 'none',
+		borderRadius: '5px',
+		padding: '10px 10px',
+		cursor: 'pointer',
+		width: '110px',
+  };
 
   return (
     <div className="Register">
@@ -103,7 +113,7 @@ function Options() {
                 <UserSettingsButtons btnTxt="Apply Changes"></UserSettingsButtons>
               </section>
               <div style={Active2FAStyle}>
-                <button onClick={handleToggle2AF}>
+                <button style={ButtonStyle} onClick={handleToggle2AF}>
                   {is2AFActive ? "Deactivate 2AF" : "Activate 2AF"}
                 </button>
                 {is2AFActive && <QRCodeDisplay />}

@@ -49,11 +49,11 @@ function Home() {
     };
 
     const GoGamePong = () => {
-        navigate('/pong');
+        navigate('/game-selector');
     };
 
     const GoGameSelector = () => {
-        navigate('/game-selector');
+        navigate('/game-friends');
     };
 
     return (

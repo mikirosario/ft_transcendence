@@ -21,6 +21,7 @@ export class PongGameMatchService {
 				data: {
 					userId1: user1.id,
 					userId2: user2.id,
+					isOriginalPong: dto.isOriginalPong
 				},
 			});
 
@@ -125,7 +126,8 @@ export class PongGameMatchService {
 				isWinner: match.winnerUser ? match.user2.id == match.winnerUser.id : false,
 			},
 			matchId: match.id,
-			matchEnded: match.hasEnded
+			matchEnded: match.hasEnded,
+			isOriginalPong: match.isOriginalPong
 		}));
 
 		return gameMatchesListFormatted;

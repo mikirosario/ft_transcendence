@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 
 interface PlayButtonProps {
   friendGameId: number;
+  gameType: Boolean;
 }
 
-function B_PlayFriends({ friendGameId }: PlayButtonProps) {
+function B_PlayFriends({ friendGameId, gameType }: PlayButtonProps) {
     const navigate = useNavigate();
     const [isHovered, setIsHovered] = useState(false);
-    
     const isButtonDisabled = friendGameId === -1;
 
     const Body: React.CSSProperties = {
@@ -47,8 +47,17 @@ function B_PlayFriends({ friendGameId }: PlayButtonProps) {
     };
 
     const CustomRedirect = () => {
-      if (!isButtonDisabled) {
-        navigate('/pong/' + friendGameId);
+      if (friendGameId === -2) { 
+        if (!gameType)
+          navigate('/pong');
+        else
+          navigate('/pong-alter');
+      }
+      else if (!isButtonDisabled) {
+        if (!gameType)
+          navigate('/pong/' + friendGameId);
+        else
+          navigate('/pong-alter/' + friendGameId);
       }
     };
 

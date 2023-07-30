@@ -26,6 +26,7 @@ export class Pong implements IPongBackend
       y: centerPositionInRange(0, Pong.ReferenceResolution.height)
     });
     private gameState: GameState;
+    private isOriginalPong: boolean = true;
   
     constructor(leftPlayerNick: string, rightPlayerNick: string)
     {
@@ -174,18 +175,8 @@ export class Pong implements IPongBackend
     }
 
     public getGameState(): GameState
-    {     
+    {
       return this.gameState;
-    }
-
-    public getLeftPlayerNick(): string
-    {     
-      return this.leftPlayer.Nick;
-    }
-
-    public getRightPlayerNick(): string
-    {     
-      return this.rightPlayer.Nick;
     }
 
     public setGameState()
@@ -194,5 +185,18 @@ export class Pong implements IPongBackend
       this.scoreUpdate();
       this.gameStateUpdate();
     }
+
+    public getLeftPlayerNick(): string
+    {
+      return this.leftPlayer.Nick;
+    }
+
+    public getRightPlayerNick(): string
+    {
+      return this.rightPlayer.Nick;
+    }
+
+    public getIsOriginalPong(): boolean {
+      return this.isOriginalPong;
+    }
   }
-  
