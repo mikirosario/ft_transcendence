@@ -19,7 +19,7 @@ function GameFriends() {
     const [isFriendHovered, setIsFriendHovered] = useState(-1);
     const [playWithUserId, setPlayWithUserId] = useState<number>(-1);
 
-    const [isOriginal, setisOriginal] = useState(true);
+    const [isOriginal, setisOriginal] = useState(false);
 
 
     useEffect(() => {
@@ -30,7 +30,6 @@ function GameFriends() {
                 return { ...friend, avatarFile: imageUrl };
             }));
             setFriendList(friendsWithImages);
-            // console.log(friendList);
         };
 
         fetchFriends();

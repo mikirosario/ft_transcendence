@@ -16,6 +16,7 @@ interface Match {
     user1: MatchUser;
     user2: MatchUser;
     matchEnded: boolean;
+    isOriginalPong: boolean;
 }
 
 interface MatchUser extends User {
@@ -213,7 +214,9 @@ function Perfil() {
                             {match.matchEnded
                                 ? <p style={matchesStyle}>{match.user1.score} - {match.user2.score}</p>
                                 : <button style={{ ...matchesStyle, border: 'none', color: 'white', background: '#5b8731' }}
-                                    onClick={() => navigate('/pong/spectate/' + userProfile?.userId)}
+                                    onClick={() => match.isOriginalPong ?
+                                        navigate('/pong/spectate/' + userProfile?.userId)
+                                        : navigate('/pong-alter/spectate/' + userProfile?.userId)}
                                 >Ver partida</button>
                             }
                         </div>

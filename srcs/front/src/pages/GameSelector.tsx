@@ -15,26 +15,7 @@ interface Friend {
 }
 
 function GameSelector() {
-    // const [friendList, setFriendList] = useState<Friend[]>([]);
-    // const [isFriendHovered, setIsFriendHovered] = useState(-1);
-    // const [playWithUserId, setPlayWithUserId] = useState<number>(-1);
-
-    const [isOriginal, setisOriginal] = useState(true);
-
-
-    // useEffect(() => {
-    //     const fetchFriends = async () => {
-    //         const friendsRequest = await getFriendList();
-    //         const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
-    //             const imageUrl = await getUserImage(friend.avatarUri);
-    //             return { ...friend, avatarFile: imageUrl };
-    //         }));
-    //         setFriendList(friendsWithImages);
-    //         // console.log(friendList);
-    //     };
-
-    //     fetchFriends();
-    // }, []);
+    const [isOriginal, setisOriginal] = useState(false);
 
 
     //<<< STYLES >>>//
@@ -106,7 +87,7 @@ function GameSelector() {
         marginLeft: '9%',
         width: '66%',
     }
-    
+
     const friendContainerStyle: React.CSSProperties = {
         width: '100px',
         height: '130px',
@@ -118,7 +99,7 @@ function GameSelector() {
         cursor: 'pointer',
         transition: 'transform 0.3s ease-in-out, background-color 0.3s ease',
     };
-    
+
     const avatarWrapperStyle: React.CSSProperties = {
         width: '100px',
         height: '130px',
@@ -130,14 +111,14 @@ function GameSelector() {
         position: 'relative',
         transition: 'transform 0.3s ease-in-out, background-color 0.8s ease',
     };
-    
+
     const avatarStyle: React.CSSProperties = {
         width: '80px',
         height: '80px',
         marginTop: '25%',
         borderRadius: '50%',
     };
-    
+
     const nameStyle: React.CSSProperties = {
         marginTop: '10px',
         fontSize: '20px',
@@ -171,35 +152,6 @@ function GameSelector() {
                         <div className='CustomButton' style={ButtonAlt} onClick={changeOriginal}>CUSTOM</div>
                     </div>
                     {!isOriginal ? <h1>Como jugar Pong Normal</h1> : <h1>Como jugar Pong Alter</h1>}
-                    {/* <div className='OriginalContent' style={SectionStyle}>
-                        {friendList.map((friend, index) => (
-                            <button
-                                key={index}
-                                style={friendContainerStyle}
-                                onMouseEnter={() => {
-                                    if (playWithUserId !== friend.userId)
-                                        setIsFriendHovered(index);
-                                }}
-                                onMouseLeave={() => setIsFriendHovered(-1)}
-                                onClick={() => setPlayWithUserId(friend.userId)}
-                            >
-                                <div style={{
-                                    transform: (isFriendHovered === index && playWithUserId !== friend.userId) ? 'scale(1.1)' : 'none',
-                                    transition: 'transform 0.3s ease-in-out',
-                                }}>
-                                    <div style={{...avatarWrapperStyle, backgroundColor: playWithUserId === friend.userId ? '#5b8731' : 'transparent'}}>
-                                        <img
-                                            className='FriendAvatar'
-                                            alt={'Avatar de' + friend.nick}
-                                            src={friend.avatarFile || ''}
-                                            style={avatarStyle}
-                                        />
-                                        <p style={nameStyle}>{friend.nick}</p>
-                                    </div>
-                                </div>
-                            </button>
-                        ))}
-                    </div> */}
                     <PlayButton friendGameId={-2} gameType={isOriginal}></PlayButton>
                     <div className='CustomContent'>
                     </div>

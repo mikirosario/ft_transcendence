@@ -53,9 +53,9 @@ function B_PlayFriends({ friendGameId, gameType }: PlayButtonProps) {
         else
           navigate('/pong-alter');
       }
-      else if (!isButtonDisabled) { 
+      else if (!isButtonDisabled) {
         if (!gameType)
-          navigate('/pong-alter');
+          navigate('/pong/' + friendGameId);
         else
           navigate('/pong-alter/' + friendGameId);
       }
