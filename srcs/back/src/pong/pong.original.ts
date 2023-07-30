@@ -4,10 +4,10 @@ import { Paddle } from "./paddle";
 import { Direction, GameState, InputState, Position, Resolution } from "./types";
 import { centerPositionInRange } from "./utils";
 import { Player, PlayerID } from "./player";
-import { IPhysicsObject } from "./interfaces";
+import { IPhysicsObject, IPongBackend } from "./interfaces";
 
 
-export class Pong
+export class Pong implements IPongBackend
 {
     private static readonly PADDLE_MARGIN: number = 25;
     private static readonly MATCH_POINT: number = 3;

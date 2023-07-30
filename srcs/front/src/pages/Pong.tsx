@@ -54,7 +54,7 @@ function PongPage() {
         socket.on('spectate_match_not_found', () => {
             setSpectateExist(false);
         });
-        Pong.main(socket, Pong.PongVariant.ALTERNATE);
+        Pong.main(socket, Pong.PongVariant.ORIGINAL);
         
 
         return () => {

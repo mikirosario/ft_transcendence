@@ -51,7 +51,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			const player2 = this.waitingClients.pop(); // Second client in the queue is player 2
 			const roomId = `${player1.userId}_${player2.userId}`; // create a Socket.IO websocket room name with both client ids
 			
-			// const pongBackend = new PongAlt(); // Start a game for them both
+			// const pongBackend = new PongAlt(player1.nick, player2.nick); // Start a game for them both
 			
 			const pongBackend = new Pong(player1.nick, player2.nick); // Start a game for them both
 			this.games.set(roomId, pongBackend); // Add to the running games map
@@ -311,7 +311,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 	}
 
-	getUserPlaying(userId: number): {roomId: string, pongBackend: Pong} {
+	getUserPlaying(userId: number): {roomId: string, pongBackend: IPongBackend} {
 
 		for (const [roomId, pongBackend ] of this.games.entries()) {
 
