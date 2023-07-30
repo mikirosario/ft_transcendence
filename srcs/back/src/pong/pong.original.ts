@@ -4,18 +4,18 @@ import { Paddle } from "./paddle";
 import { Direction, GameState, InputState, Position, Resolution } from "./types";
 import { centerPositionInRange } from "./utils";
 import { Player, PlayerID } from "./player";
-import { IPhysicsObject } from "./interfaces";
+import { IPhysicsObject, IPongBackend } from "./interfaces";
 
 
-export class Pong
+export class Pong implements IPongBackend
 {
     private static readonly PADDLE_MARGIN: number = 25;
     private static readonly MATCH_POINT: number = 3;
     private static readonly ReferenceResolution: Resolution = { width: 640, height: 480 };
     private gameOver: boolean = false;
     private winner: PlayerID = PlayerID.NONE;
-    private leftPlayer: Player = new Player(PlayerID.LEFT_PLAYER);
-    private rightPlayer: Player = new Player(PlayerID.RIGHT_PLAYER);
+    private leftPlayer: Player;
+    private rightPlayer: Player;
     private ball: Ball = Pong.initBall();
     private leftPaddle: Paddle = Pong.initPaddle({
       x: Pong.PADDLE_MARGIN,
@@ -27,8 +27,10 @@ export class Pong
     });
     private gameState: GameState;
   
-    constructor()
+    constructor(leftPlayerNick: string, rightPlayerNick: string)
     {
+      this.leftPlayer = new Player(PlayerID.LEFT_PLAYER, leftPlayerNick);
+      this.rightPlayer = new Player(PlayerID.RIGHT_PLAYER, rightPlayerNick);
       this.gameState = this.initGameState();
     }
 
@@ -44,7 +46,7 @@ export class Pong
           y: 1
         }
         let color = "white";
-        let speed = 2;
+        let speed = 1.5;
         let radius = 10;
         return new Ball(transform, color, speed, radius, direction, { SetCollider: true });
     }
@@ -55,7 +57,7 @@ export class Pong
         let color = "black";
         let width = 10;
         let height = 100;
-        let speed = 0.75;
+        let speed = 1.25;
         return new Paddle(transform, color, width, height, speed, Pong.ReferenceResolution, { SetCollider: true });
     }
 
@@ -174,6 +176,16 @@ export class Pong
     public getGameState(): GameState
     {     
       return this.gameState;
+    }
+
+    public getLeftPlayerNick(): string
+    {     
+      return this.leftPlayer.Nick;
+    }
+
+    public getRightPlayerNick(): string
+    {     
+      return this.rightPlayer.Nick;
     }
 
     public setGameState()

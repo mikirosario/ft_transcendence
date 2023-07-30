@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber } from "class-validator";
+import { IsBoolean, IsNumber, IsString } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { Socket } from 'socket.io';
 
@@ -73,6 +73,10 @@ export class PongGameMatchPlayerDto {
 	@ApiProperty()
 	@IsNumber()
 	userId: number
+
+	@ApiProperty()
+	@IsString()
+	nick: string
 
 	@ApiProperty()
 	socket: Socket

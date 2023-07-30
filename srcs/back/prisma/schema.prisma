@@ -38,7 +38,6 @@ model User {
   chatDirectUser2       ChatDirect[]            @relation("ChatDirectUser2")
   chatDirectMessageUser ChatDirectMessage[]     @relation("ChatDirectMessageUser")
   chatChannelBannedUser ChatChannelBannedUser[] @relation("ChatChannelBannedUserUser")
-  gameLobbyUser         GameLobby[]             @relation("GameLobbyUser")
   gameMatchUser1        GameMatch[]             @relation("GameMatchUser1")
   gameMatchUser2        GameMatch[]             @relation("GameMatchUser2")
   gameMatchWinnerUser   GameMatch[]             @relation("GameMatchWinnerUser")
@@ -150,14 +149,6 @@ model ChatBlockedUser {
 
   @@unique([userId, otherUserId])
   @@map("chatblockedusers")
-}
-
-model GameLobby {
-  id     Int  @id @default(autoincrement())
-  userId Int
-  user   User @relation(name: "GameLobbyUser", fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("gamelobbies")
 }
 
 model GameMatch {

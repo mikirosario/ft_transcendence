@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import UserProfile from "./ProfileDisplay";
-import { Navigate, useNavigate, useLocation } from "react-router-dom";
+import { Navigate, useNavigate, useLocation, Link } from "react-router-dom";
 import { getUserProfile } from '../../requests/User.Service';
 import FriendDisplay from "./FriendDisplay";
 import ChannelDisplay from "./ChannelDisplay"
-import { FaAngleRight, FaAngleLeft, FaCrown } from 'react-icons/fa'; // SOLID ARROW
+import { FaAngleRight, FaAngleLeft, FaCrown } from 'react-icons/fa';
+import { IoMdSettings } from 'react-icons/io';
 import ChatDisplay from "./ChatDisplay";
-import { SocketContext1, SocketContext2 } from '../../SocketContext';
+import { SocketContext1, SocketContext2} from '../../SocketContext';
 import NotificationContext from '../../NotificationContext';
 //BiChevronLeft 
 
 
 function Menu() {
 	const socket = useContext(SocketContext1);
+	// const socket2 = useContext(SocketContext2);
 
 	const initialIsMenuExpanded = localStorage.getItem("isMenuExpanded") === "true";
 	const initialSelectedButton = localStorage.getItem("selectedButton") || 'friend';
@@ -32,15 +34,6 @@ function Menu() {
 
 	const navigate = useNavigate();
 	const location = useLocation();
-
-
-	const nickProfileLink = () => {
-		navigate('/settings');
-	};
-
-	const administrationLink = () => {
-		navigate('/administration');
-	};
 
 	const previousSelectedButton = useRef(selectedButton);
 
@@ -70,7 +63,7 @@ function Menu() {
 				localStorage.removeItem('token');
 				navigate('/');
 			}
- 
+
 			if (data.isSiteAdmin != isSiteAdmin) {
 				if (data.isSiteAdmin)
 					handleNotification('Te han ascendido a admin de la pagina!');
@@ -84,6 +77,15 @@ function Menu() {
 		socket?.on("UPDATE_ME", handleMyInfo);
 
 		fetchUserProfile();
+
+		// return () => {
+		// socket?.off();
+		// socket2?.off();
+		// if (socket?.connected)
+		// socket.disconnect();
+		// if (socket2?.connected)
+		// socket2.disconnect();
+		// }
 	}, [socket, selectedChat, isSiteAdmin]);
 
 	useEffect(() => {
@@ -222,6 +224,12 @@ function Menu() {
 		transition: 'right 0.5s ease'
 	};
 
+	const SettingsStyle: React.CSSProperties = {
+		position: 'relative',
+		top: '1%',
+		left: '90%',
+	};
+
 	const handleFriendButtonClick = () => {
 		setSelectedButton('friend');
 		localStorage.setItem("selectedButton", 'friend');
@@ -271,14 +279,25 @@ function Menu() {
 					width: isMenuExpanded ? '20vw' : '0',
 					left: isMenuExpanded ? '80%' : '100%',
 				}}>
-					<button style={ProfileButtonStyle} onClick={nickProfileLink}>
-						<UserProfile image={userImage} name={username}></UserProfile>
-					</button>
-					{isSiteAdmin &&
-						<button style={CrownIconStyle} onClick={administrationLink}>
-							<FaCrown color="gold" size={30} />
+					<Link to={'/perfil'}>
+						<button style={ProfileButtonStyle}>
+							<UserProfile image={userImage} name={username}></UserProfile>
 						</button>
+					</Link>
+					{isSiteAdmin &&
+						<Link to={'/administration'}>
+
+							<button style={CrownIconStyle}>
+								<FaCrown color="gold" size={30} />
+							</button>
+						</Link>
 					}
+
+					<Link to='/settings'>
+						<div style={SettingsStyle}>
+							<IoMdSettings color="lightgray" size={28}></IoMdSettings>
+						</div>
+					</Link>
 					<div>
 						<button style={FriendButtonStyle} onClick={handleFriendButtonClick}>
 							Amigos

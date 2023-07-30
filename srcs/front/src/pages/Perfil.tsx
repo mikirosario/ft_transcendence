@@ -6,6 +6,7 @@ import HomeButton from "../components/B_Home";
 import { getUserMatches } from "../requests/GameData.Service";
 
 interface User {
+    userId: string,
     nick: string,
     avatarUri: string,
     rank: number,
@@ -211,7 +212,9 @@ function Perfil() {
                         <div style={ScoreContainerStyle}>
                             {match.matchEnded
                                 ? <p style={matchesStyle}>{match.user1.score} - {match.user2.score}</p>
-                                : <p style={matchesStyle}>?? - ??</p>
+                                : <button style={{ ...matchesStyle, border: 'none', color: 'white', background: '#5b8731' }}
+                                    onClick={() => navigate('/pong/spectate/' + userProfile?.userId)}
+                                >Ver partida</button>
                             }
                         </div>
                         <p style={matchesStyle}>{match.user2.nick} </p>

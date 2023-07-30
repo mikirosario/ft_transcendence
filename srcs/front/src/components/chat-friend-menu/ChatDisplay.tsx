@@ -114,12 +114,9 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         }
 
         // return () => {
-        //     if (isFriendChat) {
-        //         socket.off("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
-        //     } else {
-        //         socket.off("NEW_CHANNEL_MESSAGE", handleNewChannelMessages);
-        //         socket.off("UPDATE_CHANNEL_USERS_LIST", handleUpdateChannel);
-        //     }
+        //     socket?.off();
+        //     if (socket?.connected)
+        //         socket.disconnect();
         // };
     }, [selectedChat, socket]);
 
@@ -264,6 +261,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         fontWeight: 'bold',
         marginRight: '10px',
         marginTop: '16px',
+        textDecoration: 'none'
     };
 
     const MessageInfoStyle: React.CSSProperties = {
@@ -315,8 +313,6 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     <ul>
                         {isFriendChat ? (
                             <>
-                                <li style={{ fontSize: '14px' }}>/duel {usuario}: Reta a un usuario a un Pong</li>
-                                <li style={{ fontSize: '14px' }}>/spectate {usuario}: Comienza a observar la partida de un usuario</li>
                                 <li style={{ fontSize: '14px' }}>/block {usuario}: Bloquea a un usuario</li>
                                 <li style={{ fontSize: '14px' }}>/unblock {usuario}: Desbloquea a un usuario</li>
                             </>
@@ -348,27 +344,26 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                 {[...messagesList].reverse().map((messageItem, index) => {
                     return (
                         <div key={index} style={MessageStyle}>
-                            <img
-                                src={messageItem.avatarFile}
-                                alt={messageItem.sender}
-                                style={UserImageStyle}
-                                // as={Link}
-                                // to="/settings"       CHANGE TO USER PROFILEPAGE
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                }}
-                            />
-                            <div style={{ ...UserNameStyle, color: messageItem.isAdmin ? 'red' : UserNameStyle.color }}>
-                                <span
-                                    style={UserNameStyle}
-                                    // as={Link}
-                                    // to="/settings"   CHANGE TO USER PROFILEPAGE
+                            <Link style={{ textDecoration: 'none' }} to={`/perfil/${messageItem.sender}`}>
+                                <img
+                                    src={messageItem.avatarFile}
+                                    alt={messageItem.sender}
+                                    style={UserImageStyle}
                                     onClick={(e) => {
                                         e.stopPropagation();
                                     }}
-                                >
-                                    {messageItem.sender}
-                                </span>
+                                />
+                            </Link>
+                            <div style={{ ...UserNameStyle, color: messageItem.isAdmin ? 'red' : UserNameStyle.color }}>
+                                <Link to={`/perfil/${messageItem.sender}`} style={UserNameStyle}>
+                                    <span
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                        }}
+                                    >
+                                        {messageItem.sender}
+                                    </span>
+                                </Link>
                                 <p style={MessageContentStyle}>
                                     {messageItem.message}
                                 </p>

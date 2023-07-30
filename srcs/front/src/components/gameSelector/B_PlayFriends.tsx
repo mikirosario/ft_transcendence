@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function M_CustomGame() {
+interface PlayButtonProps {
+  friendGameId: number;
+}
+
+function B_PlayFriends({ friendGameId }: PlayButtonProps) {
     const navigate = useNavigate();
     const [isHovered, setIsHovered] = useState(false);
     
+    const isButtonDisabled = friendGameId === -1;
+
     const Body: React.CSSProperties = {
         flex: 1,
         display: 'flex', 
@@ -22,10 +28,12 @@ function M_CustomGame() {
       fontSize: '18px',
       color: 'white',
       textShadow: '2px 2px 0px rgba(0, 0, 0, 0.4)',
-      background: isHovered
-        ? 'linear-gradient(0deg, rgba(70,140,70,0.7) 0%, rgba(108,217,108,0.7) 100%)'
-        : 'linear-gradient(0deg, rgba(70,140,70,1) 0%, rgba(108,217,108,1) 100%)',
-      border: isHovered
+      background: isButtonDisabled 
+        ? 'rgba(70,140,70,0.3)'
+        : (isHovered
+            ? 'linear-gradient(0deg, rgba(70,140,70,0.7) 0%, rgba(108,217,108,0.7) 100%)'
+            : 'linear-gradient(0deg, rgba(70,140,70,1) 0%, rgba(108,217,108,1) 100%)'),
+      border: isHovered && !isButtonDisabled
         ? '3px solid rgba(255,255,255,0.7)'
         : 'none',
     }
@@ -39,7 +47,9 @@ function M_CustomGame() {
     };
 
     const CustomRedirect = () => {
-      navigate('/pong');
+      if (!isButtonDisabled) {
+        navigate('/pong/' + friendGameId);
+      }
     };
 
     return (
@@ -48,9 +58,10 @@ function M_CustomGame() {
             onClick={CustomRedirect}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            disabled={isButtonDisabled} 
           >PLAY</button>
       </div>
     );
 }
 
-export default M_CustomGame;
+export default B_PlayFriends;

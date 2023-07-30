@@ -8,6 +8,8 @@ export interface IPongBackend
     applyRemoteP2Input(inptus: InputState);
     setGameState();
     getGameState(): GameState;
+    getLeftPlayerNick(): string;
+    getRightPlayerNick(): string;
 }
 
 export interface IDrawable

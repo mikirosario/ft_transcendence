@@ -52,7 +52,3 @@ export async function main(socket: Socket, variant: PongVariant) {
 async function loadFont(font: string) {
     await document.fonts.load(font);
 }
-
-
-
-

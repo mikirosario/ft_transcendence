@@ -9,10 +9,12 @@ export class Player
 {
     private score: number = 0;
     private id: PlayerID;
+    private nick: string;
 
-    constructor(playerId: PlayerID)
+    constructor(playerId: PlayerID, nick: string)
     {
         this.id = playerId;
+        this.nick = nick;
     }
     public get Score(): number {
         return this.score;
@@ -25,5 +27,11 @@ export class Player
     }
     private set ID(value: PlayerID) {
         this.id = value;
+    }
+    public get Nick(): string {
+        return this.nick;
+    }
+    private set Nick(nick: string) {
+        this.nick = nick;
     }
 }
