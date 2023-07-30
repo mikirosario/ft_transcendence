@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { getUserImage, getUserProfile } from "../requests/User.Service";
 import SocialMenu from "../components/chat-friend-menu/SocialMenu";
 import HomeButton from "../components/B_Home";
@@ -159,15 +159,16 @@ function Perfil() {
         justifyContent: 'space-between',
         alignItems: 'center',
         color: 'white',
+        // boxSizing: 'border-box',
+        padding: '0 3%'
     };
-
     const MatchImageStyle: React.CSSProperties = {
         width: '5vw',
         height: '5vw',
         objectFit: 'cover',
         borderRadius: '50%',
         marginLeft: '5%',
-        marginRight: '3%'
+        marginRight: '5%'
     };
 
     const matchesStyle: React.CSSProperties = {
@@ -189,7 +190,8 @@ function Perfil() {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        width: '25%'
+        width: '100%',
+        textAlign: 'center'
     };
 
     return (
@@ -208,9 +210,13 @@ function Perfil() {
                 <p style={TitleStyle}>Partidas recientes</p>
                 {matches && [...matches].slice(-5).reverse().map((match, index) => (
                     <div key={index} style={MatchStyle}>
-                        <img style={MatchImageStyle} src={match.user1.avatarFile} alt={`User: ${match.user1.nick}`} />
-                        <p style={matchesStyle}>{match.user1.nick} </p>
-                        <div style={ScoreContainerStyle}>
+                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', flex: '1' }}>
+                            <Link to={`/perfil/${match.user1.nick}`} style={{ textDecoration: 'none', color: 'inherit', width: '100%', display: 'flex', alignItems: 'center' }}>
+                                <img style={MatchImageStyle} src={match.user1.avatarFile} alt={`User: ${match.user1.nick}`} />
+                                <p style={{ ...matchesStyle, marginLeft: '20px' }}>{match.user1.nick}</p>
+                            </Link>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', flex: '1', textAlign: 'center' }}>
                             {match.matchEnded
                                 ? <p style={matchesStyle}>{match.user1.score} - {match.user2.score}</p>
                                 : <button style={{ ...matchesStyle, border: 'none', color: 'white', background: '#5b8731' }}
@@ -220,8 +226,12 @@ function Perfil() {
                                 >Ver partida</button>
                             }
                         </div>
-                        <p style={matchesStyle}>{match.user2.nick} </p>
-                        <img style={MatchImageStyle} src={match.user2.avatarFile} alt={`Opponent: ${match.user2.nick}`} />
+                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', flex: '1' }}>
+                            <Link to={`/perfil/${match.user2.nick}`} style={{ textDecoration: 'none', color: 'inherit', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                                <p style={{ ...matchesStyle, marginRight: '20px' }}>{match.user2.nick}</p>
+                                <img style={MatchImageStyle} src={match.user2.avatarFile} alt={`Opponent: ${match.user2.nick}`} />
+                            </Link>
+                        </div>
                     </div>
                 ))}
             </div>

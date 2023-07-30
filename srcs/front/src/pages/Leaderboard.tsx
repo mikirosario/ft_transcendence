@@ -3,6 +3,7 @@ import { getUserImage } from "../requests/User.Service";
 import { getLeaderboard } from "../requests/GameData.Service";
 import SocialMenu from "../components/chat-friend-menu/SocialMenu";
 import HomeButton from "../components/B_Home";
+import { Link } from "react-router-dom";
 
 interface LeaderboardUser {
     nick: string,
@@ -72,6 +73,8 @@ function Leaderboard() {
         alignItems: 'center',
         color: 'white',
         padding: '1em',
+        // color: 'gold',
+        textDecoration: 'none'
     };
 
     const UserImageStyle: React.CSSProperties = {
@@ -95,20 +98,37 @@ function Leaderboard() {
         color: 'lightgray'
     };
 
+    const UserDetailItemStyle: React.CSSProperties = {
+        fontFamily: 'Quantico',
+        fontWeight: 'bold',
+        textAlign: 'left',
+        fontSize: '1vw',
+        width: '6em',
+    };
+
     return (
         <div style={ContainerStyle}>
             <HomeButton></HomeButton>
             <div style={LeaderboardStyle}>
-            <p style={TitleStyle}>Clasificación</p>
+                <p style={TitleStyle}>Clasificación</p>
                 {users.slice(0, 10).map((user, index) => (
                     <div key={index} style={UserStyle}>
-                        <img style={UserImageStyle} src={user.avatarFile} alt={`Profile of ${user.nick}`} />
-                        <p style={UserDetailsStyle}>{user.nick}</p>
-                        <p style={UserDetailsStyle}>Rank: {user.rank}</p>
-                        <p style={UserDetailsStyle}>Wins: {user.wins}</p>
-                        <p style={UserDetailsStyle}>Losses: {user.losses}</p>
+                        <Link to={`/perfil/${user.nick}`} style={{ textDecoration: 'none' }}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <img style={UserImageStyle} src={user.avatarFile} alt={`Profile of ${user.nick}`} />
+                                <p style={{ ...UserDetailsStyle, marginLeft: '8%', color: 'gold' }}>{user.nick}</p>
+                            </div>
+                        </Link>
+                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-end' }}>
+                            <p style={UserDetailItemStyle}>Rank: {user.rank}</p>
+                            <p style={UserDetailItemStyle}>Wins: {user.wins}</p>
+                            <p style={UserDetailItemStyle}>Losses: {user.losses}</p>
+                        </div>
                     </div>
                 ))}
+
+
+
             </div>
             <SocialMenu></SocialMenu>
         </div>
