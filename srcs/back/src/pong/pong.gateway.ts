@@ -291,13 +291,9 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			await this.userService.setUserInGame(user.id, true);
 
 			console.log('Hola! ' + user.nick + ' está jugando ✅');
-
-			console.log(this.getSelectedWaitingClients(isOriginalPong));
 			const waitingClients = this.getSelectedWaitingClients(isOriginalPong).filter((player: {userId: number, socket: Socket}) => player.userId !== user.id);
 			this.setSelectedWaitingClients(waitingClients, isOriginalPong);
-			console.log(this.getSelectedWaitingClients(isOriginalPong));
 			this.pushSelectedWaitingClients(userPlayer, isOriginalPong);
-			console.log(this.getSelectedWaitingClients(isOriginalPong));
 			
 			await this.matchPlayersAny(isOriginalPong);
 
