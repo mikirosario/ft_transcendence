@@ -16,7 +16,7 @@ export function IsNick(validationOptions?: ValidationOptions) {
 				return true;
 				},
 				defaultMessage(args: ValidationArguments) {
-				return `${args.property} must be a valid nickname consisting of letters, numbers, hyphens, and underscores.`;
+				return `${args.property} debe ser un nick válido que contenga solo letra, números, "-" o "_".`;
 				},
 			},
 		});

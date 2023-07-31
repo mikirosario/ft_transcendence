@@ -106,7 +106,7 @@ function Options() {
         <div className="NicknameTapeWrapper" style={NicknameTapeStyle}>
           <div className="NicknameInputWrapper" style={NicknameInputStyle}>
             <div className="TitleText" style={TitleStyle}>
-              Edit Profile
+              Editar Perfil
             </div>
             <div style={FlexContainerStyle}>
               <section className="OptionsMenu">

@@ -128,6 +128,13 @@ function GameSelector() {
         paddingLeft: '10px'
     };
 
+    const infoText: React.CSSProperties = {
+        textAlign: 'center',
+        margin: '80px 20px',
+        fontFamily: 'Quantico',
+        color: 'white',
+    };
+
 
     //<<< FUNCTIONS >>>//
     const changeCustom = () => {
@@ -149,9 +156,12 @@ function GameSelector() {
                 <div style={Box}>
                     <div className='ButtonHeader' style={ButtonHeader}>
                         <div className='OriginalButton' style={Button} onClick={changeCustom}>ORIGINAL</div>
-                        <div className='CustomButton' style={ButtonAlt} onClick={changeOriginal}>CUSTOM</div>
+                        <div className='CustomButton' style={ButtonAlt} onClick={changeOriginal}>ALTERNATIVO</div>
                     </div>
-                    {!isOriginal ? <h1>Como jugar Pong Normal</h1> : <h1>Como jugar Pong Alter</h1>}
+                    { !isOriginal 
+                        ? <h1 style={infoText}>Mueve tu pala y golpea la pelota<br /> para intentar marcar a tu oponente<br /> evita que la pelota pase de tu pala.<br /> Mueve la pala con las flechas ↑ ↓<br /><br />Gana el primero que consiga 3 puntos</h1>
+                        : <h1 style={infoText}>En este modo de juego<br /> se añade una pelota roja,<br /> si se marca otorga 2 puntos<br />Mueve la pala con las flechas ↑ ↓<br /><br />Gana el primero que consiga 3 puntos</h1>
+                    }
                     <PlayButton friendGameId={-2} gameType={isOriginal}></PlayButton>
                     <div className='CustomContent'>
                     </div>
