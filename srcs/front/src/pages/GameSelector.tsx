@@ -128,6 +128,13 @@ function GameSelector() {
         paddingLeft: '10px'
     };
 
+    const infoText: React.CSSProperties = {
+        textAlign: 'center',
+        margin: '80px 20px',
+        fontFamily: 'Quantico',
+        color: 'white',
+    };
+
 
     //<<< FUNCTIONS >>>//
     const changeCustom = () => {
@@ -151,7 +158,7 @@ function GameSelector() {
                         <div className='OriginalButton' style={Button} onClick={changeCustom}>ORIGINAL</div>
                         <div className='CustomButton' style={ButtonAlt} onClick={changeOriginal}>CUSTOM</div>
                     </div>
-                    {!isOriginal ? <h1>Como jugar Pong Normal</h1> : <h1>Como jugar Pong Alter</h1>}
+                    {!isOriginal ? <h1 style={infoText}>Outmaneuver your opponent and score points<br /> by making the ball pass their paddle<br /> while preventing the ball from passing<br /> beyond your own paddle<br /><br />Use the arrows or 'w'/'s' to move your paddle</h1> : <h1 style={infoText}>Score points and prevent being scored<br /> you have POWER-UPS to help you<br /><br />Beware your oppent have POWER-UPS too<br /><br />Use the arrows or 'w'/'s' to move your paddle</h1>}
                     <PlayButton friendGameId={-2} gameType={isOriginal}></PlayButton>
                     <div className='CustomContent'>
                     </div>

@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate, } from 'react-router-dom';
 import HomeButton from "../components/B_Home";
+import LeaderboardButton from "../components/B_Leaderboard";
 import GameButton from "../components/B_General";
 import LogoutButton from '../components/B_Logout';
 import SocialMenu from "../components/chat-friend-menu/SocialMenu";
@@ -61,6 +62,7 @@ function Home() {
         <div style={Window}>
             <div>
                 <HomeButton></HomeButton>
+                <LeaderboardButton></LeaderboardButton>
                 <section className="B_PFriends" style={PlayFriendsButtonStyle} onClick={GoGamePong}>
                     <GameButton name="Play" width={435} height={155} fsize={48}></GameButton>
                 </section>
