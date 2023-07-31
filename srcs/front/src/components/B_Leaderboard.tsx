@@ -9,8 +9,8 @@ function B_Home() {
         position: 'absolute',
         width: '140px',
         height: '80px',
-        top: '20px',
-        left: '130px',
+        top: '90%',
+        left: '38%',
         cursor: 'pointer',
     };
 

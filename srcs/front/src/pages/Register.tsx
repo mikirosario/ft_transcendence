@@ -59,7 +59,7 @@ function Register() {
     color: '#ffffff',
     fontFamily: "'Press Start 2P'",
     fontSize: '40px',
-    top: '8%',
+    top: '2%',
     width: '100%',
     textAlign: 'center',
     position: 'absolute',
@@ -111,8 +111,11 @@ function Register() {
               </div>
               : (
                 <>
-                  <div style={TitleStyle}>CHOOSE A NICKNAME</div>
-                  <div style={SubtitleStyle}>Nick rules</div>
+                  <h1 style={TitleStyle}>Elige un nick</h1>
+                  <div style={SubtitleStyle}>Normas del nick:
+                    <p style={{fontSize: '13px'}}> - La longitud debe ser entre 3 y 10 caráctares </p>
+                    <p style={{fontSize: '13px'}}> - Puede ser alfanumérico y contener '_' o '-' </p>
+                  </div>
                   <div style={NicknameInputStyle}>
                     <section>
                       <UserSettingsButtons btnTxt="Register"></UserSettingsButtons>

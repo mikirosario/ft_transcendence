@@ -83,8 +83,6 @@ function PongPage({ gameType }: PlayButtonProps) {
     //         console.log('Failed to load font: ' + error);
     //     });
     // }, []);
-
-
     
     const [counter, setCounter] = useState(0);
  
@@ -166,7 +164,10 @@ function PongPage({ gameType }: PlayButtonProps) {
     return (
         <div className="Pong" style={PageStyle}>
             <HomeButton></HomeButton>
-            <h1 style={{fontFamily: "'Press Start 2P'"}}>The Original Pong</h1>
+            { gameType
+                ? <h1 style={{fontFamily: "'Press Start 2P'"}}>The Original Pong</h1>
+                : <h1 style={{fontFamily: "'Press Start 2P'"}}>Our Alternative Pong</h1>
+            }
             <div id="error-message" style={ErrorMessage}></div>
             <div id="canvas-container" style={CanvasContainer}>
                 <canvas id="pong" width="640" height="480"></canvas>

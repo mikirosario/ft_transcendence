@@ -167,7 +167,7 @@ function GameFriends() {
                 <div style={Box}>
                     <div className='ButtonHeader' style={ButtonHeader}>
                         <div className='OriginalButton' style={Button} onClick={changeCustom}>ORIGINAL</div>
-                        <div className='CustomButton' style={ButtonAlt} onClick={changeOriginal}>CUSTOM</div>
+                        <div className='CustomButton' style={ButtonAlt} onClick={changeOriginal}>ALTERNATIVO</div>
                     </div>
                     <div className='OriginalContent' style={SectionStyle}>
                         {friendList.map((friend, index) => (

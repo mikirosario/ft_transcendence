@@ -80,7 +80,7 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 				setUsername(userProfile.username);
 				setUserImage(userProfile.userImage);
 			} catch (error) {
-				navigate('/')	// SOMEHOW THIS MAY NOT WORK????
+				navigate('/');
 			}
 		  };
 		  
@@ -148,7 +148,7 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 	const [TrashIconStyle, setTrashIconStyle] = useState<React.CSSProperties>({
 		color: '#bf2222',
 		top: '80%',
-		left: '45%',
+		left: '43%',
 		position: 'relative',
 		background: 'transparent',
 		scale: '2.0',
@@ -199,7 +199,7 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 						type="text"
 						value={username}
 						style={InputTextStyle}
-						placeholder='Enter your nick'
+						placeholder='Nick'
 						onChange={handleUsernameChange}
 					/>
 					<button
