@@ -54,21 +54,19 @@ export class SecondAuthFactorService {
       where: { id: userId},
       select: {secondFactorSecret: true},
     });
+
     if (user.secondFactorSecret == null)
-    {
-      return {checkresult: false};
-    }
-    return {checkresult: true};
+      return { checkresult: false };
+    
+    return { checkresult: true };
   }
 
   async verify2fa(userId: number, verify2faDto: Verify2faDto): Promise<{ verificationResult: boolean }> {
-    const user = await this.prisma.user.findUnique({
+    let user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { secondFactorSecret: true },
     });
-    console.log(userId);
-    console.log(user);
-    console.log(verify2faDto);
+    
     // Verify the provided 2FA code against the user's stored secret key
     const verificationResult = speakeasy.totp.verify({
       secret: user.secondFactorSecret,
@@ -76,7 +74,31 @@ export class SecondAuthFactorService {
       token: verify2faDto.code
     });
 
-    console.log(verificationResult);
+    user = await this.prisma.user.update({
+      where: { id: userId },
+      data: { isVerified2fa: true },
+    });
+
     return { verificationResult };
   }
+
+  async isVerified2fa(userId: number): Promise<{isVerified2fa: boolean}> {
+
+    const user = await this.prisma.user.findUnique({
+                    where: { id: userId },
+                    select: {isVerified2fa: true},
+    });
+    
+    return { isVerified2fa: user.isVerified2fa };
+  }
+  
+  async deleteVerified2fa(userId: number) {
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { isVerified2fa: false },
+    });
+    
+  }
+
 }

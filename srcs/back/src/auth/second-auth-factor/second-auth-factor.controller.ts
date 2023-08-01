@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Res, Get, Put } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Res, Get, Put, Delete } from '@nestjs/common';
 import { SecondAuthFactorService } from './second-auth-factor.service';
 import { Verify2faDto } from '../dto';
 import { JwtGuard } from '../guard/jwt.guard';
@@ -33,5 +33,15 @@ export class SecondAuthFactorController {
     console.log(userId);
     console.log(verify2faDto);
     return this.secondAuthFactorService.verify2fa(userId, verify2faDto);
+  }
+
+  @Get('verified')
+  async isVerified2fa(@GetJwt('sub') userId: number) {
+    return this.secondAuthFactorService.isVerified2fa(userId);
+  }
+
+  @Delete('verified')
+  async deleteVerified2fa(@GetJwt('sub') userId: number) {
+    return this.secondAuthFactorService.deleteVerified2fa(userId);
   }
 }
