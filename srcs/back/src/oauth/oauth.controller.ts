@@ -13,7 +13,6 @@ export class OAuthController {
     @Get('generateAuthURL')
     generateAuthURL() {
         const authorizationUrl = this.oAuthService.generateAuthorizationUrl();
-        console.log(authorizationUrl)
         return { url: authorizationUrl };
     }
 
