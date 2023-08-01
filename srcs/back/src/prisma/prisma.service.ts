@@ -24,6 +24,7 @@ export class PrismaService extends PrismaClient {
 			this.chatDirect.deleteMany(),
 			this.chatDirectMessage.deleteMany(),
 			this.chatBlockedUser.deleteMany(),
+			this.gameMatch.deleteMany(),
 		]);
 	}
 }
