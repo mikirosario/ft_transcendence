@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsNumber, MinLength, MaxLength } from "class-validator";
+import { IsString, IsOptional, MinLength, MaxLength } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger"
 import { IsChannelName } from '../../../utils/decorators/is-channel-name.decorator';
 
