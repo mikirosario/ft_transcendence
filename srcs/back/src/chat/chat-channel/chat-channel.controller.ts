@@ -1,9 +1,9 @@
-import { Controller, Get, UseGuards, Body, Delete, Post, Put, Query } from "@nestjs/common";
+import { Controller, Get, UseGuards, Body, Post, Query } from "@nestjs/common";
 import { ApiBody, ApiBearerAuth } from "@nestjs/swagger"
 import { JwtGuard } from "../../auth/guard";
 import { GetJwt } from "../../auth/decorator";
 import { ChatChannelService } from "./chat-channel.service";
-import { ChatChannelCreateDto, ChatChannelUpdateDto } from "./dto";
+import { ChatChannelCreateDto } from "./dto";
 
 
 
