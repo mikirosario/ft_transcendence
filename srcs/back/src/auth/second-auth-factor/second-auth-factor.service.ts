@@ -1,13 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Response } from 'express';
 import * as qrcode from 'qrcode';
 import * as speakeasy from 'speakeasy';
 import { Verify2faDto } from '../dto';
+import { ThrowHttpException } from '../../utils/error-handler';
+import { Res } from '@nestjs/common';
+import { OAuthService } from '../../oauth/oauth.service';
 
 @Injectable()
 export class SecondAuthFactorService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService,
+    private oAuthService: OAuthService) {}
 
   async enable2fa(userId: number,  res: Response) {
     const user = await this.prisma.user.findUnique({
@@ -16,9 +20,7 @@ export class SecondAuthFactorService {
     });
 
     if (!user)
-    {
       throw new NotFoundException('User not found');
-    }
     // Generate a new secret key for the user
     const secretKey = speakeasy.generateSecret({ length: 20 }).ascii;
 
@@ -52,8 +54,11 @@ export class SecondAuthFactorService {
   async check2fa(userId: number): Promise<{checkresult: boolean}> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId},
-      select: {secondFactorSecret: true},
+      select: { secondFactorSecret: true },
     });
+
+    if (!user)
+      ThrowHttpException(new UnauthorizedException, 'Usuario no encontrado');
 
     if (user.secondFactorSecret == null)
       return { checkresult: false };
@@ -61,44 +66,83 @@ export class SecondAuthFactorService {
     return { checkresult: true };
   }
 
-  async verify2fa(userId: number, verify2faDto: Verify2faDto): Promise<{ verificationResult: boolean }> {
+  async verify2fa(@Res() res, verify2faDto: Verify2faDto) {
+
     let user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { secondFactorSecret: true },
+      where: { id: verify2faDto.userId },
+      select: {
+                id: true,
+                email: true,
+                secondFactorSecret: true
+              },
     });
+
+    if (!user)
+      ThrowHttpException(new UnauthorizedException, 'Usuario no encontrado');
+      
+    if (user.secondFactorSecret) {
+      // Verify the provided 2FA code against the user's stored secret key
+      const verificationResult = speakeasy.totp.verify({
+        secret: user.secondFactorSecret,
+        encoding: 'ascii',
+        token: verify2faDto.code
+      });
+
+      console.log("asdasdasd")
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { isVerified2fa: verificationResult },
+      });
+
+      if (verificationResult == false)
+        ThrowHttpException(new UnauthorizedException, 'Código incorrecto. Vuelve a intentarlo.');
+  
+    }
+
+    let { access_token } = await this.oAuthService.signToken(user.id, user.email);
+    console.log("access_token")
+    return {asdasd: "asd"};
     
-    // Verify the provided 2FA code against the user's stored secret key
-    const verificationResult = speakeasy.totp.verify({
-      secret: user.secondFactorSecret,
-      encoding: 'ascii',
-      token: verify2faDto.code
-    });
-
-    user = await this.prisma.user.update({
-      where: { id: userId },
-      data: { isVerified2fa: true },
-    });
-
-    return { verificationResult };
   }
 
   async isVerified2fa(userId: number): Promise<{isVerified2fa: boolean}> {
 
     const user = await this.prisma.user.findUnique({
                     where: { id: userId },
-                    select: {isVerified2fa: true},
+                    select: {
+                      isVerified2fa: true,
+                      secondFactorSecret: true
+                     },
     });
+
+    if (!user)
+      ThrowHttpException(new UnauthorizedException, 'Usuario no encontrado');
+
+    if (user.secondFactorSecret)
+      return { isVerified2fa: user.isVerified2fa };
     
-    return { isVerified2fa: user.isVerified2fa };
+    return { isVerified2fa: true };
   }
   
   async deleteVerified2fa(userId: number) {
 
-    await this.prisma.user.update({
+    const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      data: { isVerified2fa: false },
+      select: {
+        secondFactorSecret: true
+       },
     });
-    
+
+    if (!user)
+      ThrowHttpException(new UnauthorizedException, 'Usuario no encontrado');
+
+    if (user.secondFactorSecret)
+    {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { isVerified2fa: false },
+      });
+    }
   }
 
 }

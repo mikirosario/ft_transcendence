@@ -17,4 +17,9 @@ export class EditUserByAdminDto {
 	@IsBoolean()
 	@IsOptional()
 	isBanned?: boolean
+
+	@ApiProperty()
+	@IsBoolean()
+	@IsOptional()
+	isVerified2fa?: boolean
 }

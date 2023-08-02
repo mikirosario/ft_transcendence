@@ -170,7 +170,45 @@ export async function get2FAuthUser() {
       headers: { 'Authorization': `Bearer ${token}` }
     });
 
-    return response.data.checkresult
+    return response.data.checkresult;
+
+  } catch (error) {
+    console.error('Error checking 2FA status:', error);
+    return false;
+  }
+}
+
+export async function get2FAuthUserVerification() {
+  try {
+    const response = await axios.get('auth/second-auth-factor/verified', {
+      responseType: 'json',
+      headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+      },
+  });
+
+    return response.data.isVerified2fa;
+
+  } catch (error) {
+    console.error('Error checking 2FA status:', error);
+    return false;
+  }
+}
+
+export async function get2FAuthUserVerificationRemove() {
+  try {
+    const response = await axios.delete('auth/second-auth-factor/verified', {
+      responseType: 'json',
+      headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+      },
+  });
+
+  if (response.status !== 200 && response.status !== 201) {
+    throw new Error('Request failed with status ' + response.status);
+  }
+
+  return true;
 
   } catch (error) {
     console.error('Error checking 2FA status:', error);
