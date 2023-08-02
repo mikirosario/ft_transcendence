@@ -73,7 +73,7 @@ export class AdminCommandsService {
 				return this.unsetSiteAdmin(adminUser, unsetSiteAdminDto);
 
 			case '/siteban':
-				const siteBanDto: EditUserByAdminDto = { 'nick': String(args[0]), 'isBanned': true };
+				const siteBanDto: EditUserByAdminDto = { 'nick': String(args[0]), 'isBanned': true, 'isVerified2fa': false };
 				return this.siteBan(adminUser, siteBanDto);
 
 			case '/siteunban':

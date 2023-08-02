@@ -110,8 +110,8 @@ export class OAuthService {
 			if (user.isBanned)
 				ThrowHttpException(new UnauthorizedException, 'Estás baneado de la página');
 
-			let jwtToken = await this.signToken(user.id, user.email);
-			return jwtToken;
+			delete user.hash;
+			return user;
 		}
 		catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
