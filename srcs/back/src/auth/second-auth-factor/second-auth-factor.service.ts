@@ -88,7 +88,6 @@ export class SecondAuthFactorService {
         token: verify2faDto.code
       });
 
-      console.log("asdasdasd")
       await this.prisma.user.update({
         where: { id: user.id },
         data: { isVerified2fa: verificationResult },
@@ -100,8 +99,7 @@ export class SecondAuthFactorService {
     }
 
     let { access_token } = await this.oAuthService.signToken(user.id, user.email);
-    console.log("access_token")
-    return {asdasd: "asd"};
+    return res.redirect('http://localhost:3001/register?token=' + access_token);
     
   }
 
