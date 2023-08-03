@@ -1,6 +1,8 @@
 all:
 	@cd ./srcs/ && docker-compose up --build -d
 
+rebuild: stop all
+
 resume:
 	@echo "STARTING CONTAINERS...\n"
 	@cd ./srcs/ && docker-compose up -d
@@ -26,7 +28,7 @@ back:
 	@cd ./srcs/front && npm run start:dev
 
 database:
-	@cd ./srcs/front && npm run db:dev:restart
+	@cd ./srcs/back && npm run db:dev:restart
 	@echo "Database created succesfully..."
 
 migrate:

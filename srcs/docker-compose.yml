@@ -13,7 +13,7 @@ services:
     container_name: postgresql
     image: postgres:15-alpine
     ports:
-      - "5434:5432"
+      - 5434:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123
@@ -23,18 +23,22 @@ services:
     restart: unless-stopped
     networks:
       - transcendence
+    env_file:
+      - .env
   
   # NGINX #
   nginx:
     container_name: nginx
     image: nginx
     ports:
-      - "80:80"
+      - 80:80
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     restart: unless-stopped
     networks:
       - transcendence
+    env_file:
+      - .env
 
   # BACK #
   back:
@@ -49,6 +53,8 @@ services:
       - transcendence
     depends_on:
       - db
+    env_file:
+      - .env
 
 # FRONT #
   front:
@@ -63,3 +69,5 @@ services:
       - transcendence
     depends_on:
       - back
+    env_file:
+      - .env

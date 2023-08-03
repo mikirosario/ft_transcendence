@@ -17,8 +17,8 @@ import { SelfUserStateChangedEvent } from '../../user/user.events';
 
 @WebSocketGateway(8083, {
 	cors: {
-		origin: ['http://localhost:3001']
-		// origin: '*'
+		// origin: ['http://localhost']
+		origin: '*'
 	},
 })
 @Injectable()

@@ -15,8 +15,8 @@ import { UserStateChangedEvent } from './user.events';
 
 @WebSocketGateway(8081, {
 	cors: {
-		origin: ['http://localhost:3001']
-		// origin: '*'
+		// origin: ['http://localhost']
+		origin: '*'
 	},
 })
 export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
