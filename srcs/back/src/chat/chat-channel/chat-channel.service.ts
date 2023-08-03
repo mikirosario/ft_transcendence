@@ -174,6 +174,10 @@ export class ChatChannelService {
 
 			if (channelUser.isOwner || channelUser.isAdmin)
 				return true;
+			else {
+				ThrowHttpException(new UnauthorizedException, 'Necesitas ser propietario o admin del canal para realizar esta acción');
+			}
+			
 		} catch (error) {
 			ThrowHttpException(new UnauthorizedException, 'Necesitas ser propietario o admin del canal para realizar esta acción');
 		}
