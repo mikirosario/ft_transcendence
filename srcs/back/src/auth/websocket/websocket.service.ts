@@ -16,9 +16,14 @@ export class WebSocketService {
 	}
 
 	private extractTokenFromSocketHeaders(headers: any): string | null {
-		const auth_token: string = headers.authorization.split(" ")[1];
+		try {
+			const auth_token: string = headers.authorization.split(" ")[1];
 		
-		return (auth_token);
+			return (auth_token);
+		} catch (error) {
+			return null
+		}
+		
 	}
 
 	private getUserIdFromToken(jwtToken: string) {

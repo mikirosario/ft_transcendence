@@ -129,7 +129,7 @@ export class FriendService {
 		}
 		catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				ThrowHttpException(error, 'Prisma error');
+				ThrowHttpException(error, 'Friend relationship not found');
 			}
 		}
 	}

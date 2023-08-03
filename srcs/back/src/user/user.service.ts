@@ -420,52 +420,61 @@ export class UserService {
 
 	public async updateGameStats(userId: number, hasWon: boolean) {
 
-		if (hasWon) {
-			await this.prisma.user.update({
-				where: {
-					id: userId
-				},
-				data: {
-					gamesWon: { increment: 1 },
-					gamesPlayed: { increment: 1 }
-				},
-			});
-		} else {
-			await this.prisma.user.update({
-				where: {
-					id: userId
-				},
-				data: {
-					gamesLost: { increment: 1 },
-					gamesPlayed: { increment: 1 }
-				},
-			});
+		try {
+			if (hasWon) {
+				await this.prisma.user.update({
+					where: {
+						id: userId
+					},
+					data: {
+						gamesWon: { increment: 1 },
+						gamesPlayed: { increment: 1 }
+					},
+				});
+			} else {
+				await this.prisma.user.update({
+					where: {
+						id: userId
+					},
+					data: {
+						gamesLost: { increment: 1 },
+						gamesPlayed: { increment: 1 }
+					},
+				});
+			}
+		} catch (error) {
 		}
+		
 		
 	}
 
 	public async getGameRanking() {
-		const users = await this.prisma.user.findMany({
-			select: {
-				id: true,
-				nick: true,
-				avatarUri: true,
-				gamesWon: true,
-				gamesLost: true,
-				gamesPlayed: true
-			}
-		});
+		try {
+			const users = await this.prisma.user.findMany({
+				select: {
+					id: true,
+					nick: true,
+					avatarUri: true,
+					gamesWon: true,
+					gamesLost: true,
+					gamesPlayed: true
+				}
+			});
+			
+			const usersWithRatio = users.map(user => ({
+				...user,
+				ratio: user.gamesWon / user.gamesLost,
+			}));
 		
-		const usersWithRatio = users.map(user => ({
-			...user,
-			ratio: user.gamesWon / user.gamesLost,
-		}));
+			const gameRankingUsers = usersWithRatio.sort((a, b) => b.ratio - a.ratio);
 	
-		const gameRankingUsers = usersWithRatio.sort((a, b) => b.ratio - a.ratio);
-
-		const gameRankingUsersFormatted = this.formatGameRankingUsers(gameRankingUsers);
-
-		return gameRankingUsersFormatted;
+			const gameRankingUsersFormatted = this.formatGameRankingUsers(gameRankingUsers);
+	
+			return gameRankingUsersFormatted;
+		} catch (error) {
+			return [];
+		}
+		
 	}
 
 	private formatGameRankingUsers(gameRankingUsers: any) {

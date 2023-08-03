@@ -45,10 +45,15 @@ export class SecondAuthFactorService {
   }
 
   async disable2fa(userId: number): Promise<void> {
-    await this.prisma.user.update({
-      where: {id: userId},
-      data: {secondFactorSecret: null},
-    });
+    try {
+      await this.prisma.user.update({
+        where: {id: userId},
+        data: {secondFactorSecret: null},
+      });
+    } catch (error) {
+      ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
+    }
+    
   }
 
   async check2fa(userId: number): Promise<{checkresult: boolean}> {
@@ -58,7 +63,7 @@ export class SecondAuthFactorService {
     });
 
     if (!user)
-      ThrowHttpException(new UnauthorizedException, 'Usuario no encontrado');
+      ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
 
     if (user.secondFactorSecret == null)
       return { checkresult: false };
@@ -78,7 +83,7 @@ export class SecondAuthFactorService {
     });
 
     if (!user)
-      ThrowHttpException(new UnauthorizedException, 'Usuario no encontrado');
+      ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
       
     if (user.secondFactorSecret) {
       // Verify the provided 2FA code against the user's stored secret key
@@ -114,7 +119,7 @@ export class SecondAuthFactorService {
     });
 
     if (!user)
-      ThrowHttpException(new UnauthorizedException, 'Usuario no encontrado');
+      ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
 
     if (user.secondFactorSecret)
       return { isVerified2fa: user.isVerified2fa };
@@ -132,7 +137,7 @@ export class SecondAuthFactorService {
     });
 
     if (!user)
-      ThrowHttpException(new UnauthorizedException, 'Usuario no encontrado');
+      ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
 
     if (user.secondFactorSecret)
     {
