@@ -135,6 +135,9 @@ export class ChatChannelUserService {
 			}
 		});
 
+		if (!channelChatInfo)
+			return ;
+
 		this.ws.sendSocketMessageToRoom("channel_" + String(channelId), 'UPDATE_CHANNEL_USERS_LIST_' + event,
 				this.formatChannelUsers(channelChatInfo.chatChannelUser));
 	}
