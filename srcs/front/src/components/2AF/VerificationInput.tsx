@@ -1,39 +1,31 @@
 import React, { useState, ChangeEvent } from 'react';
-import axios from 'axios';
-import { getServerIP } from '../../utils/utils';
+import { get2FAuthUserVerification } from '../../requests/User.Service';
+import { useNavigate } from 'react-router-dom';
 
 interface VerificationInputProps {
-  onVerificationPassed: (result: boolean) => void;
+  userIdArg: number;
 }
 
-interface VerificationResponse {
-  verificationResult: boolean;
-}
-
-axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
-
-const VerificationInput: React.FC<VerificationInputProps> = ({ onVerificationPassed }) => {
+const VerificationInput: React.FC<VerificationInputProps> = ({ userIdArg }) => {
   const [verificationCode, setVerificationCode] = useState<string>('');
+  const [isCodeValid, setIsCodeValid] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const verify2FA = async () => {
-    try {
-      const response = await axios.post<VerificationResponse>(getServerIP(3000) + 'auth/second-auth-factor/verify', {code: verificationCode}, {
-        responseType: 'json',
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem('token'),
-        }
-      });
-      console.log(response.data);
-      onVerificationPassed(response.data.verificationResult);
-    } catch (error) {
-      console.error('Error verifying 2FA:', error);
-    }
+    const response = await get2FAuthUserVerification(verificationCode, userIdArg);
+    if (response.error) {
+      setIsCodeValid(true);
+      setTimeout(() => setIsCodeValid(false), 1000);
+      setVerificationCode('');
+    } else
+      navigate(response.URL);
+    
   };
 
   const handleVerificationCodeChange = (event: ChangeEvent<HTMLInputElement>) => {
     setVerificationCode(event.target.value);
   };
-
+  
   const SecondFactorButtonSytle: React.CSSProperties = {
     backgroundColor: '#5b8731',
     color: '#FFFFFF',
@@ -56,8 +48,9 @@ const VerificationInput: React.FC<VerificationInputProps> = ({ onVerificationPas
     padding: '5px 10px',
     width: '240px',
     border: 'none',
-    borderBottom: '2px solid gray',
+    borderBottom: isCodeValid ? '2px solid red' : '2px solid gray',
     background: 'transparent',
+    transition: 'border-color 0.5s ease',
   };
   
   const ContainerStyle: React.CSSProperties = {
@@ -68,7 +61,7 @@ const VerificationInput: React.FC<VerificationInputProps> = ({ onVerificationPas
   
   return (
     <div style={ContainerStyle}>
-      <input  style={SecondFactorInputStyle} type="text" value={verificationCode} onChange={handleVerificationCodeChange} />
+      <input style={SecondFactorInputStyle} type="text" value={verificationCode} onChange={handleVerificationCodeChange} />
       <button style={SecondFactorButtonSytle} onClick={verify2FA}>Verify 2FA</button>
     </div>
   );

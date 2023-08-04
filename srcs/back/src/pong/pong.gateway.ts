@@ -10,15 +10,13 @@ import { Server, Socket } from 'socket.io';
 import { ConfigService } from "@nestjs/config";
 import { UserService } from "../user/user.service";
 import { WebSocketService } from '../auth/websocket/websocket.service';
-import { Console } from 'console';
 import { Pong } from './pong.original';
 import { InputState } from './types';
-import { Player, PlayerID } from './player';
+import { PlayerID } from './player';
 import { PongGameMatchService } from './pong-game-match/pong-game-match.service';
 import { PongGameMatchPlayerDto } from './pong-game-match/dto';
 import { IPongBackend } from './interfaces';
 import { PongAlt } from './pong.alt';
-import { use } from 'passport';
 
 
 

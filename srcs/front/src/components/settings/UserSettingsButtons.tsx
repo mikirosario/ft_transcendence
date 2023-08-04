@@ -11,6 +11,7 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 	const [username, setUsername] = useState('');
 	const [image, setImage] = useState<File | null>(null);
 	const [userImage, setUserImage] = useState<string>();
+	const [isNickInvalid, setNickInvalid] = useState<boolean>(false);
 	const navigate = useNavigate();
 
 	const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,8 +22,8 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 		if (event.target.files && event.target.files.length > 0) {
 			const selectedImage = event.target.files[0];
 			setImage(selectedImage);
-			const imageURL = URL.createObjectURL(selectedImage); // Create URL for the selected image
-			setUserImage(imageURL); // Set the userImage state with the URL
+			const imageURL = URL.createObjectURL(selectedImage);
+			setUserImage(imageURL);
 		}
 	};
 
@@ -58,10 +59,13 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 	  
 		const success = await updateUserProfile(username, image);
 	  
-		if (success) {
+		if (success)
 		  navigate('/homepage');
+		else {
+			setNickInvalid(true);
+			setTimeout(() => setNickInvalid(false), 1000);
 		}
-	  };
+	};
 
 	const resetAvatar = async (event: React.FormEvent) => {
 		event.preventDefault();
@@ -85,7 +89,7 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 		  };
 		  
 		   fetchUserProfile();
-	}, [navigate]);
+	}, []);
 
 	// -------------------------- STYLES ---------------------------------
 
@@ -98,7 +102,7 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 		position: 'relative',
 		top: '42%',
 		width: '0%',
-		left: '4%',
+		left: '5%',
 	};
 
 	const InputTextStyle: React.CSSProperties = {
@@ -108,11 +112,12 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 		height: '5%',
 		left: '33%',
 		top: '36%',
-		width: '60%',
+		width: '52%',
 		position: 'relative',
 		border: 'none',
-		borderBottom: '2px solid gray',
+		borderBottom: isNickInvalid ? '2px solid red' : '2px solid gray',
 		background: 'transparent',
+		transition: 'border-color 0.5s ease',
 	};
 
 	const SelectImageStyle: React.CSSProperties = {

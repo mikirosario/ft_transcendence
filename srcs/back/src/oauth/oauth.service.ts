@@ -9,7 +9,6 @@ import { PrismaService } from "../prisma/prisma.service";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ThrowHttpException } from "../utils/error-handler";
 import { UserService } from "../user/user.service";
-import { HttpErrorByCode } from "@nestjs/common/utils/http-error-by-code.util";
 
 @Injectable()
 export class OAuthService {
@@ -53,9 +52,7 @@ export class OAuthService {
 			});
 			return response.data;
 		} catch (error) {
-			console.log(error);
 			ThrowHttpException(new BadRequestException, 'Failed to fetch user information.');
-			//throw new Error('Failed to fetch user information. ');
 		}
 	}
 
@@ -69,6 +66,7 @@ export class OAuthService {
 			sub: userId,
 			email,
 		};
+
 		const secret = this.config.get('JWT_SECRET');
 		const token = await this.jwt.signAsync(payload, {
 			expiresIn: '15m',
@@ -112,17 +110,13 @@ export class OAuthService {
 			if (user.isBanned)
 				ThrowHttpException(new UnauthorizedException, 'Estás baneado de la página');
 
-			let jwtToken = await this.signToken(user.id, user.email);
-			console.log(jwtToken)
-			return jwtToken;
+			delete user.hash;
+			return user;
 		}
 		catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				// https://www.prisma.io/docs/reference/api-reference/error-reference
-				// P2002 "Unique constraint failed on the {constraint}"
 				ThrowHttpException(error, 'Credentials taken');
 			}
-			throw error;
 		}
 	}
 }

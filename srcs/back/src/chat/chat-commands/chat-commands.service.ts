@@ -47,27 +47,20 @@ export class ChatCommandsService {
 
 
 	private parseCommand(dto: ChatCommandMessageDto) {
-		// Dividir el mensaje de chat en un array de palabras
+		
 		let words = dto.message.split(' ');
-
-		// El primer elemento del array debe ser el comando
 		let command = words[0];
 
 		// Elimina el primer elemento del array (el comando)
 		words.shift();
 
-		// Ahora puedes usar minimist para parsear los argumentos del comando
 		let args = minimist(words);
 
-		// Retornar el comando y los argumentos
 		return { command, args };
 	}
 
-	// Ejemplo de cómo manejar un comando
+
 	private handleCommand(userId: number, chatCommandMessageDto: ChatCommandMessageDto, command: string, args: string[]) {
-		console.log('User ID: ' + userId);
-		console.log('Command: ' + command);
-		console.log('Args: ' + String(args[0]));
 
 		const commandNotExecuted = { commandExecuted: false, response: '', error: false };
 

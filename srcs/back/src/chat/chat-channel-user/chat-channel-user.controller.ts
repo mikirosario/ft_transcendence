@@ -1,9 +1,9 @@
-import { Controller, Get, UseGuards, Body, Delete, Post, Put, Param } from "@nestjs/common";
+import { Controller, UseGuards, Body, Delete, Post } from "@nestjs/common";
 import { ApiBody, ApiBearerAuth } from "@nestjs/swagger"
 import { JwtGuard } from "../../auth/guard";
 import { GetJwt } from "../../auth/decorator";
 import { ChatChannelUserService } from "./chat-channel-user.service";
-import { ChatChannelJoinDto, ChatChannelLeaveDto, ChatChannelUserDto } from './dto'
+import { ChatChannelJoinDto, ChatChannelLeaveDto } from './dto'
 
 
 @UseGuards(JwtGuard)

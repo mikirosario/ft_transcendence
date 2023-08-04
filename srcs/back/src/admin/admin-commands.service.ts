@@ -37,24 +37,19 @@ export class AdminCommandsService {
 
 	
 	private parseCommand(dto: AdminCommandDto) {
-		// Dividir el mensaje de chat en un array de palabras
+		
 		let words = dto.message.split(' ');
-
-		// El primer elemento del array debe ser el comando
 		let command = words[0];
 
 		// Elimina el primer elemento del array (el comando)
 		words.shift();
 
-		// Ahora puedes usar minimist para parsear los argumentos del comando
 		let args = minimist(words);
 
-		// Retornar el comando y los argumentos
 		return { command, args };
 	}
 
 	
-	// Ejemplo de cómo manejar un comando
 	private handleCommand(adminUser: any, dto: AdminCommandDto, command: string, args: string[]) {
 		console.log('User ID: ' + adminUser.id);
 		console.log('Command: ' + command);
@@ -78,7 +73,7 @@ export class AdminCommandsService {
 				return this.unsetSiteAdmin(adminUser, unsetSiteAdminDto);
 
 			case '/siteban':
-				const siteBanDto: EditUserByAdminDto = { 'nick': String(args[0]), 'isBanned': true };
+				const siteBanDto: EditUserByAdminDto = { 'nick': String(args[0]), 'isBanned': true, 'isVerified2fa': false };
 				return this.siteBan(adminUser, siteBanDto);
 
 			case '/siteunban':

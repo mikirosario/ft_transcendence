@@ -44,7 +44,6 @@ export async function getUserProfile() {
 
     const fetchedName = response.data.nick;
     const fetchedAdminSite = response.data.isSiteAdmin;
-    const fetchedOwnerSite = response.data.isSiteOwner;
     let fetchedImage = response.data.avatarUri;
 
     let imageResponse;
@@ -163,14 +162,55 @@ export async function getUserImage(URI: string) {
   }
 }
 
-export async function get2FAuthUser() {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await axios.get<{ checkresult: boolean }>(getServerIP(3000) + 'auth/second-auth-factor/check', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+// export async function get2FAuthUser() {
+//   try {
+//     const token = localStorage.getItem('token');
+//     const response = await axios.get<{ checkresult: boolean }>(getServerIP(3000) + 'auth/second-auth-factor/check', {
+//       headers: { 'Authorization': `Bearer ${token}` }
+//     });
 
-    return response.data.checkresult
+//     return response.data.checkresult;
+
+//   } catch (error) {
+//     console.error('Error checking 2FA status:', error);
+//     return false;
+//   }
+// }
+
+export async function get2FAuthUserVerification(code: string, userId: number) {
+  console.log(code);
+  console.log(userId);
+  try {
+    const response = await axios.post('auth/second-auth-factor/verify', { code: code, userId: userId }, {
+      responseType: 'json',
+  });
+
+  if (response.status !== 200 && response.status !== 201) {
+    return {URL: '', error: true};
+  }
+
+  return {URL: response.data.redirectUrl, error: false};
+
+  } catch (error) {
+    console.error('Error checking 2FA status:', error);
+    return {URL: '', error: true};
+  }
+}
+
+export async function get2FAuthUserVerificationRemove() {
+  try {
+    const response = await axios.delete('auth/second-auth-factor/verified', {
+      responseType: 'json',
+      headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+      },
+  });
+
+  if (response.status !== 200 && response.status !== 201) {
+    throw new Error('Request failed with status ' + response.status);
+  }
+
+  return true;
 
   } catch (error) {
     console.error('Error checking 2FA status:', error);

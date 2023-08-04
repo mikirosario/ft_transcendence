@@ -104,8 +104,8 @@ export class ChatDirectMessageService {
 				}
 			});
 	
-			if (directChat)
-				return directChat;
+		if (directChat)
+			return directChat;
 			
 		try {
 			directChat = await this.prisma.chatDirect.create({
@@ -158,6 +158,9 @@ export class ChatDirectMessageService {
 			}
 		  });
 
+		if (directChat == null) {
+			ThrowHttpException(new NotFoundException, 'Direct chat not found');
+		}
 
 		// Reestructuración de los datos para coincidir con el formato de JSON deseado
 		let messages = directChat.chatDirectMessageDirect.map(message => {
