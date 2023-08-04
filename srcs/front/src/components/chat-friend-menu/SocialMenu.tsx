@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import UserProfile from "./ProfileDisplay";
 import { Navigate, useNavigate, useLocation, Link } from "react-router-dom";
-import { getUserProfile } from '../../requests/User.Service';
+import { get2FAuthUserVerificationRemove, getUserProfile } from '../../requests/User.Service';
 import FriendDisplay from "./FriendDisplay";
 import ChannelDisplay from "./ChannelDisplay"
 import { FaAngleRight, FaAngleLeft, FaCrown } from 'react-icons/fa';
 import { IoMdSettings } from 'react-icons/io';
 import ChatDisplay from "./ChatDisplay";
-import { SocketContext1, SocketContext2} from '../../SocketContext';
+import { SocketContext1, SocketContext2 } from '../../SocketContext';
 import NotificationContext from '../../NotificationContext';
 //BiChevronLeft 
 
@@ -23,7 +23,6 @@ function Menu() {
 	const [username, setUsername] = useState('');
 	const [userImage, setUserImage] = useState<string>('');
 	const [isSiteAdmin, setIsSiteAdmin] = useState(false);
-	const [isSiteOwner, setIsSiteOwner] = useState(false);
 	const [selectedButton, setSelectedButton] = useState(initialSelectedButton);
 	const [isMenuExpanded, setIsMenuExpanded] = useState(initialIsMenuExpanded);
 	const [isFriendChat, setIsFriendChat] = useState(false);
@@ -46,6 +45,7 @@ function Menu() {
 				setIsSiteAdmin(userProfile.siteAdmin);
 			} catch (error) {
 				console.log("error");
+				await get2FAuthUserVerificationRemove();
 				localStorage.removeItem('token'); // No te lleva en un solo reload
 				navigate('/');
 			}
