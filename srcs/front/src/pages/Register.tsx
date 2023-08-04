@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import UserSettingsButtons from "../components/settings/UserSettingsButtons";
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { get2FAuthUser } from "../requests/User.Service";
+import { } from "../requests/User.Service";
 import VerificationInput from '../components/2AF/VerificationInput';
 
 function Register() {
@@ -11,12 +11,12 @@ function Register() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  useEffect(() => {   
+  useEffect(() => {
     if (!verificationPassed)  // SI NO PONE CODIGO 2FA Y HACE F5 HACE SKIP
-    navigate('/register');
-  
+      navigate('/register');
+
   }, [verificationPassed]);
-  
+
   useEffect(() => {
     if (searchParams.has("token")) {
       const token = searchParams.get("token");
@@ -32,13 +32,13 @@ function Register() {
   }, [searchParams, setSearchParams]);
 
 
-  useEffect(() => {
-    const check2AFOnLoad = async () => {
-      setSecondFactor(await get2FAuthUser());
-    };
+  // useEffect(() => {
+  //   const check2AFOnLoad = async () => {
+  //     setSecondFactor(await get2FAuthUser());
+  //   };
 
-    check2AFOnLoad();
-  }, []);
+  //   check2AFOnLoad();
+  // }, []);
 
   const NicknamePositionStyle: React.CSSProperties = {
     height: '320px',
@@ -86,41 +86,18 @@ function Register() {
     position: 'relative',
   };
 
-  const TitleSecondFactorSyle: React.CSSProperties = {
-    paddingLeft: '30%',
-    paddingTop: '10%',
-    color: 'gray',
-    fontFamily: "'Press Start 2P'"
-  };
-  
-  const SecondFactorSyle: React.CSSProperties = {
-    paddingLeft: '43.5%',
-  };
-
   return (
     ready
       ? (
         <div style={NicknamePositionStyle}>
           <div style={NicknameTapeStyle}>
-            {secondFactor && !verificationPassed
-              ? <div>
-                <h1 style={TitleSecondFactorSyle}>Introduce el codigo de 2FA</h1>
-                <div style={SecondFactorSyle}>
-                  <VerificationInput onVerificationPassed={setVerificationPassed} />
-                </div>
-              </div>
-              : (
-                <>
-                  <div style={TitleStyle}>CHOOSE A NICKNAME</div>
-                  <div style={SubtitleStyle}>Nick rules</div>
-                  <div style={NicknameInputStyle}>
-                    <section>
-                      <UserSettingsButtons btnTxt="Register"></UserSettingsButtons>
-                    </section>
-                  </div>
-                </>
-              )
-            }
+            <div style={TitleStyle}>CHOOSE A NICKNAME</div>
+            <div style={SubtitleStyle}>Nick rules</div>
+            <div style={NicknameInputStyle}>
+              <section>
+                <UserSettingsButtons btnTxt="Register"></UserSettingsButtons>
+              </section>
+            </div>
           </div>
         </div>
       )

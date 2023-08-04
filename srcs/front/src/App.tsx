@@ -15,6 +15,7 @@ import Leaderboard from './pages/Leaderboard';
 
 import { SocketProvider1, SocketProvider2 } from './SocketContext';
 import GameFriends from './pages/GameFriends';
+import Verify2FA from './pages/Verify2fa';
 
 
 const useAuth = () => {
@@ -79,6 +80,7 @@ function App() {
           }}></div>
           <Routes>
             <Route path="/" element={<GuestComponent><PreRegister /></GuestComponent>} />
+            <Route path="/verify2fa" element={<GuestComponent><Verify2FA /></GuestComponent>} />
             
             <Route path="/register" element={<GuestComponent><Register /></GuestComponent>} /> 
             <Route path="/denied" element={<GuestComponent><PermissionDenied /></GuestComponent>} />
