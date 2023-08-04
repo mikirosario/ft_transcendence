@@ -11,7 +11,7 @@ import { GetJwt } from '../decorator';
 @Controller('auth/second-auth-factor')
 @ApiBearerAuth()
 export class SecondAuthFactorController {
-  constructor(private secondAuthFactorService: SecondAuthFactorService) {}
+  constructor(private secondAuthFactorService: SecondAuthFactorService) { }
 
   @UseGuards(JwtGuard)
   @Get('enable')
@@ -32,8 +32,8 @@ export class SecondAuthFactorController {
   }
 
   @Post('verify')
-  async verify2fa(@Res() res, @Body() verify2faDto: Verify2faDto) {
-    return this.secondAuthFactorService.verify2fa(res, verify2faDto);
+  async verify2fa(@Body() verify2faDto: Verify2faDto) {
+    return this.secondAuthFactorService.verify2fa(verify2faDto);
   }
 
   @UseGuards(JwtGuard)

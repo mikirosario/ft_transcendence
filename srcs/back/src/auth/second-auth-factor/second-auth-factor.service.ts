@@ -5,7 +5,6 @@ import * as qrcode from 'qrcode';
 import * as speakeasy from 'speakeasy';
 import { Verify2faDto } from '../dto';
 import { ThrowHttpException } from '../../utils/error-handler';
-import { Res } from '@nestjs/common';
 import { OAuthService } from '../../oauth/oauth.service';
 
 @Injectable()
@@ -71,7 +70,7 @@ export class SecondAuthFactorService {
     return { checkresult: true };
   }
 
-  async verify2fa(@Res() res, verify2faDto: Verify2faDto) {
+  async verify2fa(verify2faDto: Verify2faDto): Promise<{redirectUrl: string}> {
 
     let user = await this.prisma.user.findUnique({
       where: { id: verify2faDto.userId },
@@ -100,11 +99,14 @@ export class SecondAuthFactorService {
 
       if (verificationResult == false)
         ThrowHttpException(new UnauthorizedException, 'Código incorrecto. Vuelve a intentarlo.');
-  
     }
 
-    let { access_token } = await this.oAuthService.signToken(user.id, user.email);
-    return res.redirect('http://localhost:3001/register?token=' + access_token);
+    try {
+      let { access_token } = await this.oAuthService.signToken(user.id, user.email);
+      return {redirectUrl: '/register?token=' + access_token};
+    } catch (error) {
+      ThrowHttpException(new NotFoundException, 'No se ha podido crear el token');
+    }
     
   }
 
