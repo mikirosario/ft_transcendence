@@ -1,6 +1,6 @@
 import { Get, Controller, Query, Res} from "@nestjs/common";
 import { OAuthService} from "./oauth.service";
-import { ApiBody, ApiBearerAuth } from "@nestjs/swagger"
+import { ApiBody, ApiBearerAuth } from "@nestjs/swagger";
 import { OAuthDto } from "./dto";
 import { UserOAuthDto } from "../user/dto/user-oauth.dto";
 import { ThrowHttpException } from "../utils/error-handler";
@@ -42,3 +42,5 @@ export class OAuthController {
         }
     }
 }
+
+
