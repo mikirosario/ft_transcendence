@@ -44,19 +44,16 @@ function Menu() {
 				setUserImage(userProfile.userImage);
 				setIsSiteAdmin(userProfile.siteAdmin);
 			} catch (error) {
-				console.log("error");
 				await get2FAuthUserVerificationRemove();
-				localStorage.removeItem('token'); // No te lleva en un solo reload
+				localStorage.removeItem('token');
 				navigate('/');
 			}
-
 		};
 
-		if (selectedChat) {
+		if (selectedChat)
 			setSelectedButton('');
-		} else if (selectedChat === 0 && selectedButton === '' && previousSelectedButton.current) {
+		else if (selectedChat === 0 && selectedButton === '' && previousSelectedButton.current)
 			setSelectedButton(previousSelectedButton.current);
-		}
 
 		const handleMyInfo = async (data: { isSiteAdmin: boolean, isBanned: boolean }) => {
 			if (data.isBanned) {
@@ -96,9 +93,9 @@ function Menu() {
 
 	useEffect(() => {
 
-		if (selectedButton !== '') {
+		if (selectedButton !== '')
 			setSelectedChat(0);
-		}
+		
 
 	}, [selectedButton]);
 
@@ -108,9 +105,9 @@ function Menu() {
 			setTimeout(() => {
 				setNotifications((prev) => prev.slice(1));
 			}, 4000);
-		} else {
+		} else
 			setShowNotification(false);
-		}
+
 	}, [notifications]);
 
 
@@ -134,7 +131,6 @@ function Menu() {
 		left: '12%',
 		position: 'absolute',
 		cursor: 'pointer',
-		// borderRadius: '25%',
 	};
 
 	const CrownIconStyle: React.CSSProperties = {
