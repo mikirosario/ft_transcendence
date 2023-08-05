@@ -110,11 +110,11 @@ function Options() {
             </div>
             <div style={FlexContainerStyle}>
               <section className="OptionsMenu">
-                <UserSettingsButtons btnTxt="Apply Changes"></UserSettingsButtons>
+                <UserSettingsButtons btnTxt="Aplicar"></UserSettingsButtons>
               </section>
               <div style={Active2FAStyle}>
                 <button style={ButtonStyle} onClick={handleToggle2AF}>
-                  {is2AFActive ? "Deactivate 2AF" : "Activate 2AF"}
+                  {is2AFActive ? "Desactivar 2FA" : "Activar 2FA"}
                 </button>
                 {is2AFActive && <QRCodeDisplay />}
               </div>

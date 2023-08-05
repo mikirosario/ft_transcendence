@@ -91,11 +91,14 @@ function Register() {
       ? (
         <div style={NicknamePositionStyle}>
           <div style={NicknameTapeStyle}>
-            <div style={TitleStyle}>CHOOSE A NICKNAME</div>
-            <div style={SubtitleStyle}>Nick rules</div>
+            <h1 style={TitleStyle}>Elige un nick</h1>
+            <div style={SubtitleStyle}>Normas del nick:
+              <p style={{ fontSize: '13px' }}> - La longitud debe ser entre 3 y 10 caráctares </p>
+              <p style={{ fontSize: '13px' }}> - Puede ser alfanumérico y contener '_' o '-' </p>
+            </div>
             <div style={NicknameInputStyle}>
               <section>
-                <UserSettingsButtons btnTxt="Register"></UserSettingsButtons>
+                <UserSettingsButtons btnTxt="Registrarse"></UserSettingsButtons>
               </section>
             </div>
           </div>
