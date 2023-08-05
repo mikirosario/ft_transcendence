@@ -68,7 +68,7 @@ function B_PlayFriends({ friendGameId, gameType }: PlayButtonProps) {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             disabled={isButtonDisabled} 
-          >PLAY</button>
+          >JUGAR</button>
       </div>
     );
 }

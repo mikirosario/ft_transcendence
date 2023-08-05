@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { MdSend } from 'react-icons/md';
-import { createChannel, getChannelList, joinChannel } from '../../requests/Channel.Service';
+import React, { useState, useEffect, useContext } from 'react';
+import { getChannelList } from '../../requests/Channel.Service';
 import { SocketContext1 } from '../../SocketContext';
 import NotificationContext from '../../NotificationContext';
 
@@ -17,19 +16,9 @@ function ChannelDisplay({ openChat }: { openChat: (id: number) => void }) {
   const { handleNotification } = useContext(NotificationContext);
 
   const [channelList, setChannelList] = useState<Channel[]>([]);
-  const [joinChannelName, setJoinChannelName] = useState('');
-  const [JoinChannelPassword, setJoinChannelPassword] = useState('');
 
   const [isChannelHovered, setIsChannelHovered] = useState(-1);
-  const [isHoveredCreate, setIsHoveredCreate] = useState(false);
-  const [isHoveredJoin, setIsHoveredJoin] = useState(false);
 
-  /*
-  const socketRef = useRef(socket);
-  useEffect(() => {
-    socketRef.current = socket;
-  }, [socket]);
-  */
   useEffect(() => {
 
       const fetchChannels = async () => {

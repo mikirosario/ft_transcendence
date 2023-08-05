@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaSignOutAlt } from 'react-icons/fa';
 import { SocketContext1, SocketContext2 } from '../SocketContext'
 import { get2FAuthUserVerificationRemove } from '../requests/User.Service';
@@ -7,6 +7,7 @@ import { get2FAuthUserVerificationRemove } from '../requests/User.Service';
 const LogoutButton: React.FC = () => {
     const socket1 = useContext(SocketContext1);
     const socket2 = useContext(SocketContext2);
+    const navigate = useNavigate();
 
     const handleLogout = async () => {
         socket1?.off();
@@ -15,6 +16,7 @@ const LogoutButton: React.FC = () => {
         socket2?.disconnect();
         await get2FAuthUserVerificationRemove();
         localStorage.removeItem('token');
+        navigate('/');
     };
 
     const [buttonStyle, setButtonStyle] = useState<React.CSSProperties>({
@@ -43,15 +45,14 @@ const LogoutButton: React.FC = () => {
     };
 
     return (
-        <Link to={'/'} style={{ textDecoration: 'none' }}>
-            <button style={buttonStyle}
-                onClick={handleLogout}
-                onMouseOver={() => setButtonStyle(LogoutButtonHoverStyle)}
-                onMouseOut={() => setButtonStyle({ ...buttonStyle, transform: 'scale(1)', })}>
-                <FaSignOutAlt style={LogoutIconStyle} />
-                Desconectar
-            </button>
-        </Link>
+        <button style={buttonStyle}
+            onClick={handleLogout}
+            onMouseOver={() => setButtonStyle(LogoutButtonHoverStyle)}
+            onMouseOut={() => setButtonStyle({ ...buttonStyle, transform: 'scale(1)', })}>
+            <FaSignOutAlt style={LogoutIconStyle} />
+            Desconectar
+        </button>
+
     );
 };
 

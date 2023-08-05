@@ -26,6 +26,7 @@ const UserProfile: React.FC<Args> = (args) => {
     fontWeight: 'bold',
     fontSize: '1.5vw',
     maxWidth: '90%',
+    whiteSpace: 'nowrap',
   }
 
   return (

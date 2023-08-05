@@ -159,7 +159,6 @@ function Perfil() {
         justifyContent: 'space-between',
         alignItems: 'center',
         color: 'white',
-        // boxSizing: 'border-box',
         padding: '0 3%'
     };
     const MatchImageStyle: React.CSSProperties = {
@@ -177,21 +176,13 @@ function Perfil() {
         textAlign: 'left',
         fontSize: '1vw',
         maxWidth: '75%',
+        whiteSpace: 'nowrap',
     };
 
     const TitleStyle: React.CSSProperties = {
         fontFamily: "'Press Start 2P'",
         fontSize: '18px',
         color: 'lightgray'
-    };
-
-    const ScoreContainerStyle: React.CSSProperties = {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '100%',
-        textAlign: 'center'
     };
 
     return (

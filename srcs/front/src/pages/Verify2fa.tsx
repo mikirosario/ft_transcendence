@@ -44,7 +44,7 @@ function Verify2FA() {
         <div style={NicknamePositionStyle}>
             <div style={NicknameTapeStyle}>
                 <div>
-                    <h1 style={TitleSecondFactorSyle}>Introduce el codigo de 2FA</h1>
+                    <h1 style={TitleSecondFactorSyle}>Introduce el código de 2FA</h1>
                     <div style={SecondFactorSyle}>
                         <VerificationInput userIdArg={userId} />
                     </div>

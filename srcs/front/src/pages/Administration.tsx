@@ -44,7 +44,7 @@ function Administration() {
     }
 
     const InfoCommandsIconStyle: React.CSSProperties = {
-        top: '86.2%',
+        top: '87%',
         left: '67.5%',
         position: 'absolute',
         cursor: 'pointer',
@@ -118,7 +118,7 @@ function Administration() {
     const SendButtonStyle: React.CSSProperties = {
         position: 'absolute',
         right: '8px',
-        bottom: '6%',
+        bottom: '5%',
         background: 'transparent',
         border: 'none',
         color: 'gray',
@@ -195,7 +195,7 @@ function Administration() {
                         style={MessageInputStyle}
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Escribe un mensaje"
+                        placeholder="Manda un Comando"
                         onKeyPress={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault();
