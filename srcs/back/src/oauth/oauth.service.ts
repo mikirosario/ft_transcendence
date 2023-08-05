@@ -95,16 +95,18 @@ export class OAuthService {
 				if (this.config.get('SITE_ADMIN_LOGINS').includes(dto.login))
 					isSiteAdmin = true;
 
+				const nick = await this.createValidNick(dto.login);
+				
 				user = await this.prisma.user.create({
 					data: {
 						email: dto.email,
-						nick: dto.login,
+						nick: nick,
 						login: dto.login,
 						avatarUri: dto.avatar,
 						isSiteOwner: isSiteOwner,
 						isSiteAdmin: isSiteAdmin
 					},
-				})
+				});
 			}
 
 			if (user.isBanned)
@@ -118,5 +120,30 @@ export class OAuthService {
 				ThrowHttpException(error, 'Credentials taken');
 			}
 		}
+	}
+
+	async createValidNick(nick: string) {
+
+		const users = await this.prisma.user.findMany({
+			select: {
+				nick: true,
+			}
+		});
+
+		let availableNick = nick.slice(0, 10);
+		let counter = 1;
+
+		while (users.some((item) => item.nick === availableNick)) {
+			availableNick = `${nick}${counter}`;
+						
+			if (availableNick.length > 10) {
+				const nickLen = 10 - String(counter).length;
+				availableNick = nick.slice(0, nickLen) + String(counter);
+			}
+
+			counter++;
+		}
+
+		return availableNick;
 	}
 }
