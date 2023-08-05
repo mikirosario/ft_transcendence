@@ -90,6 +90,7 @@ function Leaderboard() {
         textAlign: 'left',
         fontSize: '1vw',
         maxWidth: '75%',
+        whiteSpace: 'nowrap',
     };
 
     const TitleStyle: React.CSSProperties = {

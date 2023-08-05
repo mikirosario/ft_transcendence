@@ -143,7 +143,8 @@ function GameFriends() {
         color: '#c0c0c0',
         display: 'flex',
         alignItems: 'center',
-        paddingLeft: '10px'
+        paddingLeft: '10px',
+        whiteSpace: 'nowrap',
     };
 
 
