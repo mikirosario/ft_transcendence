@@ -19,13 +19,13 @@ const VerificationInput: React.FC<VerificationInputProps> = ({ userIdArg }) => {
       setVerificationCode('');
     } else
       navigate(response.URL);
-    
+
   };
 
   const handleVerificationCodeChange = (event: ChangeEvent<HTMLInputElement>) => {
     setVerificationCode(event.target.value);
   };
-  
+
   const SecondFactorButtonSytle: React.CSSProperties = {
     backgroundColor: '#5b8731',
     color: '#FFFFFF',
@@ -36,11 +36,11 @@ const VerificationInput: React.FC<VerificationInputProps> = ({ userIdArg }) => {
     borderRadius: '4px',
     padding: '10px 20px',
     cursor: 'pointer',
-    width: '200px',
-    marginLeft: '3%',
+    width: '220px',
+    marginLeft: '2%',
     transition: 'opacity 0.3s',
   };
-  
+
   const SecondFactorInputStyle: React.CSSProperties = {
     color: 'white',
     fontFamily: "'Press Start 2P'",
@@ -52,17 +52,25 @@ const VerificationInput: React.FC<VerificationInputProps> = ({ userIdArg }) => {
     background: 'transparent',
     transition: 'border-color 0.5s ease',
   };
-  
+
   const ContainerStyle: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     gap: '10px',
   };
-  
+
   return (
     <div style={ContainerStyle}>
-      <input style={SecondFactorInputStyle} type="text" value={verificationCode} onChange={handleVerificationCodeChange} />
-      <button style={SecondFactorButtonSytle} onClick={verify2FA}>Verify 2FA</button>
+      <input style={SecondFactorInputStyle} type="text" value={verificationCode} onChange={handleVerificationCodeChange}
+        onKeyPress={(e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            verify2FA();
+          }
+        }}
+        maxLength={10}
+        />
+      <button style={SecondFactorButtonSytle} onClick={verify2FA}>Verificar 2FA</button>
     </div>
   );
 };
