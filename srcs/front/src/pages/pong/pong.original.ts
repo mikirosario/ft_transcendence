@@ -314,6 +314,15 @@ class Pong
             height: Math.round(newCanvasHeight)
         }
 
+        // Add minimum size constraints
+        const minWidth = this.referenceResolution.width * 0.5;
+        const minHeight = this.referenceResolution.height * 0.5;
+        if (newCanvasWidth < minWidth || newCanvasHeight < minHeight)
+        {
+            // Skip resizing the canvas if below the minimum size
+            return;
+        }
+
         // Save previous canvas resolution
         const prevCanvasResolution: Resolution = {
             width: this.canvas.width,
@@ -339,10 +348,11 @@ class Pong
         {
             if (this.gameState)
             {
-                // Physics update will probably need to be behind a sync check once websocket implemented
                 this.remoteUpdate();
+                // For predictive implementation
                 //this.physicsUpdate();
                 this.gameState = null;
+                // For predictive implementation
                 // this.scoreUpdate();
                 this.clearScreen();
                 this.drawables.forEach((drawable) => {

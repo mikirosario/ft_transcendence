@@ -336,6 +336,15 @@ class PongAlt
             height: Math.round(newCanvasHeight)
         }
 
+        // Add minimum size constraints
+        const minWidth = this.referenceResolution.width * 0.5;
+        const minHeight = this.referenceResolution.height * 0.5;
+        if (newCanvasWidth < minWidth || newCanvasHeight < minHeight)
+        {
+            // Skip resizing the canvas if below the minimum size
+            return;
+        }
+
         // Save previous canvas resolution
         const prevCanvasResolution: Resolution = {
             width: this.canvas.width,
