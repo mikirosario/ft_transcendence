@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "42 Pong",
+  "name": "42 Pong",
   "icons": [
     {
       "src": "favicon.ico",
