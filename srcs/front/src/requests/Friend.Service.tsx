@@ -4,6 +4,30 @@ import { getServerIP } from '../utils/utils';
 axios.defaults.baseURL = getServerIP(3000);
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
 
+
+export async function getUsersList() {
+    try {
+        const response = await axios.get('users/all', {
+            headers: {
+                responseType: 'json',
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            },
+        });
+
+        if (response.status !== 200) {
+            throw new Error('Request failed with status ' + response.status);
+        }
+
+        const usersList = response.data;
+
+        return { users: usersList };
+
+    } catch (error) {
+        console.log('Error:', error);
+        return { users: [] };
+    }
+}
+
 // Obtiene la solicitud de los amigos
 export async function getFriendList() {
     try {

@@ -1,4 +1,4 @@
-FROM node:lts
+FROM node:18-buster
 
 RUN mkdir back
 WORKDIR /back

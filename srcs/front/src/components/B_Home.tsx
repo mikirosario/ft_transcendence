@@ -7,11 +7,14 @@ function B_Home() {
 
     const HomeButton: React.CSSProperties = {
         position: 'absolute',
-        width: '110px',
-        height: '100px',
+        width: '5.5vw',
+        height: '10vh',
         top: '10px',
         left: '10px',
         cursor: 'pointer',
+        minWidth: '50px',
+        minHeight: '50px',
+        zIndex: 999
     };
 
     const GoHomepage = () => {

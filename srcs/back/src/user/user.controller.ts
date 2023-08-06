@@ -18,6 +18,11 @@ export class UserController {
 		return this.userService.getUserById(userId);
 	}
 
+	@Get('all')
+	async getAllUsers(@GetJwt('sub') userId: number) {
+		return this.userService.getAllUsers(userId);
+	}
+
 	/*
 	@Patch('me')
 	@ApiBody({ type: EditUserByAdminDto })

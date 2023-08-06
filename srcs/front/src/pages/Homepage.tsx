@@ -67,7 +67,7 @@ function Home() {
                     <GameButton name="Jugar" width={435} height={155} fsize={48}></GameButton>
                 </section>
                 <section className="B_Play" style={PlayButtonStyle} onClick={GoGameSelector}>
-                    <GameButton name="Jugar con amigos" width={435} height={155} fsize={22}></GameButton>
+                    <GameButton name="Retar" width={435} height={155} fsize={48}></GameButton>
                 </section>
                 <section style={LogoutButtonStyle}>
                     <LogoutButton />

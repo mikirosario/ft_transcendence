@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import HomeButton from "../components/B_Home";
 import PlayButton from "../components/gameSelector/B_PlayFriends";
 import SocialMenu from "../components/chat-friend-menu/SocialMenu";
-import { getFriendList } from '../requests/Friend.Service';
+import { getUsersList } from '../requests/Friend.Service';
 import { getUserImage } from '../requests/User.Service';
 
 interface Friend {
-    userId: number;
+    id: number;
     nick: string;
     avatarUri: string;
     isOnline: boolean;
@@ -18,14 +18,13 @@ function GameFriends() {
     const [friendList, setFriendList] = useState<Friend[]>([]);
     const [isFriendHovered, setIsFriendHovered] = useState(-1);
     const [playWithUserId, setPlayWithUserId] = useState<number>(-1);
-
     const [isOriginal, setisOriginal] = useState(false);
 
 
     useEffect(() => {
         const fetchFriends = async () => {
-            const friendsRequest = await getFriendList();
-            const friendsWithImages = await Promise.all(friendsRequest.friends.map(async (friend: { avatarUri: string; }) => {
+            const friendsRequest = await getUsersList();
+            const friendsWithImages = await Promise.all(friendsRequest.users.map(async (friend: { avatarUri: string; }) => {
                 const imageUrl = await getUserImage(friend.avatarUri);
                 return { ...friend, avatarFile: imageUrl };
             }));
@@ -176,17 +175,17 @@ function GameFriends() {
                                 key={index}
                                 style={friendContainerStyle}
                                 onMouseEnter={() => {
-                                    if (playWithUserId !== friend.userId)
+                                    if (playWithUserId !== friend.id)
                                         setIsFriendHovered(index);
                                 }}
                                 onMouseLeave={() => setIsFriendHovered(-1)}
-                                onClick={() => setPlayWithUserId(friend.userId)}
+                                onClick={() => setPlayWithUserId(friend.id)}
                             >
                                 <div style={{
-                                    transform: (isFriendHovered === index && playWithUserId !== friend.userId) ? 'scale(1.1)' : 'none',
+                                    transform: (isFriendHovered === index && playWithUserId !== friend.id) ? 'scale(1.1)' : 'none',
                                     transition: 'transform 0.3s ease-in-out',
                                 }}>
-                                    <div style={{...avatarWrapperStyle, backgroundColor: playWithUserId === friend.userId ? '#5b8731' : 'transparent'}}>
+                                    <div style={{...avatarWrapperStyle, backgroundColor: playWithUserId === friend.id ? '#5b8731' : 'transparent'}}>
                                         <img
                                             className='FriendAvatar'
                                             alt={'Avatar de' + friend.nick}

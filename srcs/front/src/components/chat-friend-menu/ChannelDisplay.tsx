@@ -44,14 +44,6 @@ function ChannelDisplay({ openChat }: { openChat: (id: number) => void }) {
         setChannelList(newChannelList);
       };
 
-      // const handleKickCommand = async (data: {channelId: number}) => {
-      //   handleNotification('Te han echado/baneado del canal' );
-      //   // console.log(selectedChat);
-      //   // console.log(data.channelId);
-      //   // if (selectedChat === data.channelId) FIX
-      //     openChat(0);
-      // }
-
       fetchChannels();
       socket?.on("UPDATE_CHANNELS_LIST", handleChannelsList);
 
@@ -202,7 +194,6 @@ function ChannelDisplay({ openChat }: { openChat: (id: number) => void }) {
     background: 'transparent',
     position: 'relative',
     cursor: 'pointer',
-    // transition: 'transform 0.3s ease-in-out, background-color 0.3s ease',
     maxHeight: '50px',
     display: 'flex',
     alignItems: 'center',
@@ -234,7 +225,6 @@ function ChannelDisplay({ openChat }: { openChat: (id: number) => void }) {
 
     if (joinChannelName !== '') {
       try {
-
         const resp = await joinChannel(joinChannelName, JoinChannelPassword);
         setJoinChannelName('');
         setJoinChannelPassword('');

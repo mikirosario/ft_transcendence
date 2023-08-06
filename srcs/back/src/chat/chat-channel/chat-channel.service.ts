@@ -57,7 +57,7 @@ export class ChatChannelService {
 
 		} catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				ThrowHttpException(error, 'Already exists a channel with that name');
+				ThrowHttpException(error, 'Ya existe un canal con este nombre');
 			}
 		}
 	}
@@ -96,7 +96,7 @@ export class ChatChannelService {
 
 		} catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				ThrowHttpException(error, 'Already exists a channel with that name');
+				ThrowHttpException(error, 'Ya existe un canal con este nombre');
 			}
 		}
 	}
@@ -118,7 +118,7 @@ export class ChatChannelService {
 			});
 		} catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				ThrowHttpException(error, 'Unknown channel');
+				ThrowHttpException(error, 'Canal desconocido');
 			}
 		}
 
@@ -193,7 +193,7 @@ export class ChatChannelService {
 		});
 
 		if (channelUser == null)
-			ThrowHttpException(new NotFoundException, 'User not in channel');
+			ThrowHttpException(new NotFoundException, 'El usuario no existe en el canal');
 
 		return channelUser;
 	}
@@ -215,7 +215,7 @@ export class ChatChannelService {
 			});
 		} catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				ThrowHttpException(error, 'You are already on this channel');
+				ThrowHttpException(error, 'Ya estas dentro del canal');
 			}
 		}
 	}
@@ -323,7 +323,7 @@ export class ChatChannelService {
 		});
 
 		if (user === null) {
-			ThrowHttpException(new NotFoundException, 'User not found');
+			ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
 		}
 
 		const myChannels = user.chatChannelUser;
