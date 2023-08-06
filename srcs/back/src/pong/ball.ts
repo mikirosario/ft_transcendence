@@ -160,9 +160,10 @@ export class Ball extends Circle implements IPhysicsObject
             this.VelocityVectorX = -this.VelocityVectorX;
         // Current squared magnitude of velocity
         const currentSpeedSquared = this.VelocityVectorX * this.VelocityVectorX + this.VelocityVectorY * this.VelocityVectorY;
+        const referenceSpeedSquared =  this.ReferenceSpeed * this.ReferenceSpeed;
 
         // Check if the squared current speed is different from the squared reference speed
-        if (currentSpeedSquared !== this.ReferenceSpeed * this.ReferenceSpeed)
+        if (currentSpeedSquared !== referenceSpeedSquared)
         {
             const desiredSpeed = this.ReferenceSpeed;
             // Current magnitude of velocity
@@ -236,7 +237,7 @@ export class Ball extends Circle implements IPhysicsObject
         // Teleport the ball ahead of the collidable object on the X axis
         this.Transform.position.x += teleportDistance;
 
-        // Log or otherwise notify that a special shot has occurred
+        // Log indicating that special shot has occurred
         console.log("Special shot activated!");
     }    
 
