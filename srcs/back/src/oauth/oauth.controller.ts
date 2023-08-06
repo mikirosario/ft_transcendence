@@ -5,11 +5,12 @@ import { OAuthDto } from "./dto";
 import { UserOAuthDto } from "../user/dto/user-oauth.dto";
 import { ThrowHttpException } from "../utils/error-handler";
 import { UserService } from "../user/user.service";
+import { ConfigService } from "@nestjs/config";
 
 @Controller('oauth')
 @ApiBearerAuth()
 export class OAuthController {
-    constructor(private oAuthService: OAuthService, private userService: UserService){}
+    constructor(private config: ConfigService, private oAuthService: OAuthService, private userService: UserService){}
 
     @Get('generateAuthURL')
     generateAuthURL() {
@@ -32,13 +33,13 @@ export class OAuthController {
             const user = await this.oAuthService.signup(user42);
 
             if (user.secondFactorSecret)
-                return res.redirect('http://localhost:3001/verify2fa?id=' + user.id);
+                return res.redirect('http://' + this.config.get('REACT_APP_SERVER_ADDRESS') + '/verify2fa?id=' + user.id);
             
             let { access_token } = await this.oAuthService.signToken(user.id, user.email);
-            return res.redirect('http://localhost:3001/register?token=' + access_token);
+            return res.redirect('http://' + this.config.get('REACT_APP_SERVER_ADDRESS') + '/register?token=' + access_token);
             
         } catch (error) {
-            return res.redirect('http://localhost:3001/denied');
+            return res.redirect('http://' + this.config.get('REACT_APP_SERVER_ADDRESS') + '/denied');
         }
     }
 }
