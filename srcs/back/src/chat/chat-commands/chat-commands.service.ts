@@ -34,8 +34,8 @@ export class ChatCommandsService {
 		'/unban': 'Revoca el acceso a un <usuario> de un canal presente',
 		'/setadmin': 'Agrega un <usuario> como administrador del canal',
 		'/unadmin': 'Elimina un <usuario> como administrador del canal',
-		'/changepwd': 'Cambia la por una <contrasena nueva>'
-
+		'/changepwd': 'Cambia la por una <contrasena nueva>',
+		'/duel': 'Reta a otro <usuario> a jugar',
 	};
 
 	constructor(private prisma: PrismaService, private userService: UserService,
@@ -159,6 +159,13 @@ export class ChatCommandsService {
 					password: String(args[0])
 				}
 				return this.changePasswordInChannel(userId, updatePassword);
+
+			case '/duel':
+				if (chatCommandMessageDto.isDirect)
+					return { commandExecuted: true, response: 'Debes ejecutar este comando en un canal', error: true };
+				
+				const otherUserNick: string = String(args[0]);
+				return this.duelUser(userId, chatCommandMessageDto.chat_id, otherUserNick);
 				
 			default:
 				console.log('Comando no reconocido');
@@ -303,6 +310,25 @@ export class ChatCommandsService {
 			return {
 				commandExecuted: true,
 				response: 'Has quitado el permiso de administrador de canal a ' + dto.nick,
+				error: false
+			};
+		} catch (error) {
+			return { commandExecuted: true, response: error.response.message, error: true };
+		}
+	}
+
+	private async duelUser(userId: number, chatId: number, otherUserNick: string) {
+		try {
+			const user = await this.userService.getUserById(userId);
+			const otherUser = await this.userService.getUserByNick(otherUserNick);
+			await this.chatChannelService.getChannelUser(chatId, otherUser.id);
+
+			this.ws.sendSocketMessageToUser(otherUser.id, 'DUEL', {nick: user.nick});
+			this.ws.sendSocketMessageToUser(user.id, 'GO_GAME', {userId: otherUser.id});
+			
+			return {
+				commandExecuted: true,
+				response: 'Has retado a jugar a ' + otherUserNick,
 				error: false
 			};
 		} catch (error) {
