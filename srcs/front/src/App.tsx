@@ -14,7 +14,7 @@ import Perfil from './pages/Perfil';
 import Leaderboard from './pages/Leaderboard';
 
 import { SocketProvider1, SocketProvider2 } from './SocketContext';
-import GameFriends from './pages/GameFriends';
+import GameFriends from './pages/GameDuel';
 import Verify2FA from './pages/Verify2fa';
 
 

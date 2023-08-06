@@ -320,6 +320,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                             </>
                         ) : (
                             <>
+                                <li style={{ fontSize: '14px' }}>/duel {usuario}: Reta a un usuario a jugar</li>
                                 <li style={{ fontSize: '14px' }}>/mute {usuario} {tiempo}: Silencia a un usuario un determinado tiempo en segundos</li>
                                 <li style={{ fontSize: '14px' }}>/unmute {usuario}: Desilencia a un usuario</li>
                                 <li style={{ fontSize: '14px' }}>/kick {usuario}: Echa a un usuario del canal</li>
