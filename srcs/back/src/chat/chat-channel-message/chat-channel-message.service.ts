@@ -25,7 +25,7 @@ export class ChatChannelMessageService {
 		await this.chatChannelService.getChannelUser(channel.id, user.id);
 
 		if (await this.chatChannelService.isUserBanned(channel.id, user.id))
-			ThrowHttpException(new UnauthorizedException, 'Not authorized to send message, you are blocked from channel.');
+			ThrowHttpException(new UnauthorizedException, 'No puedes mandar mensajes, estas bloqueado del canal');
 
 
 		const response: any = await this.chatCommandsService.executeCommand(userId, {isDirect: false, chat_id: dto.channel_id, message: dto.message});
@@ -37,7 +37,7 @@ export class ChatChannelMessageService {
 
 
 		if (await this.chatChannelService.isUserMuted(channel.id, user.id))
-			ThrowHttpException(new UnauthorizedException, 'Not authorized to send message, you are muted on channel.');
+			ThrowHttpException(new UnauthorizedException, 'No puedes mandar mensajes, estas silenciado del canal');
 
 
 		try {
@@ -84,7 +84,7 @@ export class ChatChannelMessageService {
 
 		} catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				ThrowHttpException(error, 'Error sending message to channel');
+				ThrowHttpException(error, 'Error al mandar el mensaje');
 			}
 		}
 	}

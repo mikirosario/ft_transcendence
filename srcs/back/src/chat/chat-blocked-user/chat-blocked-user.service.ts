@@ -34,7 +34,7 @@ export class ChatBlockedUserService {
 
 		} catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				ThrowHttpException(error, 'You have already blocked this user.');
+				ThrowHttpException(error, 'Ya has bloqueado a este usuario');
 			}
 		}
 	}
@@ -51,7 +51,7 @@ export class ChatBlockedUserService {
 		});
 
 		if (!blockedUser)
-			ThrowHttpException(new NotFoundException, 'User was not blocked.');
+			ThrowHttpException(new NotFoundException, 'No se ha podido bloquear al usuario');
 
 		await this.prisma.chatBlockedUser.delete({
 			where: {
@@ -90,7 +90,7 @@ export class ChatBlockedUserService {
 		});
 
 		if (user === null) {
-			ThrowHttpException(new NotFoundException, 'User not found');
+			ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
 		}
 
 		const blockedUsers = user.chatBlockedUser;
