@@ -72,17 +72,7 @@ function PongPage({ gameType }: PlayButtonProps) {
             
         };
     }, [gameUserId, spectateUserId]);
-
-    // useEffect(() => {
-    //     var font = new FontFace('press_start_2p', 'url(/fonts/PressStart2P-Regular.ttf) format(\'truetype\')', { style: 'normal', weight: 'normal' });
-        
-    //     font.load().then(function (loadedFont) {
-    //         document.fonts.add(loadedFont);
-    //         document.body.style.fontFamily = 'press_start_2p, monospace, sans-serif';
-    //     }).catch(function (error) {
-    //         console.log('Failed to load font: ' + error);
-    //     });
-    // }, []);
+    
     
     const [counter, setCounter] = useState(0);
  
