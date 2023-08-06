@@ -490,5 +490,20 @@ export class UserService {
 
 		return gameRankingUsersFormatted;
 	}
+
+	async getAllUsers(userId: number) {
+		const users = await this.prisma.user.findMany({
+			select: {
+				id: true,
+				nick: true,
+				avatarUri: true
+			}
+		});
+		
+		if (!users)
+			return [];
+
+		return users;
+	}
 }
 

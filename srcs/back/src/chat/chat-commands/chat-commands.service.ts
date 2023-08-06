@@ -323,7 +323,7 @@ export class ChatCommandsService {
 			const otherUser = await this.userService.getUserByNick(otherUserNick);
 			await this.chatChannelService.getChannelUser(chatId, otherUser.id);
 
-			this.ws.sendSocketMessageToUser(otherUser.id, 'DUEL', {nick: user.nick});
+			this.ws.sendSocketMessageToUser(otherUser.id, 'DUEL', {userId: user.id, nick: user.nick});
 			this.ws.sendSocketMessageToUser(user.id, 'GO_GAME', {userId: otherUser.id});
 			
 			return {
