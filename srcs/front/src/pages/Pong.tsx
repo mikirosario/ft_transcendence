@@ -111,6 +111,9 @@ function PongPage({ gameType }: PlayButtonProps) {
         backgroundColor: "blue",
         display: 'inline-block',
         position: 'relative',
+        margin: 0,
+        padding: 0,
+        lineHeight: '0',
     };
 
     const PageStyle: React.CSSProperties = {
