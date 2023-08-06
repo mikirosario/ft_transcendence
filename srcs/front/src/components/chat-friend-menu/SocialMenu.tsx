@@ -14,11 +14,9 @@ import NotificationContext from '../../NotificationContext';
 
 function Menu() {
 	const socket = useContext(SocketContext1);
-	// const socket2 = useContext(SocketContext2);
 
 	const initialIsMenuExpanded = localStorage.getItem("isMenuExpanded") === "true";
 	const initialSelectedButton = localStorage.getItem("selectedButton") || 'friend';
-	// const initialSelectedChat = localStorage.getItem("selectedChat") ? parseInt(localStorage.getItem("selectedChat")!) : null;
 
 	const [username, setUsername] = useState('');
 	const [userImage, setUserImage] = useState<string>('');
@@ -71,7 +69,13 @@ function Menu() {
 			}
 		}
 
+		const handleDuelCommand = async (data: { userId: number, nick: string }) => {
+            handleNotification(data.nick + 'Te ha retado a un duelo de Pong');
+			// TODO: Boton de aceptar duelo y te redirige 
+        }
+
 		socket?.on("UPDATE_ME", handleMyInfo);
+		socket?.on("DUEL", handleDuelCommand);
 
 		fetchUserProfile();
 
