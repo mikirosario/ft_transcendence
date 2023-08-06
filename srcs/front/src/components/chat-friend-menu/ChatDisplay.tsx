@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { IoMdArrowRoundBack, IoMdSend } from 'react-icons/io';
 import { FaSignOutAlt, FaInfoCircle } from 'react-icons/fa';
 import { getChatDirect, sendDirectMessage, getChatChannel, sendChannelMessage } from '../../requests/Chat.Service';
@@ -45,6 +45,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
     const [usersMap, setUsersMap] = useState<User[]>([]);
     const [message, setMessage] = useState('');
     const [showCommands, setShowCommands] = useState(false);
+    const navigate = useNavigate();
 
     const toggleCommands = () => {
         setShowCommands(!showCommands);
@@ -102,6 +103,11 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                 setSelectedChat(0);
         }
 
+
+        const handleGoDuelCommand = async (data: { userId: number }) => {
+                navigate('/pong/' + String(data.userId));
+        }
+
         fetchData();
         if (isFriendChat)
             socket?.on("NEW_DIRECT_MESSAGE", handleNewDirectMessages);
@@ -110,6 +116,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
             socket?.on("UPDATE_CHANNEL_USERS_LIST_JOIN", handleUpdateChannelJoin);
             socket?.on("UPDATE_CHANNEL_USERS_LIST_LEAVE", handleUpdateChannelJoin);
             socket?.on("KICK_FROM_CHANNEL", handleKickCommand);
+            socket?.on("GO_GAME", handleGoDuelCommand);
         }
 
 
