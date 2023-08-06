@@ -53,7 +53,7 @@ export class ChatChannelBannedUserService {
 
 		} catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				ThrowHttpException(error, 'Unknown error updating banned user');
+				ThrowHttpException(error, 'Error al banear a un usuario');
 			}
 		}
 
@@ -90,7 +90,7 @@ export class ChatChannelBannedUserService {
 
 		} catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				ThrowHttpException(error, 'Unknown error updating muted user');
+				ThrowHttpException(error, 'Error al silenciar a un usuario');
 			}
 		}
 	}

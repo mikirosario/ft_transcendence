@@ -85,10 +85,10 @@ export async function sendChannelMessage(id: number, content: string) {
             throw new Error('Request failed with status ' + response.status);
         }
 
-        return true;
+        return response.data;
 
     } catch (error) {
-        console.log('Error: Could not remove that friend', error);
-        return false;
+        console.log('Error: Could not send the message', error);
+        return null;
     }
 }
