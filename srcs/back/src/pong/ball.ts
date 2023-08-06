@@ -6,6 +6,7 @@ import { isInRange, normalizeRange } from "./utils";
 
 export class Ball extends Circle implements IPhysicsObject
 {
+    private readonly SPECIALSHOT_SPEED_MULTIPLIER = 3;
     private isColliderActive: boolean;
     private isInPlay: boolean;
     private velocityVectorX: number;
@@ -83,8 +84,8 @@ export class Ball extends Circle implements IPhysicsObject
     constructor(transform: Transform, color: string, speed: number, radius: number, direction: Direction, options: RigidBodyOptions = {} )
     {
         super(transform, color, radius, { SetActive: options.SetActive });
-        this.velocityVectorX = direction.x;
-        this.velocityVectorY = direction.y;
+        this.velocityVectorX = direction.x * speed;
+        this.velocityVectorY = direction.y * speed;
         this.isColliderActive = options.SetCollider === undefined ? false : options.SetCollider;
         this.isInPlay = true;
         this.referenceSpeed = speed;
@@ -110,11 +111,10 @@ export class Ball extends Circle implements IPhysicsObject
         const bounceAngleInRadians = collisionPointY * QUARTER_CIRCLE_IN_RADIANS;
         const newVelocityVectorX = Math.cos(bounceAngleInRadians);
 
-        console
         if (isSideCollision) // Side collisions invert the X direction of motion
-            this.VelocityVectorX = newVelocityVectorX * -referenceDirectionX;
+            this.VelocityVectorX = newVelocityVectorX * -referenceDirectionX * this.ReferenceSpeed;
         else                 // Top or bottom collisions continue the X direction of motion
-            this.VelocityVectorX = newVelocityVectorX * referenceDirectionX;
+            this.VelocityVectorX = newVelocityVectorX * referenceDirectionX * this.ReferenceSpeed;
         // Update the Y component of the velocity
         this.VelocityVectorY = Math.sin(bounceAngleInRadians);
     }
@@ -129,8 +129,8 @@ export class Ball extends Circle implements IPhysicsObject
                 nextPosition.y + this.HalfHeight > canvas.height
                 || nextPosition.y - this.HalfHeight < 0
                 );
-            }
-            return willCollide;
+        }
+        return willCollide;
     }
 
     public willCollide(collidable: IPhysicsObject): boolean
@@ -147,16 +147,35 @@ export class Ball extends Circle implements IPhysicsObject
                 || otherBoundingBox.bottom <= thisBoundingBox.top
                 )
             }
-            return willCollide;
-        }
+        return willCollide;
+    }
         
-        public resetBall(currentResolution: Resolution)
-        {
-            this.Transform.position = {
-                x: Math.round(currentResolution.width * 0.5),
+    public resetBall(currentResolution: Resolution)
+    {
+        this.Transform.position = {
+            x: Math.round(currentResolution.width * 0.5),
             y: Math.round(currentResolution.height * 0.5)
         }
-        this.VelocityVectorX = -this.VelocityVectorX;
+        // Invert the X component of the velocity vector
+            this.VelocityVectorX = -this.VelocityVectorX;
+        // Current squared magnitude of velocity
+        const currentSpeedSquared = this.VelocityVectorX * this.VelocityVectorX + this.VelocityVectorY * this.VelocityVectorY;
+
+        // Check if the squared current speed is different from the squared reference speed
+        if (currentSpeedSquared !== this.ReferenceSpeed * this.ReferenceSpeed)
+        {
+            const desiredSpeed = this.ReferenceSpeed;
+            // Current magnitude of velocity
+            const currentSpeed = Math.sqrt(currentSpeedSquared);
+
+            // Current direction of motion
+            let directionX = this.VelocityVectorX / currentSpeed;
+            let directionY = this.VelocityVectorY / currentSpeed;
+
+            // Apply the desired speed to the current direction
+            this.VelocityVectorX = directionX * desiredSpeed;
+            this.VelocityVectorY = directionY * desiredSpeed;
+        }
     }
     
     /**
@@ -191,6 +210,36 @@ export class Ball extends Circle implements IPhysicsObject
        return normalizeRange(this.NextPosition.x - collidable.NextPosition.x, -halfOffsetRange, halfOffsetRange);
     }
 
+    private isSpecialShotCollision(collisionPointX: number, willCollideCanvas: boolean)
+    {
+        return isInRange(collisionPointX, -1, 1) && willCollideCanvas;
+    }
+
+    private specialShot(collidable: IPhysicsObject, collisionPointX: number, referenceResolution: Resolution): void {
+        // Determine the direction of the special shot based on the side of the game board
+        const directionX = this.Transform.position.x < referenceResolution.width / 2 ? 1 : -1;
+
+        // Set the new X and Y velocity for the special shot
+        this.VelocityVectorX = directionX * this.SPECIALSHOT_SPEED_MULTIPLIER;
+        this.VelocityVectorY = 0;
+
+        // Determine the Y position along the upper or lower edge of the canvas
+        const edgePositionY = this.Transform.position.y < referenceResolution.height / 2 ? 0 : referenceResolution.height;
+
+        // Set the ball's Y position to align with the edge of the canvas, accounting for the radius
+        this.Transform.position.y = edgePositionY + this.HalfHeight * (edgePositionY === 0 ? 1 : -1);
+
+        // Determine the teleportation distance based on collisionPointX and directionX
+        // Here, we multiply by the object's width to determine the teleport distance to the right or left edge of the collidable
+        const teleportDistance = collisionPointX * directionX * this.HalfWidth * 2;
+
+        // Teleport the ball ahead of the collidable object on the X axis
+        this.Transform.position.x += teleportDistance;
+
+        // Log or otherwise notify that a special shot has occurred
+        console.log("Special shot activated!");
+    }    
+
     private rescaleSpeed(scaleFactors: ScaleFactors)
     {
         const scale = Math.min(scaleFactors.scaleX, scaleFactors.scaleY);
@@ -207,12 +256,23 @@ export class Ball extends Circle implements IPhysicsObject
     {
         if (this.IsActive)
         {
+            let willCollideCanvas: boolean = this.willCollideCanvas(referenceResolution);
             if (this.willCollideCanvas(referenceResolution))
                 this.bounceY();
-            physObjects.forEach((physObject) => {
-                if (this.willCollide(physObject))
-                    this.bounceBack(physObject);
-            })
+                physObjects.forEach((physObject) => {
+                    if (this.willCollide(physObject))
+                    {
+                        const collisionPointX = this.whereWillCollideX(physObject);
+                        if (this.isSpecialShotCollision(collisionPointX, willCollideCanvas)) // New method to determine special collision
+                        {
+                            this.specialShot(physObject, collisionPointX, referenceResolution); // New method to handle special shot
+                        }
+                        else
+                        {
+                            this.bounceBack(physObject);
+                        }
+                    }
+                })
             this.Transform.position.x += this.VelocityVectorX * this.ReferenceSpeed;
             this.Transform.position.y += this.VelocityVectorY * this.ReferenceSpeed;
         }
