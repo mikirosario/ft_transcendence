@@ -1,4 +1,4 @@
-FROM node:lts
+FROM node:current-bullseye
 
 RUN mkdir back
 WORKDIR /back
