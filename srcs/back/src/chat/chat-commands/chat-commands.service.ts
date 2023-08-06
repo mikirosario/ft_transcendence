@@ -34,7 +34,7 @@ export class ChatCommandsService {
 		'/unban': 'Revoca el acceso a un <usuario> de un canal presente',
 		'/setadmin': 'Agrega un <usuario> como administrador del canal',
 		'/unadmin': 'Elimina un <usuario> como administrador del canal',
-		'/changepwd': 'Cambia la <contrasena actual> por una <contrasena nueva>'
+		'/changepwd': 'Cambia la por una <contrasena nueva>'
 
 	};
 
@@ -65,13 +65,6 @@ export class ChatCommandsService {
 		const commandNotExecuted = { commandExecuted: false, response: '', error: false };
 
 		switch (command) {
-			case '/help':
-				// Si el comando es /help, mostrar la lista de comandos
-				console.log('Lista de comandos:');
-				for (let cmd in this.commands) {
-					console.log(cmd + ' - ' + this.commands[cmd]);
-				}
-				break;
 
 			case '/block':
 				const blockUserDto: ChatBlockedDto = { 'nick': String(args[0]) };

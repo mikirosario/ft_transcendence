@@ -36,7 +36,6 @@ interface User {
 const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat, isFriendChat }) => {
     const usuario = '<usuario>';
     const tiempo = '<tiempo>';
-    const oldPWD = '<antigua contraseña>';
     const newPWD = '<nueva contraseña>';
     const socket = useContext(SocketContext1);
 
@@ -112,6 +111,8 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
             socket?.on("UPDATE_CHANNEL_USERS_LIST_LEAVE", handleUpdateChannelJoin);
             socket?.on("KICK_FROM_CHANNEL", handleKickCommand);
         }
+
+
 
         // return () => {
         //     socket?.off();
@@ -281,6 +282,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     const resp = await sendChannelMessage(selectedChat, message);
                     if (!resp)
                         handleNotification('El mensaje no se ha podido mandar');
+                    handleNotification(resp.response)
                 }
                 setMessage('');
             }
@@ -325,15 +327,12 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                                 <li style={{ fontSize: '14px' }}>/unban {usuario}: Revoca el acceso a un usuario al canal presente</li>
                                 <li style={{ fontSize: '14px' }}>/setadmin {usuario}: Da el permiso de admin a un usuario en el canal presente</li>
                                 <li style={{ fontSize: '14px' }}>/unsetadmin {usuario}: Quita el persmiso de admin a un usuario en el canal presente</li>
-                                <li style={{ fontSize: '14px' }}>/changepwd {oldPWD} {newPWD}: Actualiza la contraseña del canal a una nueva especificada</li>
+                                <li style={{ fontSize: '14px' }}>/changepwd {newPWD}: Actualiza la contraseña del canal a una nueva especificada</li>
                             </>
-                        )
-
-                        }
+                        )}
                     </ul>
                 </div>
             )}
-
 
             {!isFriendChat &&
                 <button style={LeaveIconStyle} onClick={leaveChatChannel}>
