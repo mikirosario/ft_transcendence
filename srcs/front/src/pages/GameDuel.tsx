@@ -175,17 +175,17 @@ function GameFriends() {
                                 key={index}
                                 style={friendContainerStyle}
                                 onMouseEnter={() => {
-                                    if (playWithUserId !== friend.userId)
+                                    if (playWithUserId !== friend.id)
                                         setIsFriendHovered(index);
                                 }}
                                 onMouseLeave={() => setIsFriendHovered(-1)}
-                                onClick={() => setPlayWithUserId(friend.userId)}
+                                onClick={() => setPlayWithUserId(friend.id)}
                             >
                                 <div style={{
-                                    transform: (isFriendHovered === index && playWithUserId !== friend.userId) ? 'scale(1.1)' : 'none',
+                                    transform: (isFriendHovered === index && playWithUserId !== friend.id) ? 'scale(1.1)' : 'none',
                                     transition: 'transform 0.3s ease-in-out',
                                 }}>
-                                    <div style={{...avatarWrapperStyle, backgroundColor: playWithUserId === friend.userId ? '#5b8731' : 'transparent'}}>
+                                    <div style={{...avatarWrapperStyle, backgroundColor: playWithUserId === friend.id ? '#5b8731' : 'transparent'}}>
                                         <img
                                             className='FriendAvatar'
                                             alt={'Avatar de' + friend.nick}
