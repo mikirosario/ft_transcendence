@@ -84,8 +84,8 @@ export class Ball extends Circle implements IPhysicsObject
     constructor(transform: Transform, color: string, speed: number, radius: number, direction: Direction, options: RigidBodyOptions = {} )
     {
         super(transform, color, radius, { SetActive: options.SetActive });
-        this.velocityVectorX = direction.x;
-        this.velocityVectorY = direction.y;
+        this.velocityVectorX = direction.x * speed;
+        this.velocityVectorY = direction.y * speed;
         this.isColliderActive = options.SetCollider === undefined ? false : options.SetCollider;
         this.isInPlay = true;
         this.referenceSpeed = speed;
@@ -112,9 +112,9 @@ export class Ball extends Circle implements IPhysicsObject
         const newVelocityVectorX = Math.cos(bounceAngleInRadians);
 
         if (isSideCollision) // Side collisions invert the X direction of motion
-            this.VelocityVectorX = newVelocityVectorX * -referenceDirectionX;
+            this.VelocityVectorX = newVelocityVectorX * -referenceDirectionX * this.ReferenceSpeed;
         else                 // Top or bottom collisions continue the X direction of motion
-            this.VelocityVectorX = newVelocityVectorX * referenceDirectionX;
+            this.VelocityVectorX = newVelocityVectorX * referenceDirectionX * this.ReferenceSpeed;
         // Update the Y component of the velocity
         this.VelocityVectorY = Math.sin(bounceAngleInRadians);
     }
@@ -156,7 +156,26 @@ export class Ball extends Circle implements IPhysicsObject
             x: Math.round(currentResolution.width * 0.5),
             y: Math.round(currentResolution.height * 0.5)
         }
-        this.VelocityVectorX = -this.VelocityVectorX;
+        // Invert the X component of the velocity vector
+            this.VelocityVectorX = -this.VelocityVectorX;
+        // Current squared magnitude of velocity
+        const currentSpeedSquared = this.VelocityVectorX * this.VelocityVectorX + this.VelocityVectorY * this.VelocityVectorY;
+
+        // Check if the squared current speed is different from the squared reference speed
+        if (currentSpeedSquared !== this.ReferenceSpeed * this.ReferenceSpeed)
+        {
+            const desiredSpeed = this.ReferenceSpeed;
+            // Current magnitude of velocity
+            const currentSpeed = Math.sqrt(currentSpeedSquared);
+
+            // Current direction of motion
+            let directionX = this.VelocityVectorX / currentSpeed;
+            let directionY = this.VelocityVectorY / currentSpeed;
+
+            // Apply the desired speed to the current direction
+            this.VelocityVectorX = directionX * desiredSpeed;
+            this.VelocityVectorY = directionY * desiredSpeed;
+        }
     }
     
     /**
