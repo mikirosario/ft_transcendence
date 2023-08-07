@@ -222,19 +222,28 @@ export class Ball extends Circle implements IPhysicsObject
         return isInRange(collisionPointX, -1, 1) && willCollideCanvas;
     }
 
-    private specialShot(collidable: IPhysicsObject, collisionPointX: number, referenceResolution: Resolution): void {
-        // Determine the direction of the special shot based on the side of the game board
+    private specialShot(collidable: IPhysicsObject, collisionPointX: number, referenceResolution: Resolution): void
+    {
+        // Determine the direction of the special shot based on the side of the game board (1 is right, -1 is left)
         const directionX = this.Transform.position.x < referenceResolution.width * 0.5 ? 1 : -1;
 
         // Set the new X and Y velocity for the special shot
-        this.VelocityVectorX = directionX * this.SPECIALSHOT_SPEED_MULTIPLIER;
+        this.VelocityVectorX = directionX * this.ReferenceSpeed * this.SPECIALSHOT_SPEED_MULTIPLIER;
         this.VelocityVectorY = 0;
 
-        // Determine the Y position along the upper or lower edge of the canvas
-        const edgePositionY = this.Transform.position.y < referenceResolution.height * 0.5 ? 1 : referenceResolution.height - 1;
+        // Determine the half of the board the ball is in
+        const isTopHalf = this.Transform.position.y < referenceResolution.height * 0.5;
 
-        // Set the ball's Y position to align with the edge of the canvas, accounting for the radius
-        this.Transform.position.y = edgePositionY + this.HalfHeight * (edgePositionY === 0 ? 1 : -1);
+        if (isTopHalf)
+        {
+            // Set the Y position along the upper edge of the canvas, accounting for the radius
+            this.Transform.position.y = 1 + this.HalfHeight;
+        }
+        else
+        {
+            // Set the Y position along the lower edge of the canvas, accounting for the radius
+            this.Transform.position.y = referenceResolution.height - 1 - this.HalfHeight;
+        }
 
         // Determine the teleportation distance based on collisionPointX and directionX
         // Here, we multiply by the object's width to determine the teleport distance to the right or left edge of the collidable
