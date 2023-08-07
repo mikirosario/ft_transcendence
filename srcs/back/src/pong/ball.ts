@@ -217,15 +217,24 @@ export class Ball extends Circle implements IPhysicsObject
        return normalizeRange(this.NextPosition.x - collidable.NextPosition.x, -halfOffsetRange, halfOffsetRange);
     }
 
-    private isSpecialShotCollision(collisionPointX: number, willCollideCanvas: boolean)
+    private isSpecialShotCollision(collisionPointX: number, collidable: IPhysicsObject, willCollideCanvas: boolean)
     {
-        return isInRange(collisionPointX, -1, 1) && willCollideCanvas;
+        return (isInRange(collisionPointX, -1.1, 1.1) || this.isOverlapping(collidable)) && willCollideCanvas;
     }
 
-    private specialShot(collidable: IPhysicsObject, collisionPointX: number, referenceResolution: Resolution): void
+    private isOverlapping(collidable: IPhysicsObject)
+    {
+        return !(this.BoundingBoxPosition.left > collidable.BoundingBoxPosition.right
+            || this.BoundingBoxPosition.right < collidable.BoundingBoxPosition.left
+            || this.BoundingBoxPosition.bottom < collidable.BoundingBoxPosition.top
+            || this.BoundingBoxPosition.top > collidable.BoundingBoxPosition.bottom);
+    }
+
+    private specialShot(collidable: IPhysicsObject, referenceResolution: Resolution): void
     {
         // Determine the direction of the special shot based on the side of the game board (1 is right, -1 is left)
-        const directionX = this.Transform.position.x < referenceResolution.width * 0.5 ? 1 : -1;
+        const isLeftSide = this.Transform.position.x < referenceResolution.width * 0.5;
+        const directionX = isLeftSide ? 1 : -1;
 
         // Set the new X and Y velocity for the special shot
         this.VelocityVectorX = directionX * this.ReferenceSpeed * this.SPECIALSHOT_SPEED_MULTIPLIER;
@@ -245,16 +254,19 @@ export class Ball extends Circle implements IPhysicsObject
             this.Transform.position.y = referenceResolution.height - 1 - this.HalfHeight;
         }
 
-        // Determine the teleportation distance based on collisionPointX and directionX
-        // Here, we multiply by the object's width to determine the teleport distance to the right or left edge of the collidable
-        const teleportDistance = collisionPointX * directionX * this.HalfWidth * 2;
-
         // Teleport the ball ahead of the collidable object on the X axis
-        this.Transform.position.x += teleportDistance;
+        if (isLeftSide)
+        {
+            this.Transform.position.x = collidable.BoundingBoxPosition.right + this.HalfWidth + 1;
+        }
+        else
+        {
+            this.Transform.position.x = collidable.BoundingBoxPosition.left - this.HalfWidth - 1;
+        }
 
         // Log indicating that special shot has occurred
         console.log("Special shot activated!");
-    }    
+    }
 
     private rescaleSpeed(scaleFactors: ScaleFactors)
     {
@@ -279,9 +291,9 @@ export class Ball extends Circle implements IPhysicsObject
                     if (this.willCollide(physObject))
                     {
                         const collisionPointX = this.whereWillCollideX(physObject);
-                        if (this.isSpecialShotCollision(collisionPointX, willCollideCanvas)) // New method to determine special collision
+                        if (this.isSpecialShotCollision(collisionPointX, physObject, willCollideCanvas)) // New method to determine special collision
                         {
-                            this.specialShot(physObject, collisionPointX, referenceResolution); // New method to handle special shot
+                            this.specialShot(physObject, referenceResolution); // New method to handle special shot
                         }
                         else
                         {
