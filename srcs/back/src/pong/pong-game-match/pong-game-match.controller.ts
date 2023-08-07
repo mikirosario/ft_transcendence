@@ -1,8 +1,9 @@
-import { Controller, UseGuards, Get, Query } from "@nestjs/common";
+import { Controller, UseGuards, Get, Query, Post, Body } from "@nestjs/common";
 import { ApiBody, ApiBearerAuth } from "@nestjs/swagger"
 import { JwtGuard } from "../../auth/guard";
 import { GetJwt } from "../../auth/decorator";
 import { PongGameMatchService } from "./pong-game-match.service";
+import { PongDuelDto } from './dto';
 
 
 @UseGuards(JwtGuard)
@@ -22,5 +23,10 @@ export class PongGameMatchController {
 		return this.pongGameMatchService.getGameRanking(userId);
 	}
 
+	@Post('game/duel')
+	@ApiBody({ type: PongDuelDto })
+	async duelUserByNick(@GetJwt('sub') userId: number, @Body() dto: PongDuelDto) {
+		return this.duelUserByNick(userId, dto);
+	}
 
 }
