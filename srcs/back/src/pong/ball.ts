@@ -115,8 +115,14 @@ export class Ball extends Circle implements IPhysicsObject
             this.VelocityVectorX = newVelocityVectorX * -referenceDirectionX * this.ReferenceSpeed;
         else                 // Top or bottom collisions continue the X direction of motion
             this.VelocityVectorX = newVelocityVectorX * referenceDirectionX * this.ReferenceSpeed;
+        
         // Update the Y component of the velocity
         this.VelocityVectorY = Math.sin(bounceAngleInRadians);
+
+        // Incorporate the paddle's momentum
+        const momentumTransferFactor = 0.5;
+        this.VelocityVectorX += physObject.VelocityVectorX * momentumTransferFactor;
+        this.VelocityVectorY += physObject.VelocityVectorY * momentumTransferFactor;
     }
     
     public willCollideCanvas(canvas: Resolution): boolean
@@ -218,14 +224,14 @@ export class Ball extends Circle implements IPhysicsObject
 
     private specialShot(collidable: IPhysicsObject, collisionPointX: number, referenceResolution: Resolution): void {
         // Determine the direction of the special shot based on the side of the game board
-        const directionX = this.Transform.position.x < referenceResolution.width / 2 ? 1 : -1;
+        const directionX = this.Transform.position.x < referenceResolution.width * 0.5 ? 1 : -1;
 
         // Set the new X and Y velocity for the special shot
         this.VelocityVectorX = directionX * this.SPECIALSHOT_SPEED_MULTIPLIER;
         this.VelocityVectorY = 0;
 
         // Determine the Y position along the upper or lower edge of the canvas
-        const edgePositionY = this.Transform.position.y < referenceResolution.height / 2 ? 0 : referenceResolution.height;
+        const edgePositionY = this.Transform.position.y < referenceResolution.height * 0.5 ? 1 : referenceResolution.height - 1;
 
         // Set the ball's Y position to align with the edge of the canvas, accounting for the radius
         this.Transform.position.y = edgePositionY + this.HalfHeight * (edgePositionY === 0 ? 1 : -1);
