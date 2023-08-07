@@ -493,6 +493,11 @@ export class UserService {
 
 	async getAllUsers(userId: number) {
 		const users = await this.prisma.user.findMany({
+			where: {
+				NOT: {
+				  id: userId
+				}
+			},
 			select: {
 				id: true,
 				nick: true,

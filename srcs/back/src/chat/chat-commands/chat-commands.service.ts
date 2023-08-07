@@ -323,6 +323,9 @@ export class ChatCommandsService {
 			const otherUser = await this.userService.getUserByNick(otherUserNick);
 			await this.chatChannelService.getChannelUser(chatId, otherUser.id);
 
+			if (userId == otherUser.id)
+				ThrowHttpException(new BadRequestException, 'No puedes jugar contigo mismo! Reta a otros jugadores');
+
 			this.ws.sendSocketMessageToUser(otherUser.id, 'DUEL', {userId: user.id, nick: user.nick});
 			this.ws.sendSocketMessageToUser(user.id, 'GO_GAME', {userId: otherUser.id});
 			

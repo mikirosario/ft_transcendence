@@ -4,7 +4,7 @@ import { Navigate, useNavigate, useLocation, Link } from "react-router-dom";
 import { get2FAuthUserVerificationRemove, getUserProfile } from '../../requests/User.Service';
 import FriendDisplay from "./FriendDisplay";
 import ChannelDisplay from "./ChannelDisplay"
-import { FaAngleRight, FaAngleLeft, FaCrown } from 'react-icons/fa';
+import { FaAngleRight, FaAngleLeft, FaCrown, FaCheck } from 'react-icons/fa';
 import { IoMdSettings } from 'react-icons/io';
 import ChatDisplay from "./ChatDisplay";
 import { SocketContext1, SocketContext2 } from '../../SocketContext';
@@ -28,6 +28,8 @@ function Menu() {
 
 	const [notifications, setNotifications] = useState<Array<{ id: number; content: string }>>([]);
 	const [showNotification, setShowNotification] = useState(false);
+	const [showDuelButton, setShowDuelButton] = useState(false);
+	const [duelId, setDuelId] = useState(0);
 
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -70,9 +72,15 @@ function Menu() {
 		}
 
 		const handleDuelCommand = async (data: { userId: number, nick: string }) => {
-            handleNotification(data.nick + 'Te ha retado a un duelo de Pong');
-			// TODO: Boton de aceptar duelo y te redirige 
-        }
+			handleNotification(data.nick + ' te ha retado a un duelo de Pong');
+			setDuelId(data.userId);
+			setShowDuelButton(true);
+
+			setTimeout(() => {
+				setShowDuelButton(false);
+			}, 8000);
+
+		}
 
 		socket?.on("UPDATE_ME", handleMyInfo);
 		socket?.on("DUEL", handleDuelCommand);
@@ -99,7 +107,7 @@ function Menu() {
 
 		if (selectedButton !== '')
 			setSelectedChat(0);
-		
+
 
 	}, [selectedButton]);
 
@@ -211,23 +219,33 @@ function Menu() {
 			transition: 'right 0.5s ease',
 		};
 
-	const notificationMessageStyle: React.CSSProperties = {
-		position: "fixed",
-		top: "15px",
-		right: isMenuExpanded ? "355px" : "10px",
-		padding: "8px",
-		backgroundColor: "#1C2C4A",
-		fontSize: '14px',
-		color: "#fff",
-		zIndex: 1000,
-		borderRadius: '5px',
-		transition: 'right 0.5s ease'
-	};
 
 	const SettingsStyle: React.CSSProperties = {
 		position: 'relative',
 		top: '1%',
 		left: '90%',
+	};
+
+	const notificationMessageStyle: React.CSSProperties = {
+		position: "fixed",
+		top: "15px",
+		right: isMenuExpanded ? "calc(20vw + 20px)" : "20px",
+		padding: "8px",
+		backgroundColor: "#1C2C4A",
+		fontSize: '14px',
+		color: "#fff",
+		zIndex: 2,
+		borderRadius: '5px',
+		transition: 'right 0.5s ease'
+	};
+
+	const duelButtonStyle: React.CSSProperties = {
+		backgroundColor: "transparent",
+		border: "none",
+		color: "#4CAF50",
+		fontSize: "15px",
+		cursor: 'pointer',
+		marginLeft: "10px"
 	};
 
 	const handleFriendButtonClick = () => {
@@ -271,6 +289,15 @@ function Menu() {
 				{showNotification && (
 					<div style={notificationMessageStyle}>
 						{notifications[0]?.content}
+						{showDuelButton && (
+							<button style={duelButtonStyle} onClick={() => {
+								navigate('/pong/' + duelId);
+							}}>
+								<FaCheck />
+							</button>
+						)}
+						
+						
 					</div>
 				)}
 
