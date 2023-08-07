@@ -7,23 +7,56 @@ interface Args {
 	btnTxt: string
 }
 
+
 const UserSettingsButtons: React.FC<Args> = (args) => {
 	const [username, setUsername] = useState('');
 	const [image, setImage] = useState<File | null>(null);
 	const [userImage, setUserImage] = useState<string>();
 	const [isNickInvalid, setNickInvalid] = useState<boolean>(false);
+	const [isImageInvalid, setImageInvalid] = useState<boolean>(false);
 	const navigate = useNavigate();
-
+	
 	const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setUsername(event.target.value);
 	};
+	
+	
+	function isImageFile(fileBytes: { [x: string]: any; }) {
+		const pngMagicBytes = [0x89, 0x50, 0x4E, 0x47];
+		const jpegMagicBytes = [0xFF, 0xD8, 0xFF, 0xE0];
+	  
+		return (
+		  compareMagicBytes(fileBytes, pngMagicBytes) ||
+		  compareMagicBytes(fileBytes, jpegMagicBytes)
+		);
+	  }
+	
+	function compareMagicBytes(fileBytes: { [x: string]: any; }, magicBytes: any[]) {
+		return magicBytes.every((byte: any, index: string | number) => fileBytes[index] === byte);
+	}
 
 	const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		
 		if (event.target.files && event.target.files.length > 0) {
 			const selectedImage = event.target.files[0];
-			setImage(selectedImage);
-			const imageURL = URL.createObjectURL(selectedImage);
-			setUserImage(imageURL);
+			const reader = new FileReader();
+
+			reader.onloadend = () => {
+				if (reader.result instanceof ArrayBuffer) {
+					const bytes = new Uint8Array(reader.result);
+			
+					if (isImageFile(bytes)) {
+						setImage(selectedImage);
+						const imageURL = URL.createObjectURL(selectedImage);
+						setUserImage(imageURL);
+					} else {
+						console.log('Tipo de archivo no permitido. Por favor, selecciona una imagen válida (PNG, JPG o JPEG).');
+						setImageInvalid(true);  // Mover setImageInvalid aquí
+						setTimeout(() => setImageInvalid(false), 1000);
+					}
+				}
+			};
+			reader.readAsArrayBuffer(selectedImage);
 		}
 	};
 
@@ -236,7 +269,7 @@ const UserSettingsButtons: React.FC<Args> = (args) => {
 						<img
 							src={userImage}
 							alt=""
-							style={ImageStyle}
+							style={{...ImageStyle, border: isImageInvalid ? '2px solid red' : 'none '}}
 							onMouseEnter={handleImageMouseEnter}
 							onMouseLeave={handleImageMouseLeave}
 						/>
