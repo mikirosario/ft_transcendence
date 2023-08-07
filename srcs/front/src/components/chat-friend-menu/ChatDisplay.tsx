@@ -278,7 +278,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     const resp = await sendChannelMessage(selectedChat, message);
                     if (!resp)
                         handleNotification('El mensaje no se ha podido mandar');
-                    if ("response" in resp)
+                    else if ("response" in resp)
                         handleNotification(resp.response);
                 }
                 setMessage('');

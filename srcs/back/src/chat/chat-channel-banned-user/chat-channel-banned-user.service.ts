@@ -27,9 +27,12 @@ export class ChatChannelBannedUserService {
 			victimChannelUser = await this.chatChannelService.getChannelUser(channel.id, victim.id);
 		} catch (error) {
 		}
+
+		if (user.id == victim.id)
+			ThrowHttpException(new BadRequestException, 'No puedes banearte / desbanearte a ti mismo del canal');
+
 		if (victimChannelUser != null && victimChannelUser.isOwner)
 			ThrowHttpException(new UnauthorizedException, 'No tienes permiso para banear / desbanear al propietario del canal');
-		
 
 		let bannedUser = await this.chatChannelService.getBannedUser(channel.id, victim.id);
 
@@ -67,6 +70,9 @@ export class ChatChannelBannedUserService {
 		await this.chatChannelService.checkUserIsAuthorizedInChannnel(user.id, channel.id);
 
 		const victimChannelUser = await this.chatChannelService.getChannelUser(channel.id, victim.id);
+
+		if (me.id == victim.id)
+			ThrowHttpException(new BadRequestException, 'No puedes silenciarte / desilenciarte a ti mismo del canal');
 
 		if (victimChannelUser.isOwner)
 			ThrowHttpException(new UnauthorizedException, 'No tienes permiso para silenciar / desilenciar al propietario del canal');
