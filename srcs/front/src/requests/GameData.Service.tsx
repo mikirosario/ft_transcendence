@@ -47,3 +47,25 @@ export async function getLeaderboard() {
         return { data: [], error: true}
     }
 }
+
+export async function sendDuelUser(id: number, gamemode: boolean) {
+    try {
+        const response = await axios.post('/game/duel',{ otherUserId: id, isOriginal: gamemode }, {
+            responseType: 'json',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            },
+        });
+
+        // FALTA MANEJO DE ERRORES
+        if (response.status !== 200 && response.status !== 201) {
+            return { data: [], error: true}
+        }
+
+        return { data: response.data, error: false}
+    
+    } catch (error) {
+        console.log('Error', error);
+        return { data: [], error: true}
+    }
+}

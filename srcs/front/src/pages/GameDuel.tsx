@@ -158,7 +158,6 @@ function GameFriends() {
             setisOriginal(true);
     }
 
-
     //<<< BUILD >>>//
     return (
         <div style={MainContainer}>
@@ -198,7 +197,7 @@ function GameFriends() {
                             </button>
                         ))}
                     </div>
-                    <PlayButton friendGameId={playWithUserId} gameType={isOriginal}></PlayButton>
+                    <PlayButton friendGameId={playWithUserId} gamemode={isOriginal}></PlayButton>
                     <div className='CustomContent'>
                     </div>
                 </div>
