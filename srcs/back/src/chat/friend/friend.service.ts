@@ -162,7 +162,7 @@ export class FriendService {
 		});
 
 		if (user === null) {
-			ThrowHttpException(new NotFoundException, 'User not found');
+			ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
 		}
 
 		const friends = user.friendsUserFriends;

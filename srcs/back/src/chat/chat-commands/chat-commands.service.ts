@@ -78,6 +78,9 @@ export class ChatCommandsService {
 				if (chatCommandMessageDto.isDirect) // avoid command in direct chat
 					return commandNotExecuted;
 
+				if (args.length < 2)
+					ThrowHttpException(new BadRequestException, 'Tienes que especificar los segundos a mutear');
+
 				const mutedUserDto: ChatChannelBannedUserDto = {
 					channel_id: chatCommandMessageDto.chat_id,
 					nick: String(args[0]),
@@ -201,7 +204,7 @@ export class ChatCommandsService {
 			await this.chatChannelBannedUserService.muteUserInChannel(userId, bannedUserDto);
 			return {
 				commandExecuted: true,
-				response: 'Has muteado a ' + bannedUserDto.nick + ' por ' + bannedUserDto.isMutedSecs + 'segundos',
+				response: 'Has muteado a ' + bannedUserDto.nick + ' por ' + bannedUserDto.isMutedSecs + ' segundos',
 				error: false
 			};
 		} catch (error) {
@@ -261,6 +264,9 @@ export class ChatCommandsService {
 
 			if (victimChannelUser.isOwner)
 				ThrowHttpException(new UnauthorizedException, 'No tienes permiso para echar al propietario del canal');
+
+			if (userId == victim.id)
+				ThrowHttpException(new BadRequestException, 'No puedes echarte a ti mismo del canal');
 
 			await this.chatChannelUserService.leaveChannel(victim.id, {id: bannedUserDto.channel_id});
 			this.ws.sendSocketMessageToUser(victim.id, 'KICK_FROM_CHANNEL', {channelId: bannedUserDto.channel_id});

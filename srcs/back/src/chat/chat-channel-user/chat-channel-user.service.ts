@@ -82,17 +82,17 @@ export class ChatChannelUserService {
 
 			const channelUser = await this.chatChannelService.getChannelUser(channel.id, otherUser.id);
 
-			delete dto.id;
-			delete dto.nick;
+			if (user.id == otherUser.id)
+				ThrowHttpException(new BadRequestException, 'No puedes hacerte / quitarte admin del canal a ti mismo');
 
-		
 			try {
 				const channelUserUpdated = await this.prisma.chatChannelUser.update({
 					where: {
 						id: channelUser.id
 					},
 					data: {
-						...dto
+						isOwner: dto.isOwner,
+						isAdmin: dto.isAdmin
 					}
 				});
 
