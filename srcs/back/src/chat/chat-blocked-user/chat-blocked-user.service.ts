@@ -18,7 +18,7 @@ export class ChatBlockedUserService {
 		const otherUser = await this.userService.getUserByNick(dto.nick);
 
 		if (me.id == otherUser.id)
-			ThrowHttpException(new BadRequestException, 'No puedes bloquearte a ti mismo');
+			ThrowHttpException(new BadRequestException, 'No puedes bloquearte / desbloquearte a ti mismo');
 
 		try {
 			const blockedUser = await this.prisma.chatBlockedUser.create({
@@ -45,6 +45,9 @@ export class ChatBlockedUserService {
 	async chatUnblockUser(userId: number, dto: ChatBlockedDto) {
 		const me = await this.userService.getUserById(userId);
 		const otherUser = await this.userService.getUserByNick(dto.nick);
+
+		if (me.id == otherUser.id)
+			ThrowHttpException(new BadRequestException, 'No puedes bloquearte / desbloquearte a ti mismo');
 
 		let blockedUser = await this.prisma.chatBlockedUser.findFirst({
 			where: {
