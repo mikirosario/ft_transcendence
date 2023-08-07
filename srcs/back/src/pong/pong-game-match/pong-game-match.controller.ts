@@ -26,7 +26,7 @@ export class PongGameMatchController {
 	@Post('game/duel')
 	@ApiBody({ type: PongDuelDto })
 	async duelUserByNick(@GetJwt('sub') userId: number, @Body() dto: PongDuelDto) {
-		return this.duelUserByNick(userId, dto);
+		return this.pongGameMatchService.duelUserByNick(userId, dto);
 	}
 
 }

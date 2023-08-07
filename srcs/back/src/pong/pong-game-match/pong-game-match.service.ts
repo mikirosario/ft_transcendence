@@ -138,7 +138,7 @@ export class PongGameMatchService {
 		const user = gameRanking.find(user => user.nick === nick);
 
 		if (user === null) {
-			ThrowHttpException(new NotFoundException, 'User not found');
+			ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
 		}
 
 		return user.rank;
@@ -154,8 +154,7 @@ export class PongGameMatchService {
 			if (userId == otherUser.id)
 				ThrowHttpException(new BadRequestException, 'No puedes jugar contigo mismo! Reta a otros jugadores');
 
-			this.ws.sendSocketMessageToUser(otherUser.id, 'DUEL', {userId: user.id, nick: user.nick});
-			this.ws.sendSocketMessageToUser(user.id, 'GO_GAME', {userId: otherUser.id});
+			this.ws.sendSocketMessageToUser(otherUser.id, 'DUEL', {userId: user.id, nick: user.nick, isOriginal: dto.isOriginal});
 			
 			return {
 				commandExecuted: true,
