@@ -30,6 +30,7 @@ function Menu() {
 	const [showNotification, setShowNotification] = useState(false);
 	const [showDuelButton, setShowDuelButton] = useState(false);
 	const [duelId, setDuelId] = useState(0);
+	const [gamemode, setGamemode] = useState(false);
 
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -71,15 +72,15 @@ function Menu() {
 			}
 		}
 
-		const handleDuelCommand = async (data: { userId: number, nick: string }) => {
+		const handleDuelCommand = async (data: { userId: number, nick: string, isOriginal: boolean }) => {
 			handleNotification(data.nick + ' te ha retado a un duelo de Pong');
 			setDuelId(data.userId);
+			setGamemode(data.isOriginal);
 			setShowDuelButton(true);
 
 			setTimeout(() => {
 				setShowDuelButton(false);
 			}, 8000);
-
 		}
 
 		socket?.on("UPDATE_ME", handleMyInfo);
@@ -291,13 +292,13 @@ function Menu() {
 						{notifications[0]?.content}
 						{showDuelButton && (
 							<button style={duelButtonStyle} onClick={() => {
-								navigate('/pong/' + duelId);
-							}}>
+								{!gamemode ?
+								navigate('/pong/' + duelId) :
+								navigate('/pong-alter/' + duelId);
+							}}}>
 								<FaCheck />
 							</button>
 						)}
-						
-						
 					</div>
 				)}
 

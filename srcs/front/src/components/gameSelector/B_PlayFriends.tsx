@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { sendDuelUser } from '../../requests/GameData.Service';
 
 interface PlayButtonProps {
   friendGameId: number;
-  gameType: Boolean;
+  gamemode: boolean;
 }
 
-function B_PlayFriends({ friendGameId, gameType }: PlayButtonProps) {
+function B_PlayFriends({ friendGameId, gamemode }: PlayButtonProps) {
     const navigate = useNavigate();
     const [isHovered, setIsHovered] = useState(false);
     const isButtonDisabled = friendGameId === -1;
@@ -46,19 +47,20 @@ function B_PlayFriends({ friendGameId, gameType }: PlayButtonProps) {
       setIsHovered(false);
     };
 
-    const CustomRedirect = () => {
+    const CustomRedirect = async () => {
       if (friendGameId === -2) { 
-        if (!gameType)
+        if (!gamemode)
           navigate('/pong');
         else
           navigate('/pong-alter');
       }
       else if (!isButtonDisabled) {
-        if (!gameType)
+        await sendDuelUser(friendGameId, gamemode);
+        if (!gamemode)
           navigate('/pong/' + friendGameId);
         else
           navigate('/pong-alter/' + friendGameId);
-      }
+    }
     };
 
     return (
