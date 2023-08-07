@@ -92,11 +92,6 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
             setUsersMap(newUserList);
         }
 
-        // const handleUpdateChannelLeave = async (newUserList: []) => {
-        //     setUsersMap(newUserList);
-        // }
-
-
         const handleKickCommand = async (data: { channelId: number }) => {
             handleNotification('Te han echado/baneado del canal');
             if (selectedChat === data.channelId)
@@ -272,12 +267,6 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
         textDecoration: 'none'
     };
 
-    const MessageInfoStyle: React.CSSProperties = {
-        display: 'flex',
-        flexDirection: 'column',
-        maxWidth: '80%'
-    };
-
     const handleSend = async () => {
         if (selectedChat !== 0) {
             if (message.trim() != '') {
@@ -289,7 +278,8 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ selectedChat, setSelectedChat
                     const resp = await sendChannelMessage(selectedChat, message);
                     if (!resp)
                         handleNotification('El mensaje no se ha podido mandar');
-                    handleNotification(resp.response)
+                    if ("response" in resp)
+                        handleNotification(resp.response);
                 }
                 setMessage('');
             }
