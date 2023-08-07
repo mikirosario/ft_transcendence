@@ -171,7 +171,7 @@ function Administration() {
                     <ul>
                         <>
                             <li style={{ fontSize: '14px' }}>/setsiteadmin {usuario}: Da permisos de administador en todo la pagina a un usuario</li>
-                            <li style={{ fontSize: '14px' }}>/unsiteadmin {usuario}: Quita los permisos de administrador en toda la pagina</li>
+                            <li style={{ fontSize: '14px' }}>/unsetsiteadmin {usuario}: Quita los permisos de administrador en toda la pagina</li>
                             <li style={{ fontSize: '14px' }}>/siteban {usuario}: Banea a un usuario de toda la pagina de forma inminente</li>
                             <li style={{ fontSize: '14px' }}>/siteunban {usuario}: Desbanea a un usuario de toda la pagina de forma inminente</li>
                             <li style={{ fontSize: '14px' }}>/setchanneladmin {canal} {usuario}: Agrega permisos de administrador a un usuario en el canal especificado</li>

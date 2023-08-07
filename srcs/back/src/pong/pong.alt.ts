@@ -47,7 +47,7 @@ export class PongAlt implements IPongBackend
           y: 1
         }
         let color = "white";
-        let speed = 2;
+        let speed = 1.5;
         let radius = 10;
         return new Ball(transform, color, speed, radius, direction, { SetCollider: true });
     }
@@ -75,7 +75,7 @@ export class PongAlt implements IPongBackend
         let color = "black";
         let width = 10;
         let height = 100;
-        let speed = 0.75;
+        let speed = 1.5;
         return new Paddle(transform, color, width, height, speed, PongAlt.ReferenceResolution, { SetCollider: true });
     }
 
