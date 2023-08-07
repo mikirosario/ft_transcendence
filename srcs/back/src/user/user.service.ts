@@ -142,6 +142,8 @@ export class UserService {
 	async updateProfileData(userId: number, dto: UserProfileUpdateDto, file?: Express.Multer.File) {
 		let fileName = file?.filename;
 
+		console.log("**** FILENAME: " + fileName);
+
 		const user = await this.prisma.user.findUnique({
 			where: {
 				id: userId,
@@ -162,6 +164,7 @@ export class UserService {
 		if (!fileName)
 		{
 			fileName = prevAvatar;
+			console.log("**** FILENAME 1: " + fileName);
 		}
 
 		try {
@@ -179,6 +182,7 @@ export class UserService {
 
 			if (prevAvatar && prevAvatar !== fileName)
 			{
+				console.log("**** prevAvatar remove: " + prevAvatar + " / filename: " + fileName);
 				this.removeAvatar(prevAvatar);
 			}
 
@@ -451,6 +455,11 @@ export class UserService {
 	public async getGameRanking() {
 		try {
 			const users = await this.prisma.user.findMany({
+				where: {
+					NOT: {
+						gamesPlayed: 0
+					}
+				},
 				select: {
 					id: true,
 					nick: true,

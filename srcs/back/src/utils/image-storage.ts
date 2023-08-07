@@ -17,8 +17,10 @@ export const saveProfileImageToStorage = {
 		const allowedMimeTypes = ['image/jpg', 'image/jpeg', 'image/png'];
 
 		if (allowedMimeTypes.includes(file.mimetype)) {
+			console.log("*** avatar cb TRUE: " + file.mimetype);
 			cb(null, true);
 		} else {
+			console.log("*** avatar cb FALSE");
 			cb(new BadRequestException('File must be a png, jpg/jpeg.'), false);
 		}
 	},
