@@ -220,8 +220,8 @@ export class Ball extends Circle implements IPhysicsObject
     private isSpecialShotCollision(collisionPointX: number, willCollideCanvas: boolean, referenceResolution: Resolution)
     {
         return ((isInRange(collisionPointX, -1.1, 1.1) && willCollideCanvas)
-            || this.BoundingBoxNextPosition.bottom < 0
-            || this.BoundingBoxNextPosition.top > referenceResolution.height);
+            || this.BoundingBoxNextPosition.top < 0
+            || this.BoundingBoxNextPosition.bottom > referenceResolution.height);
     }
 
     private isOverlapping(collidable: IPhysicsObject)
