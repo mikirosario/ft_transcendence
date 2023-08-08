@@ -19,7 +19,7 @@ export class ServeImageService {
 			}
 		});
 		if (user === null) {
-			ThrowHttpException(new NotFoundException, 'User not found');
+			ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
 		}
 		
 		const filePath = join(__dirname, '../../../', this.config.get('PATH_AVATARS'), fileName);

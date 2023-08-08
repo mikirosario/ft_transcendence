@@ -3,14 +3,13 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { UserService } from '../../user/user.service';
 import { ThrowHttpException } from '../../utils/error-handler';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { PongGameMatchDto, PongGameMatchCreateDto, PongGameMatchUpdateDto } from './dto';
-import { exec } from 'child_process';
-
+import { PongGameMatchDto, PongGameMatchCreateDto, PongGameMatchUpdateDto, PongDuelDto } from './dto';
+import { ChatGateway } from '../../chat/chat-socket/chat.gateway';
 
 @Injectable()
 export class PongGameMatchService {
 
-	constructor(private prisma: PrismaService, private userService: UserService) { }
+	constructor(private prisma: PrismaService, private userService: UserService, private ws: ChatGateway) { }
 
 	async createNewMatch(dto: PongGameMatchCreateDto) {
 		const user1 = await this.userService.getUserById(dto.userId1);
@@ -139,10 +138,32 @@ export class PongGameMatchService {
 		const user = gameRanking.find(user => user.nick === nick);
 
 		if (user === null) {
-			ThrowHttpException(new NotFoundException, 'User not found');
+			ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
 		}
 
 		return user.rank;
+	}
+
+
+	async duelUserByNick(userId: number, dto: PongDuelDto) {
+
+		try {
+			const user = await this.userService.getUserById(userId);
+			const otherUser = await this.userService.getUserById(dto.otherUserId);
+
+			if (userId == otherUser.id)
+				ThrowHttpException(new BadRequestException, 'No puedes jugar contigo mismo! Reta a otros jugadores');
+
+			this.ws.sendSocketMessageToUser(otherUser.id, 'DUEL', {userId: user.id, nick: user.nick, isOriginal: dto.isOriginal});
+			
+			return {
+				commandExecuted: true,
+				response: 'Has retado a jugar a ' + otherUser.nick,
+				error: false
+			};
+		} catch (error) {
+			return { commandExecuted: true, response: error.response.message, error: true };
+		}
 	}
 
 }

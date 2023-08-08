@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import io, { Socket } from "socket.io-client";
 import { getServerIP } from './utils/utils';
 
@@ -35,6 +36,7 @@ export function SocketProvider1({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  
   return (
     <SocketContext1.Provider value={socket1}>
       {children}
@@ -44,7 +46,8 @@ export function SocketProvider1({ children }: { children: ReactNode }) {
 
 export function SocketProvider2({ children }: { children: ReactNode }) {
   const [socket2, setSocket2] = useState<Socket | null>(null);
-
+  const navigate = useNavigate();
+  
   useEffect(() => {
     console.log('Creating socket2');  // Agrega esta línea
     const socketOptions = {
@@ -56,10 +59,10 @@ export function SocketProvider2({ children }: { children: ReactNode }) {
         }
       }
     };
-
+    
     const newSocket = io(getServerIP(8081), socketOptions);
     setSocket2(newSocket);
-
+    
     return () => {
       newSocket.off();
       if (newSocket.connected) {
@@ -67,6 +70,14 @@ export function SocketProvider2({ children }: { children: ReactNode }) {
       }
     };
   }, []);
+  
+  useEffect(() => {
+    socket2?.on('disconnect', () => {
+      console.log('Socket desconectado');
+      localStorage.removeItem('token');
+      navigate('/');
+    });
+  }, [socket2])
 
   return (
     <SocketContext2.Provider value={socket2}>

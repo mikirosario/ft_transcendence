@@ -99,16 +99,20 @@ function GameFriends() {
     const SectionStyle: React.CSSProperties = {
         display: 'flex',
         flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        marginTop: '4%',
-        marginLeft: '9%',
-        width: '66%',
-    }
+        justifyContent: 'flex-start',
+        marginTop: '3%',
+        marginLeft: '8%',
+        width: '85%',
+        paddingRight: '2%',
+        maxHeight: '500px',
+        overflowY: 'auto',
+    };
     
     const friendContainerStyle: React.CSSProperties = {
-        width: '100px',
-        height: '130px',
-        marginBottom: '40%',
+        width: '130px',
+        height: '120px',
+        marginBottom: '3%',
+        marginRight: '3%',
         borderRadius: '8px',
         border: 'none',
         background: 'transparent',
@@ -158,7 +162,6 @@ function GameFriends() {
             setisOriginal(true);
     }
 
-
     //<<< BUILD >>>//
     return (
         <div style={MainContainer}>
@@ -198,7 +201,7 @@ function GameFriends() {
                             </button>
                         ))}
                     </div>
-                    <PlayButton friendGameId={playWithUserId} gameType={isOriginal}></PlayButton>
+                    <PlayButton friendGameId={playWithUserId} gamemode={isOriginal}></PlayButton>
                     <div className='CustomContent'>
                     </div>
                 </div>

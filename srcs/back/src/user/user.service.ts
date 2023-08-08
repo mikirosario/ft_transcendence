@@ -24,7 +24,7 @@ export class UserService {
 		});
 
 		if (user === null) {
-			ThrowHttpException(new NotFoundException, 'User not found');
+			ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
 		}
 
 		delete user.hash;
@@ -55,7 +55,7 @@ export class UserService {
 		}
 
 		if (user === null) {
-			ThrowHttpException(new NotFoundException, 'User not found');
+			ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
 		}
 
 		delete user.hash;
@@ -109,7 +109,7 @@ export class UserService {
 		}
 		catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				ThrowHttpException(error, 'User not found');
+				ThrowHttpException(error, 'Usuario no encontrado');
 			}
 		}
 	}
@@ -130,7 +130,7 @@ export class UserService {
 			}
 		});
 		if (user === null) {
-			ThrowHttpException(new NotFoundException, 'User not found');
+			ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
 		}
 		
 		return user;
@@ -154,7 +154,7 @@ export class UserService {
 				this.removeAvatar(file.filename)
 			}
 			
-			ThrowHttpException(new NotFoundException, 'User not found');
+			ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
 		}
 
 		const prevAvatar = user.avatarUri;
@@ -204,7 +204,7 @@ export class UserService {
 		});
 
 		if (user === null) {
-			ThrowHttpException(new NotFoundException, 'User not found');
+			ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
 		}
 
 		const avatar = user.avatarUri;
@@ -228,7 +228,7 @@ export class UserService {
 		}
 		catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				ThrowHttpException(error, 'User not found');
+				ThrowHttpException(error, 'Usuario no encontrado');
 			}
 		}
 	}
@@ -397,7 +397,7 @@ export class UserService {
 		});
 
 		if (user === null) {
-			ThrowHttpException(new NotFoundException, 'User not found');
+			ThrowHttpException(new NotFoundException, 'Usuario no encontrado');
 		}
 
 		delete user.hash;
@@ -451,6 +451,11 @@ export class UserService {
 	public async getGameRanking() {
 		try {
 			const users = await this.prisma.user.findMany({
+				where: {
+					NOT: {
+						gamesPlayed: 0
+					}
+				},
 				select: {
 					id: true,
 					nick: true,

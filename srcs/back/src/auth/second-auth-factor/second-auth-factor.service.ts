@@ -19,7 +19,7 @@ export class SecondAuthFactorService {
     });
 
     if (!user)
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Usuario no encontrado');
     // Generate a new secret key for the user
     const secretKey = speakeasy.generateSecret({ length: 20 }).ascii;
 

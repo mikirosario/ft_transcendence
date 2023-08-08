@@ -115,8 +115,14 @@ export class Ball extends Circle implements IPhysicsObject
             this.VelocityVectorX = newVelocityVectorX * -referenceDirectionX * this.ReferenceSpeed;
         else                 // Top or bottom collisions continue the X direction of motion
             this.VelocityVectorX = newVelocityVectorX * referenceDirectionX * this.ReferenceSpeed;
+        
         // Update the Y component of the velocity
         this.VelocityVectorY = Math.sin(bounceAngleInRadians);
+
+        // Incorporate the paddle's momentum
+        const momentumTransferFactor = 0.75;
+        this.VelocityVectorX += physObject.VelocityVectorX * momentumTransferFactor;
+        this.VelocityVectorY += physObject.VelocityVectorY * momentumTransferFactor;
     }
     
     public willCollideCanvas(canvas: Resolution): boolean
@@ -211,35 +217,58 @@ export class Ball extends Circle implements IPhysicsObject
        return normalizeRange(this.NextPosition.x - collidable.NextPosition.x, -halfOffsetRange, halfOffsetRange);
     }
 
-    private isSpecialShotCollision(collisionPointX: number, willCollideCanvas: boolean)
+    private isSpecialShotCollision(collisionPointX: number, willCollideCanvas: boolean, referenceResolution: Resolution)
     {
-        return isInRange(collisionPointX, -1, 1) && willCollideCanvas;
+        return ((isInRange(collisionPointX, -1.1, 1.1) && willCollideCanvas)
+            || this.BoundingBoxNextPosition.top < 0
+            || this.BoundingBoxNextPosition.bottom > referenceResolution.height);
     }
 
-    private specialShot(collidable: IPhysicsObject, collisionPointX: number, referenceResolution: Resolution): void {
-        // Determine the direction of the special shot based on the side of the game board
-        const directionX = this.Transform.position.x < referenceResolution.width / 2 ? 1 : -1;
+    private isOverlapping(collidable: IPhysicsObject)
+    {
+        return !(this.BoundingBoxPosition.left > collidable.BoundingBoxPosition.right
+            || this.BoundingBoxPosition.right < collidable.BoundingBoxPosition.left
+            || this.BoundingBoxPosition.bottom < collidable.BoundingBoxPosition.top
+            || this.BoundingBoxPosition.top > collidable.BoundingBoxPosition.bottom);
+    }
+
+    private specialShot(collidable: IPhysicsObject, referenceResolution: Resolution): void
+    {
+        // Determine the direction of the special shot based on the side of the game board (1 is right, -1 is left)
+        const isLeftSide = this.Transform.position.x < referenceResolution.width * 0.5;
+        const directionX = isLeftSide ? 1 : -1;
 
         // Set the new X and Y velocity for the special shot
-        this.VelocityVectorX = directionX * this.SPECIALSHOT_SPEED_MULTIPLIER;
+        this.VelocityVectorX = directionX * this.ReferenceSpeed * this.SPECIALSHOT_SPEED_MULTIPLIER;
         this.VelocityVectorY = 0;
 
-        // Determine the Y position along the upper or lower edge of the canvas
-        const edgePositionY = this.Transform.position.y < referenceResolution.height / 2 ? 0 : referenceResolution.height;
+        // Determine the half of the board the ball is in
+        const isTopHalf = this.Transform.position.y < referenceResolution.height * 0.5;
 
-        // Set the ball's Y position to align with the edge of the canvas, accounting for the radius
-        this.Transform.position.y = edgePositionY + this.HalfHeight * (edgePositionY === 0 ? 1 : -1);
-
-        // Determine the teleportation distance based on collisionPointX and directionX
-        // Here, we multiply by the object's width to determine the teleport distance to the right or left edge of the collidable
-        const teleportDistance = collisionPointX * directionX * this.HalfWidth * 2;
+        if (isTopHalf)
+        {
+            // Set the Y position along the upper edge of the canvas, accounting for the radius
+            this.Transform.position.y = 1 + this.HalfHeight;
+        }
+        else
+        {
+            // Set the Y position along the lower edge of the canvas, accounting for the radius
+            this.Transform.position.y = referenceResolution.height - 1 - this.HalfHeight;
+        }
 
         // Teleport the ball ahead of the collidable object on the X axis
-        this.Transform.position.x += teleportDistance;
+        if (isLeftSide)
+        {
+            this.Transform.position.x = collidable.BoundingBoxPosition.right + this.HalfWidth + 1;
+        }
+        else
+        {
+            this.Transform.position.x = collidable.BoundingBoxPosition.left - this.HalfWidth - 1;
+        }
 
         // Log indicating that special shot has occurred
         console.log("Special shot activated!");
-    }    
+    }
 
     private rescaleSpeed(scaleFactors: ScaleFactors)
     {
@@ -264,9 +293,9 @@ export class Ball extends Circle implements IPhysicsObject
                     if (this.willCollide(physObject))
                     {
                         const collisionPointX = this.whereWillCollideX(physObject);
-                        if (this.isSpecialShotCollision(collisionPointX, willCollideCanvas)) // New method to determine special collision
+                        if (this.isSpecialShotCollision(collisionPointX, willCollideCanvas, referenceResolution)) // New method to determine special collision
                         {
-                            this.specialShot(physObject, collisionPointX, referenceResolution); // New method to handle special shot
+                            this.specialShot(physObject, referenceResolution); // New method to handle special shot
                         }
                         else
                         {

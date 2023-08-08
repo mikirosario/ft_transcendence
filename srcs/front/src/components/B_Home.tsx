@@ -7,8 +7,8 @@ function B_Home() {
 
     const HomeButton: React.CSSProperties = {
         position: 'absolute',
-        width: '5.5vw',
-        height: '10vh',
+        width: '5vw',
+        // height: '10vh',
         top: '10px',
         left: '10px',
         cursor: 'pointer',
