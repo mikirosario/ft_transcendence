@@ -120,7 +120,7 @@ export class Ball extends Circle implements IPhysicsObject
         this.VelocityVectorY = Math.sin(bounceAngleInRadians);
 
         // Incorporate the paddle's momentum
-        const momentumTransferFactor = 0.5;
+        const momentumTransferFactor = 0.75;
         this.VelocityVectorX += physObject.VelocityVectorX * momentumTransferFactor;
         this.VelocityVectorY += physObject.VelocityVectorY * momentumTransferFactor;
     }
