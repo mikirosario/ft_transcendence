@@ -217,9 +217,11 @@ export class Ball extends Circle implements IPhysicsObject
        return normalizeRange(this.NextPosition.x - collidable.NextPosition.x, -halfOffsetRange, halfOffsetRange);
     }
 
-    private isSpecialShotCollision(collisionPointX: number, collidable: IPhysicsObject, willCollideCanvas: boolean)
+    private isSpecialShotCollision(collisionPointX: number, willCollideCanvas: boolean, referenceResolution: Resolution)
     {
-        return (isInRange(collisionPointX, -1.1, 1.1) || this.isOverlapping(collidable)) && willCollideCanvas;
+        return ((isInRange(collisionPointX, -1.1, 1.1) && willCollideCanvas)
+            || this.BoundingBoxNextPosition.bottom < 0
+            || this.BoundingBoxNextPosition.top > referenceResolution.height);
     }
 
     private isOverlapping(collidable: IPhysicsObject)
@@ -291,7 +293,7 @@ export class Ball extends Circle implements IPhysicsObject
                     if (this.willCollide(physObject))
                     {
                         const collisionPointX = this.whereWillCollideX(physObject);
-                        if (this.isSpecialShotCollision(collisionPointX, physObject, willCollideCanvas)) // New method to determine special collision
+                        if (this.isSpecialShotCollision(collisionPointX, willCollideCanvas, referenceResolution)) // New method to determine special collision
                         {
                             this.specialShot(physObject, referenceResolution); // New method to handle special shot
                         }
