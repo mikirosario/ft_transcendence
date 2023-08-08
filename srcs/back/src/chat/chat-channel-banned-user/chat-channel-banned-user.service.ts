@@ -71,7 +71,7 @@ export class ChatChannelBannedUserService {
 
 		const victimChannelUser = await this.chatChannelService.getChannelUser(channel.id, victim.id);
 
-		if (me.id == victim.id)
+		if (user.id == victim.id)
 			ThrowHttpException(new BadRequestException, 'No puedes silenciarte / desilenciarte a ti mismo del canal');
 
 		if (victimChannelUser.isOwner)
