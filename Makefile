@@ -25,7 +25,7 @@ front:
 
 back:
 	@echo "STARTING BACK...\n"
-	@cd ./srcs/front && npm run start:dev
+	@cd ./srcs/front && npm run start:prod
 
 database:
 	@cd ./srcs/back && npm run db:dev:restart

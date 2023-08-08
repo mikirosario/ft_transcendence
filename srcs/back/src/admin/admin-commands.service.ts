@@ -140,6 +140,10 @@ export class AdminCommandsService {
 
 	private async siteBan(adminUser: any, dto: EditUserByAdminDto) {
 		try {
+			const victim = await this.userService.getUserByNick(dto.nick);
+			if (victim.isSiteOwner || victim.isSiteAdmin)
+				ThrowHttpException(new UnauthorizedException, 'No puedes echar a otros administradores');
+			
 			if (!adminUser.isSiteOwner && !adminUser.isSiteAdmin)
 				ThrowHttpException(new UnauthorizedException, 'Necesitas ser propietario o admin del sitio para banear usuarios');
 
@@ -152,6 +156,10 @@ export class AdminCommandsService {
 
 	private async siteUnban(adminUser: any, dto: EditUserByAdminDto) {
 		try {
+			const victim = await this.userService.getUserByNick(dto.nick);
+			if (victim.isSiteOwner || victim.isSiteAdmin)
+				ThrowHttpException(new UnauthorizedException, 'No puedes echar a otros administradores');
+
 			if (!adminUser.isSiteOwner && !adminUser.isSiteAdmin)
 				ThrowHttpException(new UnauthorizedException, 'Necesitas ser propietario o admin del sitio para desbanear usuarios');
 
