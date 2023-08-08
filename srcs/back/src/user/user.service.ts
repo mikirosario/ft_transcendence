@@ -465,17 +465,22 @@ export class UserService {
 					gamesPlayed: true
 				}
 			});
+
+			if (!users || users.length == 0)
+				return [];
 			
 			const usersWithRatio = users.map(user => ({
 				...user,
 				ratio: user.gamesWon / user.gamesLost,
 			}));
 		
-			const gameRankingUsers = usersWithRatio.sort((a, b) => b.ratio - a.ratio);
-	
+			let gameRankingUsers = usersWithRatio;
+			if (users.length > 1) {
+				gameRankingUsers = usersWithRatio.sort((a, b) => b.ratio - a.ratio);
+			}
 			const gameRankingUsersFormatted = this.formatGameRankingUsers(gameRankingUsers);
-	
-			return gameRankingUsersFormatted;
+			return gameRankingUsersFormatted; 
+
 		} catch (error) {
 			return [];
 		}
