@@ -290,6 +290,8 @@ export class UserService {
 					isInGame: isInGame
 				},
 			});
+
+			await this.updateUserStateToAll(userId);
 			
 			delete user.hash;
 			return user;
