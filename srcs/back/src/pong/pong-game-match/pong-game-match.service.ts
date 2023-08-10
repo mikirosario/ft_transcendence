@@ -135,7 +135,13 @@ export class PongGameMatchService {
 	private async getUserRank(nick: string) {
 		const gameRanking = await this.userService.getGameRanking();
 
+		if (gameRanking.length == 0)
+			return 0;
+
 		const user = gameRanking.find(user => user.nick === nick);
+
+		if (!user)
+			return 0;
 
 		if (user === null) {
 			ThrowHttpException(new NotFoundException, 'Usuario no encontrado');

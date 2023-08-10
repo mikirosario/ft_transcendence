@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import io, { Socket } from "socket.io-client";
 import { getServerIP } from './utils/utils';
 
@@ -47,6 +47,10 @@ export function SocketProvider1({ children }: { children: ReactNode }) {
 export function SocketProvider2({ children }: { children: ReactNode }) {
   const [socket2, setSocket2] = useState<Socket | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isVerify2FA = location.pathname.includes('/verify2fa');
+  const isRegister = location.pathname.includes('/register');
   
   useEffect(() => {
     console.log('Creating socket2');  // Agrega esta línea
@@ -73,9 +77,10 @@ export function SocketProvider2({ children }: { children: ReactNode }) {
   
   useEffect(() => {
     socket2?.on('disconnect', () => {
+      if (localStorage.getItem('token'))
+        navigate('/');
       console.log('Socket desconectado');
       localStorage.removeItem('token');
-      navigate('/');
     });
   }, [socket2])
 

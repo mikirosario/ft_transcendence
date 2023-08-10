@@ -46,19 +46,23 @@ function Perfil() {
                 }
                 else {
                     getUserMatches(username).then(async userProf => {
-                        setUserProfile(userProf.data.user);
-                        const imageUrl = await getUserImage(userProf.data.user.avatarUri);
-                        setUserProfile(prevUserProfile => prevUserProfile ? { ...prevUserProfile, avatarFile: imageUrl ?? undefined } : undefined);
-                        const matchesWithImages = await Promise.all(userProf.data.matches.map(async (match: Match) => {
-                            const imageUrl1 = await getUserImage(match.user1.avatarUri);
-                            const imageUrl2 = await getUserImage(match.user2.avatarUri);
-                            return {
-                                ...match,
-                                user1: { ...match.user1, avatarFile: imageUrl1 ?? '' },
-                                user2: { ...match.user2, avatarFile: imageUrl2 ?? '' },
-                            };
-                        }));
-                        setMatches(matchesWithImages);
+                        if (!userProf.data)
+                            navigate('/homepage');
+                        else {
+                            setUserProfile(userProf.data.user);
+                            const imageUrl = await getUserImage(userProf.data.user.avatarUri);
+                            setUserProfile(prevUserProfile => prevUserProfile ? { ...prevUserProfile, avatarFile: imageUrl ?? undefined } : undefined);
+                            const matchesWithImages = await Promise.all(userProf.data.matches.map(async (match: Match) => {
+                                const imageUrl1 = await getUserImage(match.user1.avatarUri);
+                                const imageUrl2 = await getUserImage(match.user2.avatarUri);
+                                return {
+                                    ...match,
+                                    user1: { ...match.user1, avatarFile: imageUrl1 ?? '' },
+                                    user2: { ...match.user2, avatarFile: imageUrl2 ?? '' },
+                                };
+                            }));
+                            setMatches(matchesWithImages);
+                        }
                     })
                 }
             } catch (error) {

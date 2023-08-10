@@ -15,14 +15,14 @@ export async function getUserMatches(nickname: string) {
 
         // FALTA MANEJO DE ERRORES
         if (response.status !== 200 && response.status !== 201) {
-            return { msg: response.data.response, error: response.data.error}
+            return { data: null, msg: response.data.response, error: response.data.error }
         }
 
         return { data: response.data, msg: response.data.response, error: response.data.error}
 
     } catch (error) {
         console.log('Error', error);
-        return { data: {}, msg: 'Usuario no encontrado', error: true}
+        return { data: null, msg: 'Usuario no encontrado', error: true}
     }
 }
 
